@@ -13,7 +13,7 @@ export default function Dashboard() {
       <div className="bg-gray-100 dark:bg-slate-900">
         <div className="p-8">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            Welcome, {user?.displayName || 'User'}!
+            Welcome, {user?.displayName || 'User'}! to transactions
           </h1>
           {/* Add your dashboard content here */}
         </div>
