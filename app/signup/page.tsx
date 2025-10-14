@@ -1,6 +1,5 @@
 "use client"
 
-import { ThemeToggle } from "@/components/ThemeToggle";
 import Image from "next/image";
 import { FcGoogle } from "react-icons/fc";
 import { useState } from "react";
@@ -69,9 +68,6 @@ export default function SignUp() {
 
   return (
     <main className="bg-gray-100 dark:bg-slate-900 w-full min-h-screen py-8">
-      <div className="absolute top-4 right-4 z-50">
-        <ThemeToggle />
-      </div>
       <div className="w-11/12 max-w-md mx-auto px-6 py-8 bg-white dark:bg-slate-800 rounded-xl shadow-xs text-neutral-800 dark:text-neutral-300">
         <Image
           src="/logo.png"

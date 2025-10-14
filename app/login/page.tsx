@@ -4,7 +4,6 @@ import Image from "next/image";
 import { HiOutlineMail } from "react-icons/hi";
 import { FiLock } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
-import { ThemeToggle } from "../../components/ThemeToggle";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/firebase/firebaseConfig";
@@ -83,9 +82,6 @@ export default function Home() {
   return (
     // Added a background color that changes with the theme
     <div className="relative w-full min-h-screen bg-gray-100 dark:bg-slate-900">
-      <div className="absolute top-4 right-4 z-50">
-        <ThemeToggle />
-      </div>
       <div className="w-full h-[120px] bg-gradient-to-br from-[#0078BD] to-[#93C5FD] rounded-none"></div>
       <main className="block h-fit">
         <div className="mx-auto mt-[-30px] w-[90%] max-w-[450px] h-auto pt-4 pb-8 bg-white dark:bg-slate-800 rounded-xl shadow-xs">
