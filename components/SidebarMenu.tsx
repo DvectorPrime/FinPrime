@@ -22,6 +22,7 @@ const menuItems: MenuItem[] = [
   { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
   { id: "transactions", label: "Transactions", icon: <BsReceiptCutoff /> },
   { id: "budget", label: "Budget", icon: <LuPiggyBank /> },
+  { id: "goals", label: "Goals", icon: <LuPiggyBank />},
   { id: "reports", label: "Reports", icon: <FaChartBar /> },
   { id: "settings", label: "Settings", icon: <FaCog /> },
 ];
@@ -37,7 +38,7 @@ export const SidebarMenu = ({ menuShowing }: SidebarMenuProps) => {
       className={`
         absolute top-0 left-0 w-[240px] h-full p-2 bg-white dark:bg-slate-800 border-r border-neutral-200 dark:border-slate-700 z-40
         transition-transform duration-300 ease-in-out
-        md:relative md:translate-x-0
+        lg:relative lg:translate-x-0
         ${menuShowing ? "translate-x-0" : "-translate-x-full"}
       `}
     >

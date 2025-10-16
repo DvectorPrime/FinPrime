@@ -1,15 +1,18 @@
 "use client";
 
+import { useTheme } from "@/context/ThemeContext";
 import { useState, useEffect } from "react";
 import { FaSun, FaMoon } from "react-icons/fa";
 
 export const ThemeToggle = () => {
   const [theme, setTheme] = useState<"light" | "dark" | null>(null);
-
+  
+  const {setGlobalTheme} = useTheme()
   // Initialize theme on mount
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
     
+
     if (savedTheme) {
       // User has a saved preference - use it
       setTheme(savedTheme);
@@ -29,6 +32,8 @@ export const ThemeToggle = () => {
     
     document.documentElement.classList.toggle("dark", theme === "dark");
     localStorage.setItem("theme", theme);
+
+    setGlobalTheme(theme)
   }, [theme]);
 
   if (!theme) return null; // Prevent hydration mismatch

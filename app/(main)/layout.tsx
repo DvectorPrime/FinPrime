@@ -8,6 +8,7 @@ import { HeaderSearchInput } from "@/components/HeaderSearchInput";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
+import { useMenu } from "@/context/menuContext";
 
 export default function MainLayout({
     children
@@ -16,25 +17,30 @@ export default function MainLayout({
 }) {
     const { user } = useAuth();
     const [imgError, setImgError] = useState(false);
+    const { menuShowing, setMenuShowing, toggleMenu } = useMenu();
 
     const profileImage = user?.photoURL && !imgError
         ? user.photoURL
         : '/default-avatar.png';
 
-
-    const [menuShowing, setMenuShowing] = useState<boolean>(false)
     return (
         <>
-            <div className="relative grid grid-cols-1 w-full h-screen md:grid-cols-[240px_1fr]">
+            <div className="relative grid grid-cols-1 w-full h-screen lg:grid-cols-[240px_1fr]">
                 <SidebarMenu menuShowing={menuShowing} />
                 <div className="flex flex-col w-full">
                     <header className="flex items-center justify-between w-full px-4 md:px-8 h-14 bg-[#0079BF] dark:bg-slate-800 dark:border-b dark:border-slate-700 shadow-xs z-20">
-                        <button type="button" className="block md:hidden" onClick={() => { setMenuShowing((prev) => !prev) }}>
-                            <FiMenu className="text-white text-2xl" />
-                        </button>
-                        <Image src="/logo-white.png" alt="FinPrime" width={36} height={36}
-                            className="hidden md:block" />
+                        <div className="flex justify-start items-center w-auto gap-3">
+                            <button type="button" className="block lg:hidden" onClick={() => {
+                                toggleMenu()
+                            }}>
+                                <FiMenu className="text-white text-5xl" />
+                            </button>
+                            <Image src="/logo-white.png" alt="FinPrime" width={36} height={36}
+                                className="hidden lg:block" />
+                        </div>
                         <div className="flex gap-4 items-center">
+                            <Image src="/logo-white.png" alt="FinPrime" width={36} height={36}
+                                className="block lg:hidden" />
                             <HeaderSearchInput
                                 icon={<FaSearch className="w-4 h-4" />}
                                 placeholder="Search..."
@@ -58,12 +64,12 @@ export default function MainLayout({
                             </div>
                         </div>
                     </header>
-                    <main className="flex-grow overflow-y-auto bg-gray-50 dark:bg-slate-900 p-4 md:p-6">{children}</main>
+                    {children}
                 </div>
             </div>
             {menuShowing && (
                 <div
-                    className="fixed inset-0 bg-black/40 z-30 md:hidden"
+                    className="fixed inset-0 bg-black/40 z-30 lg:hidden"
                     onClick={() => setMenuShowing(false)}
                 ></div>
             )}

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { MenuProvider } from "@/context/menuContext";
 
 
 // 1. Set up the Inter font with a CSS variable
@@ -31,7 +32,9 @@ export default function RootLayout({
           <ThemeToggle />
         </div>
         <AuthProvider>
-          {children}
+          <MenuProvider>
+            {children}
+          </MenuProvider>
         </AuthProvider>
       </body>
     </html>
