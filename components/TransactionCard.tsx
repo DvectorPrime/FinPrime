@@ -77,7 +77,7 @@ export default function TransactionCard({
       </div>
       <p
         className={`flex-shrink-0 font-sans text-sm font-medium ${
-          type === "income" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+          type === "income" ? "text-neutral-900 dark:text-neutral-200" : "text-[#D64651] dark:text-red-400"
         }`}
       >
         {amountString}

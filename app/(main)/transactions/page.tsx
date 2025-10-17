@@ -3,10 +3,23 @@
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { useState, useEffect } from "react";
+import { useMenu } from "@/context/menuContext";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const router = useRouter();
+  const {setMenuShowing} = useMenu()
+
+  const [loading, setLoading] = useState<boolean>(false)
+
+    useEffect(() => {
+      setMenuShowing(false);
+      
+      // Simulate data fetching
+      const timer = setTimeout(() => setLoading(false), 1500);
+      return () => clearTimeout(timer);
+    }, [setMenuShowing]);
 
   return (
     <ProtectedRoute>

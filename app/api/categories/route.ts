@@ -12,13 +12,13 @@ export interface Category {
 const incomeCategories: Category[] = [
   {
     id: 'inc_1',
-    name: 'Salary / Wages',
+    name: 'Salary',
     type: 'income',
     icon: 'BsBriefcase',
   },
   {
     id: 'inc_2',
-    name: 'Business / Freelance',
+    name: 'Business',
     type: 'income',
     icon: 'HiOutlineBuildingStorefront',
   },
@@ -30,13 +30,13 @@ const incomeCategories: Category[] = [
   },
   {
     id: 'inc_4',
-    name: 'Gifts / Miscellaneous',
+    name: 'Gifts',
     type: 'income',
     icon: 'FaGift',
   },
   {
     id: 'inc_5',
-    name: 'Side Hustle / Other',
+    name: 'Others',
     type: 'income',
     icon: 'LuLightbulb',
   },
@@ -46,31 +46,31 @@ const incomeCategories: Category[] = [
 const expenseCategories: Category[] = [
   {
     id: 'exp_1',
-    name: 'Housing & Utilities',
+    name: 'Housing',
     type: 'expense',
     icon: 'FaHome',
   },
   {
     id: 'exp_2',
-    name: 'Food & Dining',
+    name: 'Food',
     type: 'expense',
     icon: 'MdFastfood',
   },
   {
     id: 'exp_3',
-    name: 'Transportation',
+    name: 'Transport',
     type: 'expense',
     icon: 'FaCar',
   },
   {
     id: 'exp_4',
-    name: 'Shopping & Personal',
+    name: 'Shopping',
     type: 'expense',
     icon: 'BsCart3',
   },
   {
     id: 'exp_5',
-    name: 'Bills & Subscriptions',
+    name: 'Subscriptions',
     type: 'expense',
     icon: 'BsReceiptCutoff',
   },

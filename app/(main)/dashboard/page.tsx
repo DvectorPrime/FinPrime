@@ -36,6 +36,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     setMenuShowing(false);
+    
     // Simulate data fetching
     const timer = setTimeout(() => setLoading(false), 1500);
     return () => clearTimeout(timer);
@@ -44,13 +45,13 @@ export default function Dashboard() {
   const [basicSummaryData] = useState<summaryData[]>([
     { summaryType: "Balance", amount: 12345.67 },
     { summaryType: "Income", amount: 12345.67, growthPercent: 5.2 },
-    { summaryType: "Expenses", amount: 1850.5, growthPercent: 8.1 },
+    { summaryType: "Expenses", amount: 18554450.5, growthPercent: 8.1 },
     { summaryType: "Savings Rate", amount: 15.2, growthPercent: -1.5 },
   ]);
 
   return (
     <ProtectedRoute>
-      <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 h-[calc(100vh-56px)] overflow-y-auto p-4 md:p-6 bg-gray-100 dark:bg-slate-900">
+      <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 h-[calc(100vh-56px)] overflow-y-auto p-4 md:p-6 bg-white dark:bg-slate-900">
         <h1 className="font-sans text-2xl md:text-3xl font-bold md:col-span-2 lg:col-span-4 text-neutral-900 dark:text-white">
           Welcome back, {firstName} 👋
         </h1>
@@ -66,7 +67,7 @@ export default function Dashboard() {
               />
             ))}
 
-        <section className="mt-4 md:col-span-2 lg:col-span-2 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-xs">
+        <section className="h-fit mt-4 md:col-span-2 lg:col-span-2 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-xs">
           <h2 className="font-sans text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
             Monthly Spending Overview
           </h2>
@@ -79,8 +80,8 @@ export default function Dashboard() {
               Recent Transactions
             </h3>
             <Link href="/transactions">
-              <button className="flex items-center gap-2 font-sans text-sm font-medium text-[#0079BF] dark:text-sky-400 bg-transparent rounded-md transition-all hover:underline hover:gap-3 disabled:opacity-40">
-                View All <FaArrowRightToBracket />
+              <button className="flex items-center gap-2 font-sans text-sm font-medium text-[#0079BF] dark:text-sky-400 bg-transparent rounded-md transition-all hover:underline hover:cursor-pointer hover:gap-3 disabled:opacity-40">
+                View All <FaArrowRightToBracket className="hidden md:block" />
               </button>
             </Link>
           </header>
