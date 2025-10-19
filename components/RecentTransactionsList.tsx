@@ -31,10 +31,10 @@ export default function RecentTransactionsList() {
   useEffect(() => {
     const getRecentTransactions = async () => {
       try {
-        const response = await fetch("/api/transactions");
+        const response = await fetch("/api/transactions?page=1&limit=5");
         const data = await response.json();
         // Get the 5 most recent transactions
-        setRecentTransactions(data.slice(0, 5));
+        setRecentTransactions(data.transactions.slice(0, 5));
       } catch (error) {
         console.error("Couldn't Fetch recent transactions:", error);
       } finally {

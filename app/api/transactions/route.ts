@@ -35,15 +35,27 @@ const allTransactions : Transaction[] = [
   { id: 'txn_20', transactionName: 'Article Writing Gig', type: 'income', category: 'Business', amount: 300, date: '2025-10-15' }
 ];
 
-export async function GET() {
-  // 1. Sort all transactions by date in descending order (newest first).
-  const sortedTransactions = allTransactions.sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+const sortedTransactions = allTransactions.sort(
+  (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+);
 
-  // 2. Take only the first 7 transactions from the sorted list.
-  const recentTransactions = sortedTransactions.slice(0, 7);
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  
+  // 1. Get page and limit from the URL, with default values
+  const page = parseInt(searchParams.get('page') || '1');
+  const limit = parseInt(searchParams.get('limit') || '7'); // Default to 7 items per page
 
-  // 3. Return the recent transactions as a JSON response.
-  return NextResponse.json(recentTransactions);
+  // 2. Calculate the starting and ending index for the slice
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+  
+  // 3. Slice the data to get the current page's items
+  const paginatedTransactions = sortedTransactions.slice(startIndex, endIndex);
+
+  // 4. Return the batch of data, plus the total count for the frontend
+  return NextResponse.json({
+    transactions: paginatedTransactions,
+    total: sortedTransactions.length,
+  });
 }

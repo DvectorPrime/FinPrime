@@ -46,7 +46,7 @@ export default function SummaryCard({
       </div>
       {growthPercent !== undefined && (
         <div
-          className={`md:absolute top-0 translate-y-3/3 right-3 flex justify-start items-center text-xs ${
+          className={`md:absolute top-0 mt-2 md:translate-y-3/3 right-3 flex justify-start items-center text-xs ${
             growthPercent > 0 ? "text-green-500" : "text-red-500"
           }`}
         >
