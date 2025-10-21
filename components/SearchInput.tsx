@@ -15,7 +15,7 @@ export const SearchInput = ({
   ...props
 }: SearchInputProps) => {
   return (
-    <div className={`relative ${containerClassName}`}>
+    <div className={`lg:w-[250px] relative block ${containerClassName}`}>
       <div
         className={`
           absolute top-1/2 -translate-y-1/2 text-neutral-600
@@ -28,7 +28,7 @@ export const SearchInput = ({
       <input
         {...props}
         className={`
-          peer w-[326px] h-10 rounded-2xl border border-neutral-300 bg-neutral-300/20
+          peer w-full h-10 rounded-2xl border border-neutral-300 bg-neutral-300/20 lg:bg-white
           font-sans text-base leading-[26px] font-normal text-neutral-800
           placeholder:text-neutral-500
           outline-none transition-all

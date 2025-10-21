@@ -10,8 +10,10 @@ import TransactionList from "@/components/TransactionsList";
 import { Transaction } from "@/app/api/transactions/route";
 import { CiSearch } from "react-icons/ci";
 import { SearchInput } from "@/components/SearchInput";
-
-
+import { CategoryPicker } from "@/components/CategoryPicker";
+import { DatePicker } from "@/components/DatePicker";
+import FilterByTypeMobile from "@/components/FilterByTypeMobile";
+import { FilterByTypeDesktop } from "@/components/FilterByTypeDesktop";
 export default function Dashboard() {
   const router = useRouter();
   const {setMenuShowing} = useMenu()
@@ -68,8 +70,8 @@ export default function Dashboard() {
 
   return (
     <ProtectedRoute>
-      <main className="p-3">
-        <section>
+      <main className="lg:flex flex-col p-3">
+        <section className="sticky top-2 z-20 lg:order-1">
           <button
             className="h-10 px-3 ml-auto
               flex items-center justify-center gap-2
@@ -81,43 +83,68 @@ export default function Dashboard() {
               disabled:opacity-40 disabled:cursor-not-allowed"
           ><IoAddOutline className="text-white text-xl" /> Add Transaction</button>
         </section>
-        <section className="w-full mt-4 px-4 py-3 bg-white rounded-xl shadow-xs">
-          <div className="flex justify-center items-center gap-3">
-            <span className="flex items-center justify-center w-8 h-8 bg-transparent rounded-full">
+        <h3 className="hidden lg:block lg:order-2 font-sans text-3xl font-bold text-neutral-900">Transactions</h3>
+        <section className="w-full mt-4 px-4 py-4 lg:p-6 bg-white rounded-xl shadow-xs lg:order-4">
+          <div className="flex justify-center items-center gap-3 mb-4">
+            <span className="flex items-center justify-center w-8 h-8 bg-transparent rounded-full lg:hidden">
               <TiArrowUp className="text-2xl text-neutral-900" />
             </span>
-            <h3 className="grow font-sans text-sm font-normal text-neutral-600">Total Income</h3>
-            <p className="font-sans text-lg font-bold text-neutral-900">+$4,000.00</p>
+            <h3 className="col-span-2 grow font-sans text-sm font-normal text-neutral-600 lg:text-lg lg:font-semibold lg:text-neutral-900">Total Income</h3>
+            <p className="font-sans text-lg font-bold text-neutral-900 lg:text-2xl">+$4,000.00</p>
           </div>
           <div className="flex justify-center items-center gap-3">
-            <span className="flex items-center justify-center w-8 h-8 bg-[#D64651]/10 rounded-full">
+            <span className="flex items-center justify-center w-8 h-8 bg-[#D64651]/10 rounded-full lg:hidden">
               <TiArrowDown className="text-2xl text-[#D64651]" />
             </span>
-            <h3 className="grow font-sans text-sm font-normal text-neutral-600">Total Expenses</h3>
-            <p className="font-sans text-lg font-bold text-[#D64651]">-$450.30</p>
+           <h3 className="col-span-2 grow font-sans text-sm font-normal text-neutral-600 lg:text-lg lg:font-semibold lg:text-neutral-900">Total Expenses</h3>
+            <p className="font-sans text-lg font-bold text-[#D64651] lg:text-2xl">-$450.30</p>
           </div>
         </section>
-        <section className="w-full mt-4 px-4 py-3 bg-white rounded-xl shadow-xs">
-            <SearchInput icon={<CiSearch className="text-md" />} placeHolder="Search for transactions..." />
-          <input type="date" name="dateFilter" id="date-filter" />
-          <select name="categoryFilter" id="category-filter">
-            <option value=""></option>
-            <option value=""></option>
-            <option value=""></option>
-            <option value=""></option>
-            <option value=""></option>
-            <option value=""></option>
-          </select>
-          <input type="radio" name="typeFilter" id="allTypes" />
-          <input type="radio" name="typeFilter" id="Income" />
-          <input type="radio" name="typeFilter" id="Expenses" />
-          <button>Reset Filters</button>
+        <section className="grid grid-cols-2 lg:flex lg:justify-between gap-2 w-full mt-7 px-2 py-3 bg-white rounded-xl shadow-xs lg:order-3">
+          <SearchInput containerClassName="w-full col-span-2 lg:col-span-1 lg:grow lg:order-4" icon={<CiSearch className="text-md" />} placeHolder="Search for transactions..." />
+          <DatePicker />
+          <CategoryPicker />
+          <FilterByTypeMobile />
+          <FilterByTypeDesktop />
+          <button className="hidden w-fit min-w-[100px] h-10 px-1 order-5
+            lg:flex items-center justify-center
+            font-sans text-sm font-medium text-neutral-900
+            bg-white border border-neutral-300 rounded-2xl
+            transition-colors
+            hover:bg-gray-50
+            disabled:opacity-40 disabled:cursor-not-allowed">Reset Filters</button>
         </section>
-        <section>
-          <h3>Recent Transactions</h3>
-          <ul>
+        <section className="w-full mt-7 px-2 py-3 bg-white rounded-xl shadow-xs lg:order-4">
+          <h3 className="font-sans text-lg font-semibold text-neutral-900 lg:hidden">Recent Transactions</h3>
+          {/* <ul>
             {transactions.map(transaction => <TransactionList key={transaction.id} data={transaction} />)}
-          </ul>
+          </ul> */}
+          <div className="w-full overflow-x-auto rounded-md shadow-sm border border-gray-200 dark:border-slate-700">
+            <table className="w-full text-sm text-left text-gray-700 dark:text-gray-300">
+              <thead className="text-xs uppercase bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-gray-400">
+                <tr>
+                  <th scope="col" className="px-6 py-3">Date</th>
+                  <th scope="col" className="px-6 py-3">Description</th>
+                  <th scope="col" className="px-6 py-3">Category</th>
+                  <th scope="col" className="px-6 py-3">Type</th>
+                  <th scope="col" className="px-6 py-3 text-right">Amount</th>
+                  <th scope="col" className="px-6 py-3 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {transactions.map(transaction => <tr key={transaction.id}
+                  className="odd:bg-white even:bg-neutral-200 dark:odd:bg-slate-900 dark:even:bg-slate-800 dark:border-slate-700"
+                >
+                  <td className="px-6 py-4 font-medium whitespace-nowrap">{transaction.date}</td>
+                  <td className="px-6 py-4">{transaction.transactionName}</td>
+                  <td className="px-6 py-4">{transaction.category}</td>
+                  <td className="px-6 py-4 text-neutral-900 font-semibold">{transaction.type.toUpperCase()}</td>
+                  <td className="px-6 py-4 text-right font-mono">{transaction.amount}</td>
+                  <td className="px-6 py-4 font-medium text-center">...</td>
+                </tr>)}
+              </tbody>
+            </table>
+          </div>
         </section>
       </main>
     </ProtectedRoute>
