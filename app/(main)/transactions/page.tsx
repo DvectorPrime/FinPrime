@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
 import { useRouter } from "next/navigation";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useMenu } from "@/context/menuContext";
-import { IoAddOutline } from "react-icons/io5"
+import { IoAddOutline } from "react-icons/io5";
 import { TiArrowDown, TiArrowUp } from "react-icons/ti";
 import TransactionList from "@/components/TransactionsList";
 import { Transaction } from "@/app/api/transactions/route";
@@ -14,137 +14,248 @@ import { CategoryPicker } from "@/components/CategoryPicker";
 import { DatePicker } from "@/components/DatePicker";
 import FilterByTypeMobile from "@/components/FilterByTypeMobile";
 import { FilterByTypeDesktop } from "@/components/FilterByTypeDesktop";
-export default function Dashboard() {
-  const router = useRouter();
-  const {setMenuShowing} = useMenu()
+import TransactionTable from "@/components/TransactionTable";
+import useWindowWidth from "@/app/hooks/useWindowWidth";
 
-  const [loading, setLoading] = useState<boolean>(false)
-  const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [pageNum, setPageNum] = useState(1)
-  const [error, setError] = useState("")
+interface PaginatedApiResponse {
+  transactions: Transaction[];
+  hasMore: boolean;
+  nextPage: number;
+}
+
+const ITEMS_PER_PAGE = 7;
+
+export default function Transactions() {
+  const router = useRouter();
+  const { setMenuShowing } = useMenu();
+
+  const [loading, setLoading] = useState<boolean>(true);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [totalsData, setTotalsData] = useState({ income: 0, expenses: 0 });
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [error, setError] = useState("");
+  const windowWidth = useWindowWidth()
+
+  const observer = useRef<IntersectionObserver | null>(null);
+
+  // Callback ref for intersection observer
+  const lastTransactionElementRef = useCallback(
+    (node: HTMLElement | null) => {
+      if (loadingMore || !hasMore) return;
+
+      if (observer.current) observer.current.disconnect();
+
+      observer.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && hasMore && !loadingMore) {
+            console.log("Last item visible, loading more...");
+            setPage((prevPage) => prevPage + 1);
+          }
+        },
+        {
+          root: null, // Use viewport for both mobile and desktop
+          threshold: 0.1,
+          rootMargin: "10px",
+        }
+      );
+
+      if (node) {
+        console.log("Observing element:", node);
+        observer.current.observe(node);
+      }
+    },
+    [loadingMore, hasMore]
+  );
 
   useEffect(() => {
     setMenuShowing(false);
-    
-    // Simulate data fetching
-    const timer = setTimeout(() => setLoading(false), 1500);
-    return () => clearTimeout(timer);
   }, [setMenuShowing]);
 
+  // Initial data fetch
   useEffect(() => {
-    // 1. Create the AbortController to manage the request
     const controller = new AbortController();
 
-    const fetchData = async () => {
+    const fetchInitialData = async () => {
+      setLoading(true);
       try {
-        const response = await fetch(`/api/transactions?page=${pageNum}`, { 
-          signal: controller.signal // Attach the signal to the fetch
+        const totalsResponse = await fetch("/api/transactions?order=totals", {
+          signal: controller.signal,
         });
+        if (!totalsResponse.ok) throw new Error("Failed to get totals.");
+        const totals = await totalsResponse.json();
+        setTotalsData(totals);
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch data from the server.');
-        }
+        const transactionsResponse = await fetch(
+          `/api/transactions?page=1&limit=${ITEMS_PER_PAGE}`,
+          { signal: controller.signal }
+        );
+        if (!transactionsResponse.ok)
+          throw new Error("Failed to fetch initial data.");
+        const data: PaginatedApiResponse = await transactionsResponse.json();
         
-        const data = await response.json();
-        setTransactions(data.transactions); // Or however your data is structured
-
-      } catch (err : any) {
-        // 2. Check if the error is the one we expect from aborting
-        if (err.name === 'AbortError') {
-          console.log('Fetch successfully aborted.');
-        } else {
-          // This is a real error
-          console.error('An error occurred:', err.message);
+        console.log("Initial data:", data);
+        setTransactions(data.transactions);
+        setHasMore(data.hasMore);
+        setPage(1);
+      } catch (err: any) {
+        if (err.name !== "AbortError") {
+          console.error("Initial fetch error:", err.message);
           setError(err.message);
         }
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchData();
+    fetchInitialData();
 
-    // 3. The cleanup function still calls abort()
     return () => {
       controller.abort();
     };
-  }, []); // Empty dependency array
+  }, []);
+
+  // Fetch more data when page changes
+  useEffect(() => {
+    if (page === 1 || !hasMore) return;
+
+    const controller = new AbortController();
+
+    const fetchMoreTransactions = async () => {
+      setLoadingMore(true);
+      console.log(`Fetching page ${page}...`);
+      
+      try {
+        const response = await fetch(
+          `/api/transactions?page=${page}&limit=${ITEMS_PER_PAGE}`,
+          { signal: controller.signal }
+        );
+        if (!response.ok) throw new Error("Failed to fetch more data.");
+
+        const data: PaginatedApiResponse = await response.json();
+        console.log(`Loaded ${data.transactions.length} more transactions`);
+        
+        setTransactions((prev) => [...prev, ...data.transactions]);
+        setHasMore(data.hasMore);
+      } catch (err: any) {
+        if (err.name !== "AbortError") {
+          console.error("Fetch more error:", err.message);
+          setError(err.message);
+        }
+      } finally {
+        setLoadingMore(false);
+      }
+    };
+
+    fetchMoreTransactions();
+
+    return () => {
+      controller.abort();
+    };
+  }, [page, hasMore]);
+
+  const displayTotalIncome = new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency: "NGN",
+  }).format(totalsData.income);
+
+  const displayTotalExpenses = new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency: "NGN",
+  }).format(totalsData.expenses);
 
   return (
     <ProtectedRoute>
-      <main className="lg:flex flex-col p-3">
+      <main className="lg:flex flex-col p-3 bg-white dark:bg-slate-900 min-h-full">
         <section className="sticky top-2 z-20 lg:order-1">
-          <button
-            className="h-10 px-3 ml-auto
-              flex items-center justify-center gap-2
-              font-sans text-sm leading-[22px] font-medium text-white
-              bg-[#0079BF] border-none rounded-2xl shadow-xs
-              transition-colors duration-200
-              hover:bg-[#006CAB]
-              active:bg-[#005586]
-              disabled:opacity-40 disabled:cursor-not-allowed"
-          ><IoAddOutline className="text-white text-xl" /> Add Transaction</button>
+          <button className="h-10 px-3 ml-auto flex items-center justify-center gap-2 font-sans text-sm font-medium text-white bg-[#0079BF] rounded-2xl shadow-xs transition-colors hover:bg-[#006CAB] active:bg-[#005586]">
+            <IoAddOutline className="text-white text-xl" /> Add Transaction
+          </button>
         </section>
-        <h3 className="hidden lg:block lg:order-2 font-sans text-3xl font-bold text-neutral-900">Transactions</h3>
-        <section className="w-full mt-4 px-4 py-4 lg:p-6 bg-white rounded-xl shadow-xs lg:order-4">
+
+        <h3 className="hidden lg:block lg:order-2 font-sans text-3xl font-bold text-neutral-900 dark:text-white">
+          Transactions
+        </h3>
+
+        <section className="w-full mt-4 px-4 py-4 lg:p-6 bg-white dark:bg-slate-800 rounded-xl shadow-xs lg:order-4">
           <div className="flex justify-center items-center gap-3 mb-4">
             <span className="flex items-center justify-center w-8 h-8 bg-transparent rounded-full lg:hidden">
-              <TiArrowUp className="text-2xl text-neutral-900" />
+              <TiArrowUp className="text-2xl text-neutral-900 dark:text-neutral-100" />
             </span>
-            <h3 className="col-span-2 grow font-sans text-sm font-normal text-neutral-600 lg:text-lg lg:font-semibold lg:text-neutral-900">Total Income</h3>
-            <p className="font-sans text-lg font-bold text-neutral-900 lg:text-2xl">+$4,000.00</p>
+            <h3 className="col-span-2 grow font-sans text-sm font-normal text-neutral-600 dark:text-neutral-400 lg:text-lg lg:font-semibold lg:text-neutral-900 lg:dark:text-white">
+              Total Income
+            </h3>
+            <p className="font-sans text-lg font-bold text-neutral-900 dark:text-neutral-100 lg:text-2xl">
+              {displayTotalIncome}
+            </p>
           </div>
           <div className="flex justify-center items-center gap-3">
             <span className="flex items-center justify-center w-8 h-8 bg-[#D64651]/10 rounded-full lg:hidden">
               <TiArrowDown className="text-2xl text-[#D64651]" />
             </span>
-           <h3 className="col-span-2 grow font-sans text-sm font-normal text-neutral-600 lg:text-lg lg:font-semibold lg:text-neutral-900">Total Expenses</h3>
-            <p className="font-sans text-lg font-bold text-[#D64651] lg:text-2xl">-$450.30</p>
+            <h3 className="col-span-2 grow font-sans text-sm font-normal text-neutral-600 dark:text-neutral-400 lg:text-lg lg:font-semibold lg:text-neutral-900 lg:dark:text-white">
+              Total Expenses
+            </h3>
+            <p className="font-sans text-lg font-bold text-[#D64651] lg:text-2xl">
+              {displayTotalExpenses}
+            </p>
           </div>
         </section>
-        <section className="grid grid-cols-2 lg:flex lg:justify-between gap-2 w-full mt-7 px-2 py-3 bg-white rounded-xl shadow-xs lg:order-3">
-          <SearchInput containerClassName="w-full col-span-2 lg:col-span-1 lg:grow lg:order-4" icon={<CiSearch className="text-md" />} placeHolder="Search for transactions..." />
+
+        <section className="grid grid-cols-2 lg:flex lg:justify-between gap-2 w-full mt-7 px-2 py-3 bg-white dark:bg-slate-800 rounded-xl shadow-xs lg:order-3">
+          <SearchInput
+            containerClassName="w-full col-span-2 lg:col-span-1 lg:grow lg:order-4"
+            icon={<CiSearch className="text-md text-neutral-600 dark:text-neutral-400" />}
+            placeHolder="Search for transactions..."
+            className="dark:bg-slate-700 dark:border-slate-600 dark:placeholder:text-neutral-400 dark:text-white"
+          />
           <DatePicker />
           <CategoryPicker />
           <FilterByTypeMobile />
           <FilterByTypeDesktop />
-          <button className="hidden w-fit min-w-[100px] h-10 px-1 order-5
-            lg:flex items-center justify-center
-            font-sans text-sm font-medium text-neutral-900
-            bg-white border border-neutral-300 rounded-2xl
-            transition-colors
-            hover:bg-gray-50
-            disabled:opacity-40 disabled:cursor-not-allowed">Reset Filters</button>
+          <button className="hidden w-fit min-w-[100px] h-10 px-1 order-5 lg:flex items-center justify-center font-sans text-sm font-medium text-neutral-900 dark:text-neutral-300 bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 rounded-2xl transition-colors hover:bg-gray-50 dark:hover:bg-slate-600">
+            Reset Filters
+          </button>
         </section>
-        <section className="w-full mt-7 px-2 py-3 bg-white rounded-xl shadow-xs lg:order-4">
-          <h3 className="font-sans text-lg font-semibold text-neutral-900 lg:hidden">Recent Transactions</h3>
-          {/* <ul>
-            {transactions.map(transaction => <TransactionList key={transaction.id} data={transaction} />)}
-          </ul> */}
-          <div className="w-full overflow-x-auto rounded-md shadow-sm border border-gray-200 dark:border-slate-700">
-            <table className="w-full text-sm text-left text-gray-700 dark:text-gray-300">
-              <thead className="text-xs uppercase bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-gray-400">
-                <tr>
-                  <th scope="col" className="px-6 py-3">Date</th>
-                  <th scope="col" className="px-6 py-3">Description</th>
-                  <th scope="col" className="px-6 py-3">Category</th>
-                  <th scope="col" className="px-6 py-3">Type</th>
-                  <th scope="col" className="px-6 py-3 text-right">Amount</th>
-                  <th scope="col" className="px-6 py-3 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {transactions.map(transaction => <tr key={transaction.id}
-                  className="odd:bg-white even:bg-neutral-200 dark:odd:bg-slate-900 dark:even:bg-slate-800 dark:border-slate-700"
-                >
-                  <td className="px-6 py-4 font-medium whitespace-nowrap">{transaction.date}</td>
-                  <td className="px-6 py-4">{transaction.transactionName}</td>
-                  <td className="px-6 py-4">{transaction.category}</td>
-                  <td className="px-6 py-4 text-neutral-900 font-semibold">{transaction.type.toUpperCase()}</td>
-                  <td className="px-6 py-4 text-right font-mono">{transaction.amount}</td>
-                  <td className="px-6 py-4 font-medium text-center">...</td>
-                </tr>)}
-              </tbody>
-            </table>
+
+        <section className="w-full mt-7 px-4 py-5 bg-white dark:bg-slate-800 rounded-xl shadow-xs lg:order-5 flex-grow">
+          <h3 className="font-sans text-lg font-semibold text-neutral-900 dark:text-white lg:hidden mb-4">
+            Recent Transactions
+          </h3>
+
+        {windowWidth < 1024 ? 
+          <TransactionList transactions={transactions} lastItemRef={lastTransactionElementRef} />
+          :
+          <div className="hidden lg:block w-full rounded-md shadow-sm border border-gray-200 dark:border-slate-700">
+            <TransactionTable
+              transactions={transactions}
+              lastItemRef={lastTransactionElementRef}
+            />
           </div>
+        } 
+          {/* Loading States */}
+          {loading && (
+            <p className="text-center my-8 text-lg text-neutral-800 dark:text-neutral-300">
+              Loading Transactions...
+            </p>
+          )}
+          {loadingMore && (
+            <p className="text-center my-4 text-gray-500 dark:text-gray-400">
+              Loading more...
+            </p>
+          )}
+          {!hasMore && !loading && transactions.length > 0 && (
+            <p className="text-center my-4 text-gray-500 dark:text-gray-400">
+              You have reached the end.
+            </p>
+          )}
+          {error && <p className="text-center my-4 text-red-500">{error}</p>}
+          {!loading && transactions.length === 0 && (
+            <p className="text-center my-4 text-gray-500 dark:text-gray-400">
+              No transactions found.
+            </p>
+          )}
         </section>
       </main>
     </ProtectedRoute>

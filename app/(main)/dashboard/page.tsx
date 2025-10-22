@@ -28,26 +28,56 @@ const SummaryCardSkeleton = () => (
   </div>
 );
 
+
 export default function Dashboard() {
   const { user } = useAuth();
   const firstName = user?.displayName ? user.displayName.split(" ")[0] : "User";
   const { setMenuShowing } = useMenu();
+  const [error, setError] = useState("")
   const [loading, setLoading] = useState(true);
+  const [basicSummaryData, setBasicSummaryData] = useState<summaryData[]>([])
 
   useEffect(() => {
     setMenuShowing(false);
-    
+    const controller = new AbortController()
+
     // Simulate data fetching
-    const timer = setTimeout(() => setLoading(false), 1500);
-    return () => clearTimeout(timer);
+    const fetchTotals = async () => {
+      try {
+        const response = await fetch("/api/transactions?order=totals", {
+          signal: controller.signal
+        });
+
+        if (!response.ok){
+          throw new Error('Failed to get totals from teh server.')
+        }
+
+        const data = await response.json()
+        setBasicSummaryData([
+          { summaryType: "Balance", amount: data.income - data.expenses },
+          { summaryType: "Income", amount: data.income, growthPercent: 5.2 },
+          { summaryType: "Expenses", amount: data.expenses, growthPercent: 8.1 },
+          { summaryType: "Savings Rate", amount: 15.2, growthPercent: -1.5 },
+        ]);
+      } catch (err : any) {
+        if (err.name === 'AbortError') {
+          console.log('Fetch successfully aborted.');
+        } else {
+          console.error('An error occurred:', err.message);
+          setError(err.message);
+        }
+      }
+
+      setLoading(false)
+    }
+    
+    fetchTotals()
+
+    return(() => {
+      controller.abort()
+    })
   }, [setMenuShowing]);
 
-  const [basicSummaryData] = useState<summaryData[]>([
-    { summaryType: "Balance", amount: 12345.67 },
-    { summaryType: "Income", amount: 12345.67, growthPercent: 5.2 },
-    { summaryType: "Expenses", amount: 18554450.5, growthPercent: 8.1 },
-    { summaryType: "Savings Rate", amount: 15.2, growthPercent: -1.5 },
-  ]);
 
   return (
     <ProtectedRoute>

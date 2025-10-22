@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 export interface Transaction {
   id: string;
@@ -32,30 +32,56 @@ const allTransactions : Transaction[] = [
   { id: 'txn_17', transactionName: 'Concert Ticket', type: 'expense', category: 'Shopping', amount: 50.00, date: '2025-10-14' },
   { id: 'txn_18', transactionName: 'Restocking Supplies', type: 'expense', category: 'Food', amount: 124.10, date: '2025-10-14' },
   { id: 'txn_19', transactionName: 'Coffee Meeting', type: 'expense', category: 'Food', amount: 42.75, date: '2025-10-15' },
-  { id: 'txn_20', transactionName: 'Article Writing Gig', type: 'income', category: 'Business', amount: 300, date: '2025-10-15' }
+  { id: 'txn_20', transactionName: 'Article Writing Gig', type: 'income', category: 'Business', amount: 400, date: '2025-10-15' }
 ];
 
 const sortedTransactions = allTransactions.sort(
   (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
 );
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const order = searchParams.get('order');
+
+  // Handle the totals request separately
+  if (order === 'totals') {
+    let totalIncome = 0;
+    let totalExpenses = 0;
+
+    for (let i = 0; i < sortedTransactions.length; i++) {
+      if (sortedTransactions[i].type === 'income') {
+        totalIncome += sortedTransactions[i].amount;
+      } else {
+        totalExpenses += sortedTransactions[i].amount;
+      }
+    }
+
+    return NextResponse.json({
+      income: totalIncome,
+      expenses: totalExpenses,
+    });
+  }
+
+  // --- Handle Pagination Request ---
   
   // 1. Get page and limit from the URL, with default values
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '7'); // Default to 7 items per page
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  const limit = parseInt(searchParams.get('limit') || '7', 10); // Default to 7 items per page
 
   // 2. Calculate the starting and ending index for the slice
   const startIndex = (page - 1) * limit;
   const endIndex = page * limit;
-  
+
   // 3. Slice the data to get the current page's items
   const paginatedTransactions = sortedTransactions.slice(startIndex, endIndex);
 
-  // 4. Return the batch of data, plus the total count for the frontend
+  // 4. Calculate if there are more items beyond the current page
+  const hasMore = endIndex < sortedTransactions.length;
+
+  // 5. Return the data in the structure expected by the frontend
   return NextResponse.json({
     transactions: paginatedTransactions,
-    total: sortedTransactions.length,
+    hasMore: hasMore,
+    nextPage: hasMore ? page + 1 : page, // Indicate the next page number
   });
 }
