@@ -25,22 +25,20 @@ function ListItem({ data, lastItemRef, isLastItem }: ListItemProp) {
     currency: "NGN",
   }).format(data.amount);
 
-  const amountString = `${data.type === "expense" ? "-" : "+"}${formattedAmount}`;
-
   return (
     <li
       ref={isLastItem ? lastItemRef : null}
-      className="grid grid-cols-[minmax(65%,_1fr)_auto] p-2 bg-white dark:bg-slate-700 rounded-xl shadow-xs"
+      className="grid grid-cols-[auto_1fr_auto] items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl shadow-xs border-b border-gray-100 dark:border-slate-700 last:border-b-0"
     >
-      <div>
+      <div className="overflow-hidden">
         <p className="font-sans text-xs font-normal text-neutral-600 dark:text-neutral-400">
           {formattedDate}
         </p>
-        <h5 className="font-sans my-1 text-base font-medium text-neutral-900 dark:text-neutral-100">
+        <h5 className="font-sans text-base my-2 font-medium text-neutral-900 dark:text-neutral-100 truncate">
           {data.transactionName}
         </h5>
         <p
-          className="py-1 px-1.5 mt-2 w-fit rounded-full
+          className="py-1 px-2.5 mt-2 w-fit rounded-full
             flex items-center justify-center gap-1
             font-sans text-xs font-normal text-neutral-800 dark:text-neutral-200
             bg-neutral-200 dark:bg-slate-600"
@@ -48,9 +46,9 @@ function ListItem({ data, lastItemRef, isLastItem }: ListItemProp) {
           {data.category}
         </p>
       </div>
-      <div className="flex flex-col justify-between">
+      <div className="flex flex-col justify-between h-full">
         <button
-          className="w-8 h-8 px-2.5 ml-auto
+          className="w-8 h-8 px-2.5 ml-auto mb-auto
             flex items-center justify-center
             text-neutral-600 dark:text-neutral-400 bg-transparent border-none rounded-full
             transition-colors
@@ -59,20 +57,20 @@ function ListItem({ data, lastItemRef, isLastItem }: ListItemProp) {
         >
           <IoEllipsisVertical className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
         </button>
-        <div className="flex items-start justify-end">
+        <div className="flex items-center justify-end">
           {data.type === "income" ? (
-            <TiArrowUp className="w-[14px] h-[14px] mt-1 text-neutral-900 dark:text-neutral-100" />
+            <TiArrowUp className="w-3 h-3 text-neutral-900 dark:text-neutral-100" />
           ) : (
-            <TiArrowDown className="w-[14px] h-[14px] mt-1 text-[#D64651]" />
+            <TiArrowDown className="w-3 h-3 text-red-600 dark:text-red-400" />
           )}
           <p
-            className={`font-sans text-lg font-semibold ${
-              data.type === "income"
-                ? "text-neutral-900 dark:text-neutral-100"
-                : "text-[#D64651]"
-            }`}
+            className={`ml-1 font-sans text-base font-semibold ${
+            data.type === "income"
+              ? "text-neutral-900 dark:text-neutral-100" // Keep income amount neutral
+              : "text-[#D64651] dark:text-red-400" // Expense amount red
+          }`}
           >
-            {amountString}
+            {formattedAmount}
           </p>
         </div>
       </div>
@@ -80,12 +78,25 @@ function ListItem({ data, lastItemRef, isLastItem }: ListItemProp) {
   );
 }
 
+const SkeletonItem = () => (
+  <li className="grid grid-cols-[auto_1fr_auto] items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl shadow-xs border-b border-gray-100 dark:border-slate-700 last:border-b-0 animate-pulse">
+    <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-slate-700"></div> {/* Icon Placeholder */}
+    <div className="overflow-hidden space-y-2">
+      <div className="h-4 w-3/4 rounded bg-gray-200 dark:bg-slate-700"></div> {/* Title Placeholder */}
+      <div className="h-3 w-1/2 rounded bg-gray-200 dark:bg-slate-700"></div> {/* Subtitle Placeholder */}
+    </div>
+    <div className="flex items-center justify-end">
+       <div className="h-5 w-16 rounded bg-gray-200 dark:bg-slate-700"></div> {/* Amount Placeholder */}
+    </div>
+  </li>
+);
+
 export default function TransactionList({
   transactions,
   lastItemRef,
 }: TransactionListProp) {
   return (
-    <ul className="block lg:hidden">
+    <ul className="block lg:hidden space-y-3">
       {transactions.map((transaction, index) => {
         const isLastItem = index === transactions.length - 1;
         return (
@@ -100,3 +111,11 @@ export default function TransactionList({
   </ul>
   );
 }
+
+TransactionList.Skeleton = ({ count = 5 }: { count?: number }) => (
+  <ul className="block lg:hidden space-y-3">
+    {Array.from({ length: count }).map((_, index) => (
+      <SkeletonItem key={index} />
+    ))}
+  </ul>
+);

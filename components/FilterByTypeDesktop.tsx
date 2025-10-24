@@ -16,10 +16,15 @@ export function FilterByTypeDesktop() {
         value={filterType}
         onChange={(e) => setFilterType(e.target.value)}
         className={cn(
-          // --- Base & Mobile styles ---
-          "appearance-none w-full h-10 justify-between rounded-2xl border border-neutral-300 bg-neutral-300/20 pl-9 pr-8 font-sans text-sm font-normal text-neutral-900 transition-colors hover:bg-neutral-300/30 focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-neutral-100 dark:hover:bg-slate-600",
-          // --- Desktop styles ---
-          "lg:rounded-full lg:bg-white lg:text-neutral-600 lg:hover:bg-gray-50 lg:dark:bg-slate-800 lg:dark:border-slate-700 lg:dark:text-neutral-300 lg:dark:hover:bg-slate-700"
+          // --- Base styles for appearance ---
+          "appearance-none w-full h-10 justify-between rounded-full pl-9 pr-8", // Rounded full
+          "font-sans text-sm transition-colors cursor-pointer", // Added cursor-pointer
+          // --- Light Mode ---
+          "border border-neutral-300 bg-white text-neutral-600 font-medium hover:bg-gray-50",
+           // --- Dark Mode ---
+          "dark:bg-slate-800 dark:border-slate-700 dark:text-neutral-300 dark:hover:bg-slate-700",
+           // --- Focus ---
+          "focus:ring-2 focus:ring-blue-500 focus:outline-none dark:focus:ring-sky-500"
         )}
       >
         <option value="all">All Types</option>
@@ -27,7 +32,7 @@ export function FilterByTypeDesktop() {
         <option value="expense">Expense</option>
       </select>
       <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-        <ChevronDownIcon className="h-4 w-4 text-neutral-900 dark:text-neutral-100 lg:text-neutral-600 lg:dark:text-neutral-400" />
+        <ChevronDownIcon className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />
       </div>
     </div>
   );

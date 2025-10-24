@@ -28,7 +28,7 @@ export default function MainLayout({
             <div className="relative grid grid-cols-1 w-full h-screen lg:grid-cols-[240px_1fr]">
                 <SidebarMenu menuShowing={menuShowing} />
                 <div className="flex flex-col w-full">
-                    <header className="flex items-center justify-between w-full px-4 md:px-8 h-14 bg-[#0079BF] dark:bg-slate-800 dark:border-b dark:border-slate-700 shadow-xs z-20">
+                    <header className="flex items-center justify-between w-full px-4 py-2 md:px-8 h-14 bg-[#0079BF] dark:bg-slate-800 dark:border-b dark:border-slate-700 shadow-xs z-20">
                         <div className="flex justify-start items-center w-auto gap-3">
                             <button type="button" className="block lg:hidden" onClick={() => {
                                 toggleMenu()

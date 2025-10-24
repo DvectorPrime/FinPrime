@@ -12,12 +12,17 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-export function DatePicker() {
+interface DatePickerProps {
+  preferredBg?: string
+}
+
+export function DatePicker({preferredBg = "default"} : DatePickerProps) {
   const [open, setOpen] = React.useState(false);
   const [date, setDate] = React.useState<Date | undefined>(new Date());
 
   function formatDateObject(dateObject: Date) {
     const options: Intl.DateTimeFormatOptions = {
+      day: "numeric",
       month: "short",
       year: "numeric",
     };
@@ -35,13 +40,13 @@ export function DatePicker() {
             variant={"outline"}
             id="date"
             className={cn(
-              // --- Mobile (default) styles ---
-              "w-full h-10 justify-between rounded-2xl border border-neutral-300 bg-neutral-300/20 px-3 font-sans text-sm font-normal text-neutral-900 transition-colors hover:bg-neutral-300/30 focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-neutral-100 dark:hover:bg-slate-600",
-              
-              // --- Desktop (lg:) styles ---
-              "lg:rounded-full lg:justify-start lg:gap-4 lg:bg-white lg:text-neutral-600 lg:hover:bg-gray-50 lg:dark:bg-slate-800 lg:dark:border-slate-700 lg:dark:text-neutral-300 lg:dark:hover:bg-slate-700",
-
-              !date && "text-muted-foreground"
+              // --- Base & Mobile styles ---
+              `w-full h-10 justify-between rounded-2xl border border-neutral-300 ${preferredBg === "default" ? "bg-neutral-300/20" : preferredBg} px-3 font-sans text-sm font-normal text-neutral-900 transition-colors hover:bg-neutral-300/30 focus:ring-2 focus:ring-blue-500",
+              "dark:bg-slate-700 dark:border-slate-600 dark:text-neutral-100 dark:hover:bg-slate-600 dark:focus:ring-sky-500`,
+              // --- Desktop styles ---
+              "lg:rounded-full lg:justify-start lg:gap-2 lg:bg-white lg:text-neutral-600 lg:hover:bg-gray-50", // Reduced gap slightly
+              "lg:dark:bg-slate-800 lg:dark:border-slate-700 lg:dark:text-neutral-300 lg:dark:hover:bg-slate-700",
+              !date && "text-muted-foreground dark:text-neutral-500" // Placeholder color
             )}
           >
             {/* 4. Added a Calendar icon that only shows on desktop */}
@@ -57,7 +62,7 @@ export function DatePicker() {
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-auto overflow-hidden rounded-lg border-neutral-200 bg-white p-0 shadow-lg dark:border-slate-700 dark:bg-slate-800"
+          className="w-auto overflow-hidden rounded-lg border-neutral-200 bg-white p-0 shadow-lg dark:text-neutral-200 dark:border-slate-700 dark:bg-slate-800"
           align="start"
         >
           <Calendar

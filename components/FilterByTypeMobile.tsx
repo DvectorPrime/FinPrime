@@ -1,28 +1,40 @@
-export default function FilterByTypeMobile(){
+"use client"
+
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+
+interface FilterByTypeMobileProps{
+  allIncluded: boolean
+}
+
+export default function FilterByTypeMobile({allIncluded = true} : FilterByTypeMobileProps){
+    const [activeFilter, setActiveFilter] = useState(allIncluded ? "all" : "income")
+
     return (
-        <div className="grid grid-cols-3 col-span-2 h-full bg-neutral-200 rounded-2xl lg:hidden">
-            <button className="w-full h-10 px-3
-              flex items-center justify-center
-              font-sans text-sm font-semibold text-white leading-[22px]
-              bg-[#0079BF] border-none rounded-2xl shadow-xs
-              transition-colors duration-200
-              hover:bg-[#006CAB]
-              active:bg-[#005586]
-              disabled:opacity-40 disabled:cursor-not-allowed">All</button>
-            <button className="w-full h-10 px-3
-              flex items-center justify-center
-              font-sans text-sm leading-[22px] font-medium text-neutral-600
-              bg-transparent border-none rounded-2xl
-              transition-colors
-              hover:bg-black/5
-              disabled:opacity-40 disabled:cursor-not-allowed">Income</button>
-            <button className="w-fullh-10 px-3
-              flex items-center justify-center
-              font-sans text-sm leading-[22px] font-medium text-neutral-600
-              bg-transparent border-none rounded-2xl
-              transition-colors
-              hover:bg-black/5
-              disabled:opacity-40 disabled:cursor-not-allowed">Expenditure</button>
-          </div>
+        <div className={`grid ${allIncluded ? "grid-cols-3" : "grid-cols-2"} p-1 col-span-2 h-12 bg-neutral-200 dark:bg-slate-700 ${allIncluded ? "rounded-2xl" : "rounded-xl"} lg:hidden`}>
+          {allIncluded && 
+          <button onClick={() => setActiveFilter("all")}
+            className={cn(
+              `w-full h-full px-3 flex items-center justify-center font-sans text-sm ${allIncluded  ? "rounded-xl" : "rounded-lg"} transition-colors duration-200`, // Rounded inside container
+              activeFilter === "all"
+                ? "font-semibold text-white bg-[#0079BF] shadow-xs" // Active state
+                : "font-medium text-neutral-600 dark:text-neutral-300 hover:bg-black/5 dark:hover:bg-white/10" // Inactive state
+            )}>All</button>
+          }
+          <button onClick={() => setActiveFilter("income")}
+            className={cn(
+              `w-full h-full px-3 flex items-center justify-center font-sans text-sm ${allIncluded  ? "rounded-xl" : "rounded-lg"} transition-colors duration-200`,
+              activeFilter === "income"
+                ? "font-semibold text-white bg-[#0079BF] shadow-xs"
+                : "font-medium text-neutral-600 dark:text-neutral-300 hover:bg-black/5 dark:hover:bg-white/10"
+            )}>Income</button>
+          <button onClick={() => setActiveFilter("expense")}
+            className={cn(
+              `w-full h-full px-3 flex items-center justify-center font-sans text-sm ${allIncluded  ? "rounded-xl" : "rounded-lg"} transition-colors duration-200`,
+              activeFilter === "expense"
+                ? "font-semibold text-white bg-[#0079BF] shadow-xs"
+                : "font-medium text-neutral-600 dark:text-neutral-300 hover:bg-black/5 dark:hover:bg-white/10"
+            )}>Expense</button>
+        </div>
     )
 }

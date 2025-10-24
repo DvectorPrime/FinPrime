@@ -36,7 +36,11 @@ const allCategoriesOption = {
   icon: "all_icon", // Special identifier
 };
 
-export function CategoryPicker() {
+interface CategoryPickerProps{
+  preferredBg?: string
+}
+
+export function CategoryPicker({preferredBg = "default"} : CategoryPickerProps) {
   const [open, setOpen] = React.useState(false);
   // 2. Set "All Categories" as the default selected state
   const [selectedCategory, setSelectedCategory] = React.useState<
@@ -72,20 +76,27 @@ export function CategoryPicker() {
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full rounded-full justify-between font-normal text-neutral-900 dark:text-neutral-100 bg-neutral-300/20 lg:bg-white dark:bg-slate-700 border-neutral-300 dark:border-slate-600 hover:bg-neutral-300/30 dark:hover:bg-slate-600"
+            className={cn(
+              // --- Base & Mobile styles ---
+              `w-full h-10 justify-between rounded-2xl border border-neutral-300 ${preferredBg == "default" ? "bg-neutral-300/20" : preferredBg} px-3 font-sans text-sm font-normal text-neutral-900 transition-colors hover:bg-neutral-300/30 focus:ring-2 focus:ring-blue-500`,
+              "dark:bg-slate-700 dark:border-slate-600 dark:text-neutral-100 dark:hover:bg-slate-600 dark:focus:ring-sky-500",
+              // --- Desktop styles ---
+              "lg:rounded-full lg:bg-white lg:text-neutral-600 lg:hover:bg-gray-50",
+              "lg:dark:bg-slate-800 lg:dark:border-slate-700 lg:dark:text-neutral-300 lg:dark:hover:bg-slate-700"
+            )}
           >
             {/* 3. Custom display to handle the "All Categories" icon */}
             <div className="flex items-center gap-2">
               {selectedCategory.name}
             </div>
-            <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            <ChevronDown className="h-4 w-4 shrink-0 opacity-50 text-neutral-600 dark:text-neutral-400" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0 bg-white dark:bg-slate-800">
+        <PopoverContent className="w-[--radix-popover-trigger-width] rounded-lg p-0 bg-white border border-neutral-300 dark:bg-slate-800 dark:border-slate-700 shadow-lg text-sm">
           <Command>
-            <CommandInput placeholder="Search category..." />
+            <CommandInput className="dark:text-neutral-100 dark:placeholder:text-neutral-400" placeholder="Search category..." />
             <CommandList>
-              <CommandEmpty>
+              <CommandEmpty className="py-6 text-center text-sm text-neutral-600 dark:text-neutral-400">
                 {loading ? "Loading..." : "No category found."}
               </CommandEmpty>
               
@@ -97,14 +108,15 @@ export function CategoryPicker() {
                   setSelectedCategory(allCategoriesOption);
                   setOpen(false);
                 }}
+                className="cursor-pointer aria-selected:bg-accent aria-selected:text-accent-foreground dark:aria-selected:bg-slate-700 dark:text-neutral-300"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-grow">
                   <List className="w-4 h-4" />
                   {allCategoriesOption.name}
                 </div>
                 <Check
                   className={cn(
-                    "mr-2 h-4 w-4",
+                    "ml-auto h-4 w-4",
                     selectedCategory.id === allCategoriesOption.id
                       ? "opacity-100"
                       : "opacity-0"
@@ -112,7 +124,7 @@ export function CategoryPicker() {
                 />
               </CommandItem>
 
-              <CommandGroup heading="Income">
+              <CommandGroup className="text-xs text-muted-foreground dark:text-neutral-500 px-2 py-1.5" heading="Income">
                 {incomeCategories.map((category) => (
                   <CommandItem
                     key={category.id}
@@ -121,8 +133,9 @@ export function CategoryPicker() {
                       setSelectedCategory(category);
                       setOpen(false);
                     }}
+                    className="cursor-pointer aria-selected:bg-accent aria-selected:text-accent-foreground dark:aria-selected:bg-slate-700 dark:text-neutral-300"
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-grow">
                       <CategoryIcon
                         iconName={category.icon}
                         className="w-4 h-4"
@@ -131,7 +144,7 @@ export function CategoryPicker() {
                     </div>
                     <Check
                       className={cn(
-                        "mr-2 h-4 w-4",
+                        "ml-auto h-4 w-4",
                         selectedCategory?.id === category.id
                           ? "opacity-100"
                           : "opacity-0"
@@ -140,7 +153,7 @@ export function CategoryPicker() {
                   </CommandItem>
                 ))}
               </CommandGroup>
-              <CommandGroup heading="Expense">
+              <CommandGroup heading="Expense" className="text-xs text-muted-foreground dark:text-neutral-500 px-2 py-1.5">
                 {expenseCategories.map((category) => (
                   <CommandItem
                     key={category.id}
@@ -149,8 +162,9 @@ export function CategoryPicker() {
                       setSelectedCategory(category);
                       setOpen(false);
                     }}
+                    className="cursor-pointer aria-selected:bg-accent aria-selected:text-accent-foreground dark:aria-selected:bg-slate-700 dark:text-neutral-300"
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-grow">
                       <CategoryIcon
                         iconName={category.icon}
                         className="w-4 h-4"
@@ -159,7 +173,7 @@ export function CategoryPicker() {
                     </div>
                     <Check
                       className={cn(
-                        "mr-2 h-4 w-4",
+                         "ml-auto h-4 w-4",
                         selectedCategory?.id === category.id
                           ? "opacity-100"
                           : "opacity-0"

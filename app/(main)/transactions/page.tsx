@@ -105,7 +105,9 @@ export default function Transactions() {
           setError(err.message);
         }
       } finally {
-        setLoading(false);
+        setTimeout(() => {
+          setLoading(false);   
+        }, 3000);
       }
     };
 
@@ -169,7 +171,8 @@ export default function Transactions() {
     <ProtectedRoute>
       <main className="lg:flex flex-col p-3 bg-white dark:bg-slate-900 min-h-full">
         <section className="sticky top-2 z-20 lg:order-1">
-          <button className="h-10 px-3 ml-auto flex items-center justify-center gap-2 font-sans text-sm font-medium text-white bg-[#0079BF] rounded-2xl shadow-xs transition-colors hover:bg-[#006CAB] active:bg-[#005586]">
+          <button className="h-10 px-3 ml-auto flex items-center justify-center gap-2 font-sans text-sm font-medium text-white bg-[#0079BF] rounded-2xl shadow-xs transition-colors hover:bg-[#006CAB] active:bg-[#005586] cursor-pointer"
+           onClick={() => router.push("/transactions/add")}>
             <IoAddOutline className="text-white text-xl" /> Add Transaction
           </button>
         </section>
@@ -214,24 +217,28 @@ export default function Transactions() {
           <CategoryPicker />
           <FilterByTypeMobile />
           <FilterByTypeDesktop />
-          <button className="hidden w-fit min-w-[100px] h-10 px-1 order-5 lg:flex items-center justify-center font-sans text-sm font-medium text-neutral-900 dark:text-neutral-300 bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 rounded-2xl transition-colors hover:bg-gray-50 dark:hover:bg-slate-600">
+          <button className="hidden w-fit min-w-[100px] h-10 px-1 order-5 cursor-pointer lg:flex items-center justify-center font-sans text-sm font-medium text-neutral-900 dark:text-neutral-300 bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 rounded-2xl transition-colors hover:bg-gray-50 dark:hover:bg-slate-600">
             Reset Filters
           </button>
         </section>
 
-        <section className="w-full mt-7 px-4 py-5 bg-white dark:bg-slate-800 rounded-xl shadow-xs lg:order-5 flex-grow">
-          <h3 className="font-sans text-lg font-semibold text-neutral-900 dark:text-white lg:hidden mb-4">
+        <section className="w-full mt-7 py-3 bg-white dark:bg-slate-800 rounded-xl shadow-xs lg:order-5 flex-grow">
+          <h3 className="mx-3 font-sans text-lg font-semibold text-neutral-900 dark:text-white lg:hidden mb-4">
             Recent Transactions
           </h3>
 
         {windowWidth < 1024 ? 
-          <TransactionList transactions={transactions} lastItemRef={lastTransactionElementRef} />
+          (loading) ? <TransactionList.Skeleton count={5} /> : <TransactionList transactions={transactions} lastItemRef={lastTransactionElementRef} />
           :
           <div className="hidden lg:block w-full rounded-md shadow-sm border border-gray-200 dark:border-slate-700">
-            <TransactionTable
-              transactions={transactions}
-              lastItemRef={lastTransactionElementRef}
-            />
+            {(loading) ? 
+              <TransactionTable.Skeleton count={5}/>
+              :
+              <TransactionTable
+                transactions={transactions}
+                lastItemRef={lastTransactionElementRef}
+              />
+            }
           </div>
         } 
           {/* Loading States */}
@@ -241,9 +248,10 @@ export default function Transactions() {
             </p>
           )}
           {loadingMore && (
-            <p className="text-center my-4 text-gray-500 dark:text-gray-400">
-              Loading more...
-            </p>
+            <div className="flex justify-center items-center my-4">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+              <p className="ml-2 text-gray-500 dark:text-gray-400">Loading more...</p>
+            </div>
           )}
           {!hasMore && !loading && transactions.length > 0 && (
             <p className="text-center my-4 text-gray-500 dark:text-gray-400">
