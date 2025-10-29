@@ -8,13 +8,15 @@ import FilterByTypeMobile from "@/components/FilterByTypeMobile"; // Assuming th
 import { Category } from "@/app/api/categories/route"; // Import Category type if needed elsewhere
 import { Loader2 } from "lucide-react"; // Spinner icon
 import { cn } from "@/lib/utils"; // For merging classes
+import { auth } from "@/firebase/firebaseConfig";
 
 // Define the structure for form data
 interface FormData {
+  id: string;
   transactionName: string;
   amount: number | string; // Use string initially for input control
   type: "income" | "expense";
-  categoryId: string | null; // Store the selected category ID
+  category: string; // Store the selected category ID
   date: Date | undefined;
   notes: string;
 }
@@ -24,10 +26,11 @@ export default function AddTransaction() {
 
   // 1. State for form data (dictionary)
   const [formData, setFormData] = useState<FormData>({
+    id: "",
     transactionName: "",
     amount: "", // Start with empty string
     type: "expense", // Default type
-    categoryId: null,
+    category: "All Categories", //Default category
     date: new Date(),
     notes: "",
   });
@@ -68,12 +71,12 @@ export default function AddTransaction() {
   };
 
   // Handle category change (assuming CategoryPicker returns selected category object/id)
-  const handleCategoryChange = (selectedOption: any) => {
+  const handleCategoryChange = (selectedOption: Category) => {
      // Adjust based on what CategoryPicker actually returns
-    const categoryId = selectedOption?.id !== 'all' ? selectedOption?.id : null;
+    const category = selectedOption?.name 
     setFormData((prev) => ({
       ...prev,
-      categoryId: categoryId,
+      category: category,
     }));
   };
 
@@ -90,40 +93,32 @@ export default function AddTransaction() {
     e.preventDefault(); // Prevent default form submission
     setIsSubmitting(true);
     setSubmitError(null);
-    console.log("Submitting:", formData);
 
-    // --- Replace with your actual API call ---
-    try {
-       // Example API call (replace with your endpoint and method)
-       // const response = await fetch('/api/transactions', {
-       //   method: 'POST',
-       //   headers: { 'Content-Type': 'application/json' },
-       //   body: JSON.stringify({
-       //      ...formData,
-       //      amount: parseFloat(formData.amount as string) || 0 // Convert amount string to number
-       //   }),
-       // });
-       // if (!response.ok) {
-       //    throw new Error('Failed to save transaction');
-       // }
-       // const result = await response.json();
-       // console.log('Success:', result);
-       // // Optionally redirect on success
-       // // router.push('/dashboard/transactions');
-
-       // Simulate API call delay
-       await new Promise(resolve => setTimeout(resolve, 1500));
-       console.log("Simulated success");
-       // router.push('/dashboard/transactions'); // Example redirect
-
-
-    } catch (error: any) {
-      console.error("Submission failed:", error);
-      setSubmitError(error.message || "An unexpected error occurred.");
-    } finally {
-      setIsSubmitting(false); // Stop loading state
+    const user = auth.currentUser; // Your Firebase Auth instance
+    if (!user) {
+      console.error('No user signed in');
+      return;
     }
-     // --- End of API call ---
+
+   const response = await fetch('/api/transactions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...formData,
+        userId: user.uid, // Get from Firebase Auth
+      }),
+    });
+    
+    const result = await response.json();
+    if (result.success) {
+      console.log('Transaction created:', result.id);
+    } else {
+      setSubmitError("An error occured")
+    }
+
+    setIsSubmitting(false)
   };
 
 
@@ -133,11 +128,11 @@ export default function AddTransaction() {
        {/* Added dark mode styles to the form container */}
       <form
           onSubmit={handleSubmit}
-          className="bg-white dark:bg-slate-800 rounded-xl shadow-xs px-6 py-8 max-w-lg mx-auto" // Center form, add max-width
+          className="bg-white dark:bg-slate-800 rounded-xl shadow-xs px-6 py-8 max-w-lg lg:max-w-3xl mx-auto" // Center form, add max-width
         >
         {/* Added dark mode text color */}
         <h1 className="font-sans text-xl font-semibold text-neutral-900 dark:text-white mb-8">
-          Add New Transaction
+          Transaction Details
         </h1>
 
         {/* Transaction Name */}
@@ -212,9 +207,9 @@ export default function AddTransaction() {
            {/* Assuming FilterByTypeMobile is adapted to accept value and onChange */}
           <FilterByTypeMobile
             allIncluded={false}
-            // value={formData.type} // Pass current type
-            // onChange={handleTypeChange} // Pass handler
-            // disabled={isSubmitting}
+            value={formData.type}
+            handleTypeChange={handleTypeChange}
+            disabled={isSubmitting}
           />
         </section>
 
@@ -229,12 +224,9 @@ export default function AddTransaction() {
            {/* Assuming CategoryPicker has value and onValueChange props */}
            {/* The component needs to be positioned correctly within the form flow */}
           <CategoryPicker
-            //  value={formData.categoryId} // Pass current category ID
-            //  onValueChange={handleCategoryChange} // Pass handler
-             // Removed preferredBg, styling handled internally/via wrapper
-             // The picker itself might need className adjustments for form integration
-             // className="relative z-10" // Example if needed
-            //  disabled={isSubmitting}
+             value={formData.category} // Pass current category ID
+             handleCategoryChange={handleCategoryChange} // Pass handler
+             disabled={isSubmitting}
           />
         </section>
 
@@ -249,11 +241,9 @@ export default function AddTransaction() {
            {/* Assuming DatePicker has value and onValueChange/onSelect props */}
            {/* Needs positioning within the form flow */}
           <DatePicker
-            //  value={formData.date} // Pass current date
-            //  onSelect={handleDateChange} // Pass handler (adjust prop name if needed)
-             // Removed preferredBg
-             // className="relative z-10" // Example if needed
-            //  disabled={isSubmitting}
+             value={formData.date} // Pass current date
+             handleDateChange={handleDateChange} // Pass handler (adjust prop name if needed)
+             disabled={isSubmitting}
           />
         </section>
 
@@ -287,7 +277,7 @@ export default function AddTransaction() {
         </section>
 
         {/* Action Buttons */}
-        <section>
+        <section className="lg:grid grid-cols-2 gap-3">
           {/* Submit Button with Loading State */}
           <button
             type="submit"

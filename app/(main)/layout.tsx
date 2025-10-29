@@ -51,17 +51,17 @@ export default function MainLayout({
                             >
                                 <IoMdNotificationsOutline className="w-6 h-6 text-white" />
                             </button>
-                            <div className="relative w-9 h-9 rounded-full overflow-hidden bg-[#FCFBC9]">
-                                <Image
-                                    src={profileImage}
+                            {/* <div className="relative w-9 h-9 rounded-full overflow-hidden bg-[#FCFBC9]">
+                                {/* <Image 
+                                    {/* src={profileImage}
                                     alt={`${user?.displayName || 'User'}'s profile`}
                                     width={36}
                                     height={36}
                                     className="w-full h-full object-cover"
                                     onError={() => setImgError(true)}
                                     priority
-                                />
-                            </div>
+                                /> 
+                            </div> */}
                         </div>
                     </header>
                     {children}

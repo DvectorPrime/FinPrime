@@ -14,11 +14,14 @@ import {
 
 interface DatePickerProps {
   preferredBg?: string
+  value?: Date | null
+  handleDateChange?: (newDate: Date | undefined) => void
+  disabled?: boolean
 }
 
-export function DatePicker({preferredBg = "default"} : DatePickerProps) {
+export function DatePicker({preferredBg = "default", value, handleDateChange} : DatePickerProps) {
   const [open, setOpen] = React.useState(false);
-  const [date, setDate] = React.useState<Date | undefined>(new Date());
+  const [date, setDate] = React.useState<Date | undefined>(value ? value: new Date());
 
   function formatDateObject(dateObject: Date) {
     const options: Intl.DateTimeFormatOptions = {
@@ -71,6 +74,9 @@ export function DatePicker({preferredBg = "default"} : DatePickerProps) {
             onSelect={(date) => {
               setDate(date);
               setOpen(false);
+              if (handleDateChange){
+                handleDateChange(date)
+              }
             }}
             captionLayout="dropdown"
           />

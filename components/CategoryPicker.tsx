@@ -21,10 +21,10 @@ import {
 import { CategoryIcon } from "./CategoryIcon";
 
 // Define the structure of a category from the API
-interface Category {
+export interface Category {
   id: string;
   name: string;
-  type: "income" | "expense";
+  type: "all" | "income" | "expense";
   icon: string;
 }
 
@@ -38,9 +38,12 @@ const allCategoriesOption = {
 
 interface CategoryPickerProps{
   preferredBg?: string
+  value?: string
+  handleCategoryChange?: (selectedOption: Category) => void
+  disabled: boolean
 }
 
-export function CategoryPicker({preferredBg = "default"} : CategoryPickerProps) {
+export function CategoryPicker({preferredBg = "default", handleCategoryChange, value} : CategoryPickerProps) {
   const [open, setOpen] = React.useState(false);
   // 2. Set "All Categories" as the default selected state
   const [selectedCategory, setSelectedCategory] = React.useState<
@@ -64,6 +67,17 @@ export function CategoryPicker({preferredBg = "default"} : CategoryPickerProps) 
     };
     fetchCategories();
   }, []);
+
+  React.useEffect(() => {
+    if (value && categories.length !== 0) {
+      const current_category = categories.find(category => category.name === value)
+  
+      if (current_category){
+        setSelectedCategory(current_category)
+      }
+    } 
+  }, [])
+
 
   const incomeCategories = categories.filter((cat) => cat.type === "income");
   const expenseCategories = categories.filter((cat) => cat.type === "expense");
@@ -107,6 +121,9 @@ export function CategoryPicker({preferredBg = "default"} : CategoryPickerProps) 
                 onSelect={() => {
                   setSelectedCategory(allCategoriesOption);
                   setOpen(false);
+                  if (handleCategoryChange) {
+                    handleCategoryChange(allCategoriesOption)
+                  }
                 }}
                 className="cursor-pointer aria-selected:bg-accent aria-selected:text-accent-foreground dark:aria-selected:bg-slate-700 dark:text-neutral-300"
               >
@@ -132,6 +149,9 @@ export function CategoryPicker({preferredBg = "default"} : CategoryPickerProps) 
                     onSelect={() => {
                       setSelectedCategory(category);
                       setOpen(false);
+                      if (handleCategoryChange) {
+                        handleCategoryChange(category)
+                      }
                     }}
                     className="cursor-pointer aria-selected:bg-accent aria-selected:text-accent-foreground dark:aria-selected:bg-slate-700 dark:text-neutral-300"
                   >
@@ -161,6 +181,9 @@ export function CategoryPicker({preferredBg = "default"} : CategoryPickerProps) 
                     onSelect={() => {
                       setSelectedCategory(category);
                       setOpen(false);
+                      if (handleCategoryChange) {
+                        handleCategoryChange(category)
+                      }
                     }}
                     className="cursor-pointer aria-selected:bg-accent aria-selected:text-accent-foreground dark:aria-selected:bg-slate-700 dark:text-neutral-300"
                   >
