@@ -15,7 +15,7 @@ export default function FilterByTypeMobile({allIncluded = true, value, handleTyp
     const [activeFilter, setActiveFilter] = useState(allIncluded ? "all" : value)
 
     return (
-        <div className={`grid ${allIncluded ? "grid-cols-3" : "grid-cols-2"} p-1 col-span-2 h-12 bg-neutral-200 dark:bg-slate-700 ${allIncluded ? "rounded-2xl" : "rounded-xl"} lg:hidden`}>
+        <div className={`grid ${allIncluded ? "grid-cols-3" : "grid-cols-2"} p-1 col-span-2 h-12 bg-neutral-200 dark:bg-slate-700 ${allIncluded ? "rounded-2xl" : "rounded-xl"} ${allIncluded ? "lg:hidden" : ""}`}>
           {allIncluded && 
           <button type="button" onClick={() => {
             setActiveFilter("all")

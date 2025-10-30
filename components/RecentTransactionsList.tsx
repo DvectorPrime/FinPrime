@@ -31,10 +31,11 @@ export default function RecentTransactionsList() {
   useEffect(() => {
     const getRecentTransactions = async () => {
       try {
-        const response = await fetch("/api/transactions?page=1&limit=5");
+        const response = await fetch("/api/transactions?page=1");
         const data = await response.json();
         // Get the 5 most recent transactions
-        setRecentTransactions(data.transactions.slice(0, 5));
+        setRecentTransactions(data);
+        console.log(recentTransactions)
       } catch (error) {
         console.error("Couldn't Fetch recent transactions:", error);
       } finally {
@@ -47,12 +48,14 @@ export default function RecentTransactionsList() {
 
   return (
     <ul>
-      {loading ? (
+      {loading && (
         // Show 5 skeleton items while loading
         Array.from({ length: 5 }).map((_, i) => <TransactionSkeleton key={i} />)
-      ) : (
-        recentTransactions.map((tx) => <TransactionCard key={tx.id} {...tx} />)
-      )}
+      // ) : (
+      //   recentTransactions.map((tx) => <TransactionCard key={tx.id} {...tx} />)
+      // 
+      )
+      }
     </ul>
   );
 }
