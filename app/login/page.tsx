@@ -13,13 +13,10 @@ import {
   signInWithPopup,
   sendPasswordResetEmail 
 } from "firebase/auth";
-import { useAuth } from "@/context/AuthContext";
 
 
 export default function Home() {
-
-  const router = useRouter();
-  const { user } = useAuth();
+  const router = useRouter()
   const [formData, setFormData] = useState({
     email: "",
     password: ""
@@ -28,10 +25,10 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
 
   // Redirect if user is already logged in
-  if (user) {
-    router.push('/dashboard');
-    return null;
-  }
+  // if (user) {
+  //   router.push('/dashboard');
+  //   return null;
+  // }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -46,45 +43,70 @@ export default function Home() {
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, formData.email, formData.password);
-      router.push("/dashboard");
-    } catch (err: unknown) {
-      setError(err instanceof Error ? "Invalid Email or Password" : 'An error occurred');
-    } finally {
-      setLoading(false);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+        credentials: "include"
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.log("data.error", data.error)
+        setLoading(false)
+        throw new Error(data.error || 'Something went wrong');
+      }
+
+      console.log('Success:', data);
+      setLoading(false)
+      router.push('/dashboard')
+    } catch (error: any) {
+      console.log('Failed:', error.message);
     }
+
+    // try {
+    //   await signInWithEmailAndPassword(auth, formData.email, formData.password);
+    //   router.push("/dashboard");
+    // } catch (err: unknown) {
+    //   setError(err instanceof Error ? "Invalid Email or Password" : 'An error occurred');
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
-  const handleGoogleSignIn = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      router.push("/dashboard");
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    }
-  };
+  // const handleGoogleSignIn = async () => {
+  //   try {
+  //     const provider = new GoogleAuthProvider();
+  //     await signInWithPopup(auth, provider);
+  //     router.push("/dashboard");
+  //   } catch (err: unknown) {
+  //     setError(err instanceof Error ? err.message : 'An error occurred');
+  //   }
+  // };
 
-  const handleForgotPassword = async () => {
-    if (!formData.email) {
-      setError("Please enter your email first");
-      return;
-    }
+  // const handleForgotPassword = async () => {
+  //   if (!formData.email) {
+  //     setError("Please enter your email first");
+  //     return;
+  //   }
 
-    try {
-      await sendPasswordResetEmail(auth, formData.email);
-      alert("Password reset email sent! Check your inbox.");
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    }
-  };
+  //   try {
+  //     await sendPasswordResetEmail(auth, formData.email);
+  //     alert("Password reset email sent! Check your inbox.");
+  //   } catch (err: unknown) {
+  //     setError(err instanceof Error ? err.message : 'An error occurred');
+  //   }
+  // };
 
   return (
     // Added a background color that changes with the theme
     <div className="relative w-full min-h-screen bg-gray-100 dark:bg-slate-900">
-      <div className="w-full h-[120px] bg-gradient-to-br from-[#0078BD] to-[#93C5FD] rounded-none"></div>
+      <div className="w-full h-30 bg-linear-to-br from-[#0078BD] to-[#93C5FD] rounded-none"></div>
       <main className="block h-fit">
-        <div className="mx-auto mt-[-30px] w-[90%] max-w-[450px] h-auto pt-4 pb-8 bg-white dark:bg-slate-800 rounded-xl shadow-xs">
+        <div className="mx-auto -mt-7.5 w-[90%] max-w-112.5-auto pt-4 pb-8 bg-white dark:bg-slate-800 rounded-xl shadow-xs">
           <div className="flex justify-center items-center mt-6 mx-auto gap-1">
             <Image
               src="/logo.png"
@@ -92,9 +114,9 @@ export default function Home() {
               width={32}
               height={32}
             />
-            <p className="hidden lg:block font-sans text-[38px] leading-[38px] font-bold text-[#0078BD] italic">FinPrime</p>
+            <p className="hidden lg:block font-sans text-[38px] leading-9.5 font-bold text-[#0078BD] italic">FinPrime</p>
           </div>
-          <p className="mt-[25px] text-center font-sans text-2xl leading-8 font-bold text-neutral-900 dark:text-neutral-100">
+          <p className="mt-6.25 text-center font-sans text-2xl leading-8 font-bold text-neutral-900 dark:text-neutral-100">
             Welcome back 👋
           </p>
           {error && (
@@ -113,7 +135,7 @@ export default function Home() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Email"
-                className="block w-full h-11 pr-3 pl-[34px] text-base font-sans rounded-md bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 text-neutral-900 dark:text-neutral-100 outline-none focus:ring-2 focus:ring-blue-500"
+                className="block w-full h-11 pr-3 pl-8.5 text-base font-sans rounded-md bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 text-neutral-900 dark:text-neutral-100 outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </label>
@@ -127,7 +149,7 @@ export default function Home() {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Password"
-                className="block w-full h-11 pr-3 pl-[34px] text-base font-sans rounded-md bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 text-neutral-900 dark:text-neutral-100 outline-none focus:ring-2 focus:ring-blue-500"
+                className="block w-full h-11 pr-3 pl-8.5 text-base font-sans rounded-md bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 text-neutral-900 dark:text-neutral-100 outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </label>
@@ -135,15 +157,15 @@ export default function Home() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-11 mx-auto mt-4 flex items-center justify-center font-sans text-sm font-semibold text-white leading-[22px] bg-[#0078BD] border-none rounded-md transition-colors duration-200 hover:bg-[#00507E] hover:cursor-pointer active:bg-[#003350] disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full h-11 mx-auto mt-4 flex items-center justify-center font-sans text-sm font-semibold text-white leading-5.5 bg-[#0078BD] border-none rounded-md transition-colors duration-200 hover:bg-[#00507E] hover:cursor-pointer active:bg-[#003350] disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {loading ? "Logging in..." : "Login"}
             </button>
-            <button onClick={handleForgotPassword} className="mt-3 ml-auto w-fit border-none flex items-center justify-center font-sans text-sm font-medium text-[#0078BD] dark:text-sky-400 bg-transparent rounded-md hover:underline hover:cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
+            {/* <button onClick={handleForgotPassword} className="mt-3 ml-auto w-fit border-none flex items-center justify-center font-sans text-sm font-medium text-[#0078BD] dark:text-sky-400 bg-transparent rounded-md hover:underline hover:cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
               Forgot Password?
-            </button>
+            </button> */}
           </form>
-          <fieldset className="border-t border-neutral-300 dark:border-slate-600 w-[85%] mx-auto mt-3 pt-4">
+          {/* <fieldset className="border-t border-neutral-300 dark:border-slate-600 w-[85%] mx-auto mt-3 pt-4">
             <legend className="text-center px-2 font-medium text-neutral-600 dark:text-neutral-400">
               or continue with
             </legend>
@@ -161,7 +183,7 @@ export default function Home() {
                 Register
               </button>
             </p>
-          </fieldset>
+          </fieldset> */}
         </div>
       </main>
     </div>

@@ -1,7 +1,5 @@
 "use client";
 
-import { useAuth } from "@/context/AuthContext";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import SummaryCard from "@/components/SummaryCard";
 import SpendingChart from "@/components/charts/MonthlySpendingChart";
 import { useEffect, useState } from "react";
@@ -10,6 +8,7 @@ import { FaRegLightbulb } from "react-icons/fa";
 import { FaArrowRightToBracket } from "react-icons/fa6";
 import { useMenu } from "@/context/menuContext";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type summaryData = {
   summaryType: string;
@@ -19,7 +18,7 @@ type summaryData = {
 
 // Skeleton component for summary cards
 const SummaryCardSkeleton = () => (
-  <div className="h-[100px] w-full px-3 py-3 bg-gray-200 dark:bg-slate-700 rounded-xl shadow-xs animate-pulse">
+  <div className="h-25 w-full px-3 py-3 bg-gray-200 dark:bg-slate-700 rounded-xl shadow-xs animate-pulse">
     <div className="flex justify-start items-center gap-2 mb-2">
       <div className="w-6 h-6 rounded-full bg-gray-300 dark:bg-slate-600"></div>
       <div className="h-4 w-20 bg-gray-300 dark:bg-slate-600 rounded"></div>
@@ -30,12 +29,43 @@ const SummaryCardSkeleton = () => (
 
 
 export default function Dashboard() {
-  const { user } = useAuth();
-  const firstName = user?.displayName ? user.displayName.split(" ")[0] : "User";
-  const { setMenuShowing } = useMenu();
+  const [firstName, setFirstName] = useState<string | null>("User");
+  const router = useRouter()
+  const { setMenuShowing } = useMenu()
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(true);
   const [basicSummaryData, setBasicSummaryData] = useState<summaryData[]>([])
+
+  useEffect(() => {
+    (async () => {
+        try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+          method: 'GET',
+          credentials: "include"
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          console.log("data.error", data.error)
+          setLoading(false)
+          throw new Error(data.error || 'Something went wrong');
+        }
+
+        console.log('Success:', data);
+        if(!data.isAuthenticated){
+          console.log("not")
+          router.push('/login')
+        }
+
+        setFirstName(data.name)
+
+        setLoading(false)
+      } catch (error: any) {
+        console.log('Failed:', error.message);
+      }
+      })()
+  }, [])
 
   useEffect(() => {
     setMenuShowing(false);
@@ -80,7 +110,6 @@ export default function Dashboard() {
 
 
   return (
-    <ProtectedRoute>
       <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 h-[calc(100vh-56px)] overflow-y-auto p-4 md:p-6 bg-white dark:bg-slate-900">
         <h1 className="font-sans text-2xl md:text-3xl font-bold md:col-span-2 lg:col-span-4 text-neutral-900 dark:text-white">
           Welcome back, {firstName} 👋
@@ -126,6 +155,5 @@ export default function Dashboard() {
           </p>
         </section>
       </main>
-    </ProtectedRoute>
   );
 }

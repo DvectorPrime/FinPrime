@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/context/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { MenuProvider } from "@/context/menuContext";
+import { Providers } from "@/context/Provider";
 
 
 // 1. Set up the Inter font with a CSS variable
@@ -31,11 +31,9 @@ export default function RootLayout({
         <div className="absolute top-4 right-4 z-50">
           <ThemeToggle />
         </div>
-        <AuthProvider>
-          <MenuProvider>
-            {children}
-          </MenuProvider>
-        </AuthProvider>
+            <MenuProvider>
+              {children}
+            </MenuProvider>
       </body>
     </html>
   );

@@ -6,7 +6,7 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 import { SidebarMenu } from "@/components/SidebarMenu";
 import { HeaderSearchInput } from "@/components/HeaderSearchInput";
 import Image from "next/image";
-import { useAuth } from "@/context/AuthContext";
+
 import { useState } from "react";
 import { useMenu } from "@/context/menuContext";
 
@@ -15,13 +15,10 @@ export default function MainLayout({
 }: {
     children: React.ReactNode
 }) {
-    const { user } = useAuth();
     const [imgError, setImgError] = useState(false);
     const { menuShowing, setMenuShowing, toggleMenu } = useMenu();
 
-    const profileImage = user?.photoURL && !imgError
-        ? user.photoURL
-        : '/default-avatar.png';
+    const profileImage = '/default-avatar.png';
 
     return (
         <>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useMenu } from "@/context/menuContext";
 import { IoAddOutline } from "react-icons/io5";
@@ -168,7 +167,6 @@ export default function Transactions() {
   }).format(totalsData.expenses);
 
   return (
-    <ProtectedRoute>
       <main className="lg:flex flex-col p-3 bg-white dark:bg-slate-900 min-h-full">
         <section className="sticky top-2 z-20 lg:order-1">
           <button className="h-10 px-3 ml-auto flex items-center justify-center gap-2 font-sans text-sm font-medium text-white bg-[#0079BF] rounded-2xl shadow-xs transition-colors hover:bg-[#006CAB] active:bg-[#005586] cursor-pointer"
@@ -214,8 +212,8 @@ export default function Transactions() {
             className="dark:bg-slate-700 dark:border-slate-600 dark:placeholder:text-neutral-400 dark:text-white"
           />
           <DatePicker />
-          <CategoryPicker />
-          <FilterByTypeMobile />
+          {/* <CategoryPicker />
+          <FilterByTypeMobile /> */}
           <FilterByTypeDesktop />
           <button className="hidden w-fit min-w-[100px] h-10 px-1 order-5 cursor-pointer lg:flex items-center justify-center font-sans text-sm font-medium text-neutral-900 dark:text-neutral-300 bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 rounded-2xl transition-colors hover:bg-gray-50 dark:hover:bg-slate-600">
             Reset Filters
@@ -266,6 +264,5 @@ export default function Transactions() {
           )}
         </section>
       </main>
-    </ProtectedRoute>
   );
 }

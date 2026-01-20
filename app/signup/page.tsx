@@ -15,11 +15,13 @@ import { useRouter } from "next/navigation";
 export default function SignUp() {
     const router = useRouter();
     const [formData, setFormData] = useState({
-        fullName: "",
+        firstName: "",
+        lastName: "",
         email: "",
         password: "",
         confirmPassword: ""
     });
+
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
@@ -42,27 +44,27 @@ export default function SignUp() {
         }
 
         try {
-            const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-            await updateProfile(userCredential.user, {
-                displayName: formData.fullName
-            })
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json', // 👈 You must add this manually with fetch
+            },
+            body: JSON.stringify(formData),
+            credentials: "include"
+          });
 
-            router.push("/dashboard"); 
-            } catch (err: unknown) {
-                setError(err instanceof Error ? err.message : 'An error occurred');
-            } finally {
-                setLoading(false);
-            }
+          const data = await res.json();
 
-    };
+          if (!res.ok) {
+            throw new Error(data.error || 'Something went wrong');
+          }
 
-    const handleGoogleSignup = async () => {
-        try {
-        const provider = new GoogleAuthProvider();
-        await signInWithPopup(auth, provider);
-        router.push("/dashboard");
-        } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+          console.log('Success:', data);
+          setLoading(false)
+          router.push('/dashboard')
+
+        } catch (error: any) {
+          console.log('Failed:', error.message);
         }
     };
 
@@ -88,25 +90,43 @@ export default function SignUp() {
           <section>
             <label
               htmlFor="full-name"
-              className="block mb-1 font-sans text-base leading-[26px] font-medium"
+              className="block mb-1 font-sans text-base leading-6.5 font-medium"
             >
-              Full Name
+              First Name
             </label>
             <input
               type="text"
-              name="fullName"
-              id="full-name"
-              value={formData.fullName}
+              name="firstName"
+              id="first-name"
+              value={formData.firstName}
               onChange={handleChange}
-              className="block mb-3 px-3 py-1.5 w-full font-sans text-base leading-[26px] font-normal bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 rounded-md outline-none transition-colors hover:border-neutral-400 dark:hover:border-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-slate-900"
-              placeholder="e.g John Doe"
+              className="block mb-3 px-3 py-1.5 w-full font-sans text-base leading-6.5 font-normal bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 rounded-md outline-none transition-colors hover:border-neutral-400 dark:hover:border-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-slate-900"
+              placeholder="e.g John"
+              required
+            />
+          </section>
+          <section>
+            <label
+              htmlFor="full-name"
+              className="block mb-1 font-sans text-base leading-6.5 font-medium"
+            >
+              Last Name
+            </label>
+            <input
+              type="text"
+              name="lastName"
+              id="last-name"
+              value={formData.lastName}
+              onChange={handleChange}
+              className="block mb-3 px-3 py-1.5 w-full font-sans text-base leading-6.5 font-normal bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 rounded-md outline-none transition-colors hover:border-neutral-400 dark:hover:border-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-slate-900"
+              placeholder="e.g Doe"
               required
             />
           </section>
           <section>
             <label
               htmlFor="email"
-              className="block mb-1 font-sans text-base leading-[26px] font-medium"
+              className="block mb-1 font-sans text-base leading-6.5 font-medium"
             >
               Email
             </label>
@@ -116,7 +136,7 @@ export default function SignUp() {
               id="email"
               value={formData.email}
               onChange={handleChange}
-              className="block mb-3 px-3 py-1.5 w-full font-sans text-base leading-[26px] font-normal bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 rounded-md outline-none transition-colors hover:border-neutral-400 dark:hover:border-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-slate-900"
+              className="block mb-3 px-3 py-1.5 w-full font-sans text-base leading-6.5 font-normal bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 rounded-md outline-none transition-colors hover:border-neutral-400 dark:hover:border-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-slate-900"
               placeholder="example@email.com"
               required
             />
@@ -124,7 +144,7 @@ export default function SignUp() {
           <section>
             <label
               htmlFor="password"
-              className="block mb-1 font-sans text-base leading-[26px] font-medium"
+              className="block mb-1 font-sans text-base leading-6.5 font-medium"
             >
               Password
             </label>
@@ -134,7 +154,7 @@ export default function SignUp() {
               id="password"
               value={formData.password}
               onChange={handleChange}
-              className="block mb-3 px-3 py-1.5 w-full font-sans text-base leading-[26px] font-normal bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 rounded-md outline-none transition-colors hover:border-neutral-400 dark:hover:border-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-slate-900"
+              className="block mb-3 px-3 py-1.5 w-full font-sans text-base leading-6.5 font-normal bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 rounded-md outline-none transition-colors hover:border-neutral-400 dark:hover:border-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-slate-900"
               placeholder="Create a password"
               required
             />
@@ -142,7 +162,7 @@ export default function SignUp() {
           <section>
             <label
               htmlFor="confirm-password"
-              className="block mb-1 font-sans text-base leading-[26px] font-medium"
+              className="block mb-1 font-sans text-base leading-6.5 font-medium"
             >
               Confirm Password
             </label>
@@ -152,7 +172,7 @@ export default function SignUp() {
               id="confirm-password"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="block mb-3 px-3 py-1.5 w-full font-sans text-base leading-[26px] font-normal bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 rounded-md outline-none transition-colors hover:border-neutral-400 dark:hover:border-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-slate-900"
+              className="block mb-3 px-3 py-1.5 w-full font-sans text-base leading-6.5 font-normal bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 rounded-md outline-none transition-colors hover:border-neutral-400 dark:hover:border-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-slate-900"
               placeholder="Confirm your Password"
               required
             />
@@ -160,7 +180,7 @@ export default function SignUp() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-10 px-3 mt-7 flex items-center justify-center gap-2 font-sans text-base leading-[26px] font-semibold text-white bg-[#0079BF] border-none rounded-md shadow-xs transition-colors duration-200 hover:bg-[#006CAB] hover:cursor-pointer active:bg-[#005586] disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full h-10 px-3 mt-7 flex items-center justify-center gap-2 font-sans text-base leading-6.5 font-semibold text-white bg-[#0079BF] border-none rounded-md shadow-xs transition-colors duration-200 hover:bg-[#006CAB] hover:cursor-pointer active:bg-[#005586] disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {loading ? "Creating Account..." : "Create Account"}
           </button>
@@ -168,14 +188,14 @@ export default function SignUp() {
         <p className="my-3 font-sans text-xs font-normal text-neutral-600 dark:text-neutral-400 text-center">
           or
         </p>
-        <button
+        {/* <button
           onClick={handleGoogleSignup}
           type="button"
-          className="w-full h-10 px-3 mb-5 flex items-center justify-center gap-2 font-sans text-base leading-[26px] font-semibold text-[#0079BF] dark:text-sky-400 bg-white dark:bg-slate-700 border border-[#0079BF] dark:border-sky-500 rounded-md transition-colors duration-200 hover:bg-sky-50 hover:cursor-pointer dark:hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="w-full h-10 px-3 mb-5 flex items-center justify-center gap-2 font-sans text-base leading-6.5 font-semibold text-[#0079BF] dark:text-sky-400 bg-white dark:bg-slate-700 border border-[#0079BF] dark:border-sky-500 rounded-md transition-colors duration-200 hover:bg-sky-50 hover:cursor-pointer dark:hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <FcGoogle className="w-5 h-5" />
           <span>Sign up with Google</span>
-        </button>
+        </button> */}
         <p className="flex items-center justify-center font-sans text-sm font-normal text-center text-neutral-600 dark:text-neutral-400">
           Already have an account?
           <button
