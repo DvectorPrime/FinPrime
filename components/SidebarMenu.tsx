@@ -27,11 +27,19 @@ const menuItems: MenuItem[] = [
   { id: "settings", label: "Settings", icon: <FaCog /> },
 ];
 
-
 export const SidebarMenu = ({ menuShowing }: SidebarMenuProps) => {
   const router = useRouter()
 
   const [selectedItemId, setSelectedItemId] = useState("dashboard");
+
+  async function logOut() {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {credentials: "include"})
+      window.location.href = '/login'
+    } catch (err) {
+      console.log('failed to log out', err)
+    }
+    }
 
   return (
     <nav
@@ -63,7 +71,7 @@ export const SidebarMenu = ({ menuShowing }: SidebarMenuProps) => {
         placeholder="Search..."
         menuSearch={true}
       />
-      <button className="absolute w-[calc(100%-16px)] bottom-4 h-10 px-3 mt-auto
+      <button onClick={logOut} className="absolute w-[calc(100%-16px)] bottom-4 h-10 px-3 mt-auto
         flex items-center justify-center gap-4
         font-sans text-sm leading-[22px] font-medium text-white
         bg-red-500/90 border-none rounded-md

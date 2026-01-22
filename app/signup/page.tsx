@@ -2,28 +2,54 @@
 
 import Image from "next/image";
 import { FcGoogle } from "react-icons/fc";
-import { useState } from "react";
-import { auth } from "@/firebase/firebaseConfig";
-import { 
-  createUserWithEmailAndPassword, 
-  GoogleAuthProvider, 
-  signInWithPopup, 
-  updateProfile
-} from "firebase/auth";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function SignUp() {
     const router = useRouter();
-    const [formData, setFormData] = useState({
-        firstName: "",
-        lastName: "",
-        email: "",
-        password: "",
-        confirmPassword: ""
-    });
 
+    
+    const [formData, setFormData] = useState({
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      confirmPassword: ""
+    });
+    
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [isCheckingSession, setIsCheckingSession] = useState(true);
+
+    useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+          method: 'GET',
+          credentials: "include" // vital for sending the cookie
+        });
+
+        const data = await res.json();
+        console.log("data")
+        // DEBUG: See exactly what the backend sends
+        console.log("Session Check Data:", data); 
+
+        // FIX: Check 'authenticated', not 'isAuthenticated'
+        if (data.isAuthenticated) {
+          router.push("/dashboard");
+        } else {
+          // Only stop checking if we are sure they are NOT logged in
+          setIsCheckingSession(false);
+        }
+      } catch (err) {
+        console.log("Session Check Failed", err);
+        setIsCheckingSession(false);
+      }
+    };
+
+    checkSession();
+  }, [router]);
+
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({
@@ -65,8 +91,32 @@ export default function SignUp() {
 
         } catch (error: any) {
           console.log('Failed:', error.message);
+          setLoading(false)
         }
     };
+
+    const handleGoogleSignup = async () =>{
+      const rootUrl = "https://accounts.google.com/o/oauth2/auth"
+      
+      const options = {
+        redirect_uri: 'http://localhost:3000/login', 
+        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID as string,
+        access_type: 'offline',
+        response_type: 'code',
+        prompt: 'consent',
+        scope: [
+          'https://www.googleapis.com/auth/userinfo.profile',
+          'https://www.googleapis.com/auth/userinfo.email',
+        ].join(' '),
+      }
+
+      const qs = new URLSearchParams(options).toString();
+      window.location.href = `${rootUrl}?${qs}`;
+    }
+
+    function toLoginPage(){
+      router.push('/login')
+    }
 
   return (
     <main className="bg-gray-100 dark:bg-slate-900 w-full min-h-screen py-8">
@@ -188,17 +238,18 @@ export default function SignUp() {
         <p className="my-3 font-sans text-xs font-normal text-neutral-600 dark:text-neutral-400 text-center">
           or
         </p>
-        {/* <button
+        <button
           onClick={handleGoogleSignup}
           type="button"
           className="w-full h-10 px-3 mb-5 flex items-center justify-center gap-2 font-sans text-base leading-6.5 font-semibold text-[#0079BF] dark:text-sky-400 bg-white dark:bg-slate-700 border border-[#0079BF] dark:border-sky-500 rounded-md transition-colors duration-200 hover:bg-sky-50 hover:cursor-pointer dark:hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <FcGoogle className="w-5 h-5" />
           <span>Sign up with Google</span>
-        </button> */}
+        </button>
         <p className="flex items-center justify-center font-sans text-sm font-normal text-center text-neutral-600 dark:text-neutral-400">
           Already have an account?
           <button
+            onClick={toLoginPage}
             className="ml-1 flex items-center justify-center font-sans text-sm font-medium text-[#0079BF] dark:text-sky-400 bg-transparent border-none rounded-md hover:underline hover:cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             type="button"
           >

@@ -38,7 +38,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     (async () => {
-        try {
+      try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
           method: 'GET',
           credentials: "include"
@@ -63,6 +63,7 @@ export default function Dashboard() {
         setLoading(false)
       } catch (error: any) {
         console.log('Failed:', error.message);
+        router.push("/login")
       }
       })()
   }, [])
