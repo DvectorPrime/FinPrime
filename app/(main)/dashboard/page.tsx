@@ -70,25 +70,26 @@ export default function Dashboard() {
 
   useEffect(() => {
     setMenuShowing(false);
-    const controller = new AbortController()
+    setLoading(true)
 
-    // Simulate data fetching
     const fetchTotals = async () => {
       try {
-        const response = await fetch("/api/transactions?order=totals", {
-          signal: controller.signal
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/transactions/dashboardStats`, {
+          method: 'GET',
+          credentials: "include"
         });
 
         if (!response.ok){
-          throw new Error('Failed to get totals from teh server.')
+          throw new Error('Failed to get dashboard summary from teh server.')
         }
 
         const data = await response.json()
+
         setBasicSummaryData([
-          { summaryType: "Balance", amount: data.income - data.expenses },
-          { summaryType: "Income", amount: data.income, growthPercent: 5.2 },
-          { summaryType: "Expenses", amount: data.expenses, growthPercent: 8.1 },
-          { summaryType: "Savings Rate", amount: 15.2, growthPercent: -1.5 },
+          { summaryType: "Balance", amount: data.balance.value },
+          { summaryType: "Income", amount: data.income.value, growthPercent: data.income.percentage },
+          { summaryType: "Expenses", amount: data.expenses.value, growthPercent: data.expenses.percentage },
+          { summaryType: "Savings Rate", amount: data.savingsRate.value },
         ]);
       } catch (err : any) {
         if (err.name === 'AbortError') {
@@ -103,10 +104,6 @@ export default function Dashboard() {
     }
     
     fetchTotals()
-
-    return(() => {
-      controller.abort()
-    })
   }, [setMenuShowing]);
 
 

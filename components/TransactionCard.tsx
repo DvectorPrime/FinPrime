@@ -9,7 +9,7 @@ interface TransactionCardProps {
   type: string;
   category: string;
   amount: number;
-  date: string;
+  createdAt: string;
 }
 
 interface Category {
@@ -24,7 +24,7 @@ export default function TransactionCard({
   type,
   category,
   amount,
-  date,
+  createdAt,
 }: TransactionCardProps) {
   const [categoryIcon, setCategoryIcon] = useState<string | null>(null);
 
@@ -46,7 +46,7 @@ export default function TransactionCard({
     findIcon();
   }, [category]);
 
-  const formattedDate = new Date(date).toLocaleDateString('en-US', {
+  const formattedDate = new Date(createdAt).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -57,17 +57,17 @@ export default function TransactionCard({
     currency: 'NGN',
   }).format(amount);
 
-  const amountString = `${type === "expense" ? "-" : "+"}${formattedAmount}`;
+  const amountString = `${type.toLowerCase() === "expense" ? "-" : "+"}${formattedAmount}`;
 
   return (
     <li className="flex items-center gap-4 py-3 border-b border-gray-200 dark:border-slate-700">
-      <div className={`flex-shrink-0 flex justify-center items-center w-10 h-10 ${type === 'income' ? 'bg-green-50 dark:bg-green-900/50' : 'bg-red-50 dark:bg-red-900/50'} rounded-full`}>
+      <div className={`shrink-0 flex justify-center items-center w-10 h-10 ${type.toLowerCase() === 'income' ? 'bg-green-50 dark:bg-green-900/50' : 'bg-red-50 dark:bg-red-900/50'} rounded-full`}>
         <CategoryIcon
           iconName={categoryIcon}
-          className={`h-5 w-5 ${type === 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
+          className={`h-5 w-5 ${type.toLowerCase() === 'income' ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-400'}`}
         />
       </div>
-      <div className="flex-grow">
+      <div className="grow">
         <p className="font-sans text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-1">
           {transactionName}
         </p>
@@ -76,8 +76,8 @@ export default function TransactionCard({
         </p>
       </div>
       <p
-        className={`flex-shrink-0 font-sans text-sm font-medium ${
-          type === "income" ? "text-neutral-900 dark:text-neutral-200" : "text-[#D64651] dark:text-red-400"
+        className={`shrink-0 font-sans text-sm font-medium ${
+          type.toLowerCase() === "income" ? 'text-green-600 dark:text-green-500' : "text-[#D64651] dark:text-red-400"
         }`}
       >
         {amountString}

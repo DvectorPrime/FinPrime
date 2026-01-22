@@ -129,10 +129,10 @@ export async function GET(request: NextRequest) {
       allTransactions.push(transaction);
 
       // Split by type and calculate totals
-      if (data.type === 'income') {
+      if (data.type === 'income'.toUpperCase()) {
         incomeTransactions.push(transaction);
         totalIncome += data.amount || 0;
-      } else if (data.type === 'expense') {
+      } else if (data.type === 'expense'.toUpperCase()) {
         expenseTransactions.push(transaction);
         totalExpenses += data.amount || 0;
       }

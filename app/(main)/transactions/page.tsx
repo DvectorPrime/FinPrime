@@ -167,7 +167,7 @@ export default function Transactions() {
   }).format(totalsData.expenses);
 
   return (
-      <main className="lg:flex flex-col p-3 bg-white dark:bg-slate-900 min-h-full">
+      <main className="lg:flex flex-col p-3 bg-white dark:bg-slate-900 h-screen">
         <section className="sticky top-2 z-20 lg:order-1">
           <button className="h-10 px-3 ml-auto flex items-center justify-center gap-2 font-sans text-sm font-medium text-white bg-[#0079BF] rounded-2xl shadow-xs transition-colors hover:bg-[#006CAB] active:bg-[#005586] cursor-pointer"
            onClick={() => router.push("/transactions/add")}>

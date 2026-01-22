@@ -160,24 +160,24 @@ export default function AddTransaction() {
     );
   }
 
-  // Show sign-in message if not authenticated
-  if (!currentUser) {
-    return (
-      <main className="px-4 py-5 bg-gray-100 dark:bg-slate-900 min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-lg text-neutral-700 dark:text-neutral-300 mb-4">
-            Please sign in to add transactions
-          </p>
-          <button
-            onClick={() => router.push("/login")}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-          >
-            Go to Login
-          </button>
-        </div>
-      </main>
-    );
-  }
+  // // Show sign-in message if not authenticated
+  // if (!currentUser) {
+  //   return (
+  //     <main className="px-4 py-5 bg-gray-100 dark:bg-slate-900 min-h-screen flex items-center justify-center">
+  //       <div className="text-center">
+  //         <p className="text-lg text-neutral-700 dark:text-neutral-300 mb-4">
+  //           Please sign in to add transactions
+  //         </p>
+  //         <button
+  //           onClick={() => router.push("/login")}
+  //           className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+  //         >
+  //           Go to Login
+  //         </button>
+  //       </div>
+  //     </main>
+  //   );
+  // }
 
   return (
     <main className="px-4 py-5 bg-gray-100 dark:bg-slate-900 min-h-screen">

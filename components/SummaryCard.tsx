@@ -37,7 +37,7 @@ export default function SummaryCard({
         <div className="flex justify-start items-center gap-2 mb-2">
           {summaryIcon}
           <p className="font-sans text-[12px] font-medium text-neutral-600 dark:text-neutral-400">
-            {summaryType}
+            {summaryType} {(summaryType !== "Balance" && summaryType !== "Savings Rate") ? '(This Month)' : ''}
           </p>
         </div>
         <p className="font-sans text-xl lg:text-lg font-bold text-neutral-900 dark:text-neutral-100">
@@ -55,7 +55,7 @@ export default function SummaryCard({
           ) : (
             <TiArrowDownThick className="w-3 h-3" />
           )}
-          <p>{Math.abs(growthPercent)}%</p>
+          <p>{Math.abs(growthPercent).toFixed(1)}%</p>
         </div>
       )}
     </article>
