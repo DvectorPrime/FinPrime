@@ -1,4 +1,4 @@
-import { Transaction } from "@/app/api/transactions/route"
+import { Transaction } from "./types/transactionTypes";
 import { IoEllipsisVertical } from "react-icons/io5";
 
 interface TransactionTableProps {
@@ -46,7 +46,7 @@ export default function TransactionTable({transactions, lastItemRef} : Transacti
             <tbody>
             {transactions.map((transaction, index) => {
 
-                const formattedDate = new Date(transaction.date).toLocaleDateString("en-US", {
+                const formattedDate = new Date(transaction.createdAt).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
@@ -57,7 +57,7 @@ export default function TransactionTable({transactions, lastItemRef} : Transacti
                     currency: "NGN",
                 }).format(transaction.amount);
 
-                const amountString = `${transaction.type === "expense" ? "-" : "+"}${formattedAmount}`;
+                const amountString = `${transaction.type.toLowerCase() === "expense" ? "-" : "+"}${formattedAmount}`;
 
                 return(
                     <tr key={transaction.id} ref={index === transactions.length - 1 ? lastItemRef : null}
@@ -69,7 +69,7 @@ export default function TransactionTable({transactions, lastItemRef} : Transacti
                         <td className="px-6 py-4 font-semibold">{transaction.type.toUpperCase()}</td>
                         <td 
                             className={`font-mono text-right px-6 py-4 ${
-                            transaction.type === "income"
+                            transaction.type.toLowerCase() === "income"
                                 ? "text-neutral-900 dark:text-neutral-100"
                                 : "text-[#D64651]"
                             }`}>{amountString}</td>

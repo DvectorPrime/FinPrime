@@ -1,21 +1,23 @@
-import { useState, useEffect } from 'react';
-
-function getWindowWidth() {
-  const { innerWidth: width } = window;
-  return width;
-}
+"use client"; // Marks this as client-side code
+import { useState, useEffect } from "react";
 
 export default function useWindowWidth() {
-  const [windowWidth, setWindowWidth] = useState(getWindowWidth());
+  // 1. Initialize with 0 (or a default width) so the server can render without crashing
+  const [width, setWidth] = useState(0);
 
   useEffect(() => {
-    function handleResize() {
-      setWindowWidth(getWindowWidth());
-    }
+    // 2. This code runs ONLY in the browser, where 'window' exists
+    const handleResize = () => setWidth(window.innerWidth);
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []); // Empty dependency array ensures the effect runs only once on mount and unmount
+    // Set the actual width immediately upon mounting
+    handleResize();
 
-  return windowWidth;
+    // Add event listener for resizing
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup listener on unmount
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return width;
 }

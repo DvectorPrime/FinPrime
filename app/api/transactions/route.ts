@@ -3,15 +3,7 @@ import { collection, addDoc, getDocs, where, orderBy, Timestamp, query,  } from 
 import { db } from '@/firebase/firebaseConfig'; // Remove auth import
 
 
-export interface Transaction {
-  id: string;
-  transactionName: string;
-  type: 'income' | 'expense';
-  category: string;
-  amount: number;
-  date: string;
-  notes: string;
-}
+
 
 // POST endpoint - Create transaction
 export async function POST(request: NextRequest) {

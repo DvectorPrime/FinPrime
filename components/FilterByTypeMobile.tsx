@@ -1,18 +1,30 @@
 "use client"
 
-import {  useState } from "react";
+import {  useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
+import { Filters } from "./types/filtertypes";
+
 interface FilterByTypeMobileProps{
-  allIncluded: boolean
+  allIncluded?: boolean
   value?: string
   handleTypeChange?: (newType: "income" | "expense") => void
-  disabled: boolean
+  disabled: boolean,
+  setFilters?: React.Dispatch<React.SetStateAction<Filters>>,
 }
 
-export default function FilterByTypeMobile({allIncluded = true, value, handleTypeChange} : FilterByTypeMobileProps){
+export default function FilterByTypeMobile({allIncluded = true, value, handleTypeChange, setFilters} : FilterByTypeMobileProps){
     
     const [activeFilter, setActiveFilter] = useState(allIncluded ? "all" : value)
+
+    useEffect(() => {
+      if (setFilters){
+        setFilters((prev) => ({
+          ...prev,
+          type: activeFilter || "all"
+        }))
+      }
+    }, [activeFilter])
 
     return (
         <div className={`grid ${allIncluded ? "grid-cols-3" : "grid-cols-2"} p-1 col-span-2 h-12 bg-neutral-200 dark:bg-slate-700 ${allIncluded ? "rounded-2xl" : "rounded-xl"} ${allIncluded ? "lg:hidden" : ""}`}>

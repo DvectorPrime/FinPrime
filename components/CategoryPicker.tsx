@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronDown, List } from "lucide-react"; // Added List icon
+import { Check, ChevronDown, List } from "lucide-react"; 
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,8 @@ import {
 } from "@/components/ui/popover";
 import { CategoryIcon } from "./CategoryIcon";
 
-// Define the structure of a category from the API
+import { Filters } from "./types/filtertypes";
+
 export interface Category {
   id: string;
   name: string;
@@ -28,12 +29,11 @@ export interface Category {
   icon: string;
 }
 
-// 1. Define the special "All Categories" option
 const allCategoriesOption = {
   id: "all",
   name: "All Categories",
-  type: "all" as const, // Use a literal type to distinguish it
-  icon: "all_icon", // Special identifier
+  type: "all" as const,
+  icon: "all_icon", 
 };
 
 interface CategoryPickerProps{
@@ -41,18 +41,28 @@ interface CategoryPickerProps{
   value?: string
   handleCategoryChange?: (selectedOption: Category) => void
   disabled: boolean
+  setFilters: React.Dispatch<React.SetStateAction<Filters>>
 }
 
-export function CategoryPicker({preferredBg = "default", handleCategoryChange, value} : CategoryPickerProps) {
+export function CategoryPicker({preferredBg = "default", handleCategoryChange, value, setFilters} : CategoryPickerProps) {
   const [open, setOpen] = React.useState(false);
-  // 2. Set "All Categories" as the default selected state
   const [selectedCategory, setSelectedCategory] = React.useState<
     Category | typeof allCategoriesOption
   >(allCategoriesOption);
   const [categories, setCategories] = React.useState<Category[]>([]);
   const [loading, setLoading] = React.useState(true);
 
-  // Fetch categories from the API when the component mounts
+  // 1. Sync Filters with Selection
+  React.useEffect(() => {
+    setFilters((prev) => {
+      return {
+        ...prev,
+        category : selectedCategory.id === "all" ? selectedCategory.id : selectedCategory.name
+      }
+    })
+  }, [selectedCategory, setFilters])
+
+  // 2. Fetch Categories
   React.useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -68,16 +78,18 @@ export function CategoryPicker({preferredBg = "default", handleCategoryChange, v
     fetchCategories();
   }, []);
 
+  // 3. Handle External Value Changes (The Fix)
+  // BUG FIX: Added [value, categories] to dependencies. 
+  // Previously this only ran on mount ([]), so it missed the moment when 'categories' finished loading.
   React.useEffect(() => {
-    if (value && categories.length !== 0) {
+    if (value && categories.length > 0) {
       const current_category = categories.find(category => category.name === value)
   
       if (current_category){
         setSelectedCategory(current_category)
       }
     } 
-  }, [])
-
+  }, [value, categories]) 
 
   const incomeCategories = categories.filter((cat) => cat.type === "income");
   const expenseCategories = categories.filter((cat) => cat.type === "expense");
@@ -91,16 +103,19 @@ export function CategoryPicker({preferredBg = "default", handleCategoryChange, v
             role="combobox"
             aria-expanded={open}
             className={cn(
-              // --- Base & Mobile styles ---
-              `w-full h-10 justify-between rounded-2xl border border-neutral-300 ${preferredBg == "default" ? "bg-neutral-300/20" : preferredBg} px-3 font-sans text-sm font-normal text-neutral-900 transition-colors hover:bg-neutral-300/30 focus:ring-2 focus:ring-blue-500`,
+              `w-full h-10 justify-between rounded-2xl border border-neutral-300 ${preferredBg === "default" ? "bg-neutral-300/20" : preferredBg} px-3 font-sans text-sm font-normal text-neutral-900 transition-colors hover:bg-neutral-300/30 focus:ring-2 focus:ring-blue-500`,
               "dark:bg-slate-700 dark:border-slate-600 dark:text-neutral-100 dark:hover:bg-slate-600 dark:focus:ring-sky-500",
-              // --- Desktop styles ---
               "lg:rounded-full lg:bg-white lg:text-neutral-600 lg:hover:bg-gray-50",
               "lg:dark:bg-slate-800 lg:dark:border-slate-700 lg:dark:text-neutral-300 lg:dark:hover:bg-slate-700"
             )}
           >
-            {/* 3. Custom display to handle the "All Categories" icon */}
             <div className="flex items-center gap-2">
+               {/* Handle special icon for "All Categories" vs Standard Icons */}
+               {selectedCategory.id === "all" ? (
+                  <List className="w-4 h-4" />
+               ) : (
+                  <CategoryIcon iconName={selectedCategory.icon} className="w-4 h-4" />
+               )}
               {selectedCategory.name}
             </div>
             <ChevronDown className="h-4 w-4 shrink-0 opacity-50 text-neutral-600 dark:text-neutral-400" />
@@ -114,7 +129,6 @@ export function CategoryPicker({preferredBg = "default", handleCategoryChange, v
                 {loading ? "Loading..." : "No category found."}
               </CommandEmpty>
               
-              {/* 4. Add "All Categories" as the first selectable item */}
               <CommandItem
                 key={allCategoriesOption.id}
                 value={allCategoriesOption.name}
@@ -127,7 +141,7 @@ export function CategoryPicker({preferredBg = "default", handleCategoryChange, v
                 }}
                 className="cursor-pointer aria-selected:bg-accent aria-selected:text-accent-foreground dark:aria-selected:bg-slate-700 dark:text-neutral-300"
               >
-                <div className="flex items-center gap-2 flex-grow">
+                <div className="flex items-center gap-2 grow">
                   <List className="w-4 h-4" />
                   {allCategoriesOption.name}
                 </div>
@@ -155,7 +169,7 @@ export function CategoryPicker({preferredBg = "default", handleCategoryChange, v
                     }}
                     className="cursor-pointer aria-selected:bg-accent aria-selected:text-accent-foreground dark:aria-selected:bg-slate-700 dark:text-neutral-300"
                   >
-                    <div className="flex items-center gap-2 flex-grow">
+                    <div className="flex items-center gap-2 grow">
                       <CategoryIcon
                         iconName={category.icon}
                         className="w-4 h-4"
@@ -187,7 +201,7 @@ export function CategoryPicker({preferredBg = "default", handleCategoryChange, v
                     }}
                     className="cursor-pointer aria-selected:bg-accent aria-selected:text-accent-foreground dark:aria-selected:bg-slate-700 dark:text-neutral-300"
                   >
-                    <div className="flex items-center gap-2 flex-grow">
+                    <div className="flex items-center gap-2 grow">
                       <CategoryIcon
                         iconName={category.icon}
                         className="w-4 h-4"
@@ -196,7 +210,7 @@ export function CategoryPicker({preferredBg = "default", handleCategoryChange, v
                     </div>
                     <Check
                       className={cn(
-                         "ml-auto h-4 w-4",
+                          "ml-auto h-4 w-4",
                         selectedCategory?.id === category.id
                           ? "opacity-100"
                           : "opacity-0"
@@ -212,4 +226,3 @@ export function CategoryPicker({preferredBg = "default", handleCategoryChange, v
     </div>
   );
 }
-

@@ -1,4 +1,4 @@
-import { Transaction } from "@/app/api/transactions/route";
+import { Transaction } from "./types/transactionTypes";
 import { IoEllipsisVertical } from "react-icons/io5";
 import { TiArrowDown, TiArrowUp } from "react-icons/ti";
 
@@ -14,7 +14,7 @@ interface ListItemProp {
 }
 
 function ListItem({ data, lastItemRef, isLastItem }: ListItemProp) {
-  const formattedDate = new Date(data.date).toLocaleDateString("en-US", {
+  const formattedDate = new Date(data.createdAt).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -58,14 +58,14 @@ function ListItem({ data, lastItemRef, isLastItem }: ListItemProp) {
           <IoEllipsisVertical className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
         </button>
         <div className="flex items-center justify-end">
-          {data.type === "income" ? (
+          {data.type.toLowerCase() === "income" ? (
             <TiArrowUp className="w-3 h-3 text-neutral-900 dark:text-neutral-100" />
           ) : (
             <TiArrowDown className="w-3 h-3 text-red-600 dark:text-red-400" />
           )}
           <p
             className={`ml-1 font-sans text-base font-semibold ${
-            data.type === "income"
+            data.type.toLowerCase() === "income"
               ? "text-neutral-900 dark:text-neutral-100" // Keep income amount neutral
               : "text-[#D64651] dark:text-red-400" // Expense amount red
           }`}

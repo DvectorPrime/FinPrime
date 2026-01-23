@@ -4,17 +4,30 @@ import * as React from "react";
 import { Filter as FilterIcon, ChevronDownIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function FilterByTypeDesktop() {
+import { Filters } from "./types/filtertypes";
+
+interface FilterByTypeDesktopProps {
+  setFilters: React.Dispatch<React.SetStateAction<Filters>>
+}
+
+export function FilterByTypeDesktop({setFilters} : FilterByTypeDesktopProps) {
   const [filterType, setFilterType] = React.useState("all");
 
+  React.useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      type: filterType
+    }))
+  }, [filterType])
+
   return (
-    <div className="hidden lg:block lg:order-3 relative w-full lg:w-fit">
+    <div className="hidden lg:block lg:order-3 relative w-full">
       <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
         <FilterIcon className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />
       </div>
       <select
         value={filterType}
-        onChange={(e) => setFilterType(e.target.value)}
+        onChange={(e) => setFilterType(e.target.value.toLowerCase())}
         className={cn(
           // --- Base styles for appearance ---
           "appearance-none w-full h-10 justify-between rounded-full pl-9 pr-8", // Rounded full
