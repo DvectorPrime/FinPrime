@@ -5,75 +5,36 @@ import { useRouter } from "next/navigation";
 import { CategoryPicker } from "@/components/CategoryPicker";
 import { DatePicker } from "@/components/DatePicker";
 import FilterByTypeMobile from "@/components/FilterByTypeMobile";
-import { Category } from "@/app/api/categories/route";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { auth } from "@/firebase/firebaseConfig";
-import { onAuthStateChanged } from "firebase/auth";
-
-// Define the structure for form data
-interface FormData {
-  id: string;
-  userId: string;
-  transactionName: string;
-  amount: number | string;
-  type: "income" | "expense";
-  category: string;
-  date: Date | undefined;
-  notes: string;
-}
+import { FormData } from "@/components/types/transactionFormDataTypes";
+import { useToast } from "@/context/toastContext";
 
 export default function AddTransaction() {
   const router = useRouter();
-  
+  const { showToast } = useToast(); // <--- 2. Initialize Hook
+
   // State for current user
-  const [currentUser, setCurrentUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [firstName, setFirstName] = useState<String | null>(null)
+  const [loading, setLoading] = useState(false);
 
-  // Listen to auth state changes
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
-      setLoading(false);
-      
-      // Update form data with user ID when user loads
-      if (user) {
-        setFormData((prev) => ({
-          ...prev,
-          userId: user.uid,
-        }));
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  // 1. State for form data (dictionary)
+  // State for form data
   const [formData, setFormData] = useState<FormData>({
-    id: "",
-    userId: "",
     transactionName: "",
     amount: "",
-    type: "expense",
-    category: "All Categories",
+    type: "income",
+    category: "Others",
     date: new Date(),
     notes: "",
   });
 
-  // 2. State for loading/submitting
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-
-  // --- Handlers for Form Inputs ---
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  
+  // --- Handlers ---
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,25 +45,7 @@ export default function AddTransaction() {
   };
 
   const handleTypeChange = (newType: "income" | "expense") => {
-    setFormData((prev) => ({
-      ...prev,
-      type: newType,
-    }));
-  };
-
-  const handleCategoryChange = (selectedOption: Category) => {
-    const category = selectedOption?.name;
-    setFormData((prev) => ({
-      ...prev,
-      category: category,
-    }));
-  };
-
-  const handleDateChange = (newDate: Date | undefined) => {
-    setFormData((prev) => ({
-      ...prev,
-      date: newDate,
-    }));
+    setFormData((prev) => ({ ...prev, type: newType }));
   };
 
   // --- Form Submission Logic ---
@@ -111,47 +54,81 @@ export default function AddTransaction() {
     setIsSubmitting(true);
     setSubmitError(null);
 
-    if (!currentUser) {
-      alert("Please sign in to add a transaction");
+    // Basic Frontend Validation
+    if (!firstName) {
+      setSubmitError("Please sign in to add a transaction");
       setIsSubmitting(false);
       return;
     }
 
+    if (!formData.amount || Number(formData.amount) <= 0) {
+      setSubmitError("Please enter a valid amount");
+      setIsSubmitting(false);
+      return;
+    }
+    
     try {
-      console.log("Submitting:", formData);
+      // Prepare Payload
+      const payload = {
+        ...formData,
+        amount: parseFloat(formData.amount.toString().replace(/,/g, "")),
+        type: formData.type.toUpperCase(),
+      };
 
-      const response = await fetch("/api/transactions", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/transactions`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...formData,
-          userId: currentUser.uid,
-        }),
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
       });
 
-      const result = await response.json();
-      
-      if (result.success) {
-        console.log("Transaction created:", result.id);
-        alert("Transaction saved successfully!");
-        
-        // Reset form or redirect
-        router.push("/dashboard"); // Or wherever you want to redirect
-      } else {
-        setSubmitError(result.error || "An error occurred");
-        console.error("Error:", result.error);
+      // Handle Errors
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.log(errorData.error || "Failed to create transaction");
+        showToast("Failed to create transaction due to server error. Try again later", "error");
       }
-    } catch (error) {
-      console.error("Request failed:", error);
-      setSubmitError("Failed to create transaction");
+
+      // --- STEP 3: SUCCESS FLOW ---
+      // 1. Trigger Animation
+      showToast("Transaction added successfully!", "success");
+      
+      // 2. Refresh Data & Redirect
+      router.refresh();
+      router.push("/transactions");
+
+    } catch (error: any) {
+      console.error("Submission failed:", error);
+      setSubmitError(error.message || "An unexpected error occurred");
+      showToast("Failed to save transaction", "error"); 
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Show loading while checking auth state
+  // --- Auth Check ---
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+            method: "GET",
+            credentials: "include",
+        });
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error || "Something went wrong");
+
+        if (!data.isAuthenticated) {
+          router.push("/login");
+        }
+        setFirstName(data.name);
+        setLoading(false);
+      } catch (error: any) {
+        router.push("/login");
+      }
+    })();
+  }, []);
+
   if (loading) {
     return (
       <main className="px-4 py-5 bg-gray-100 dark:bg-slate-900 min-h-screen flex items-center justify-center">
@@ -159,25 +136,6 @@ export default function AddTransaction() {
       </main>
     );
   }
-
-  // // Show sign-in message if not authenticated
-  // if (!currentUser) {
-  //   return (
-  //     <main className="px-4 py-5 bg-gray-100 dark:bg-slate-900 min-h-screen flex items-center justify-center">
-  //       <div className="text-center">
-  //         <p className="text-lg text-neutral-700 dark:text-neutral-300 mb-4">
-  //           Please sign in to add transactions
-  //         </p>
-  //         <button
-  //           onClick={() => router.push("/login")}
-  //           className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-  //         >
-  //           Go to Login
-  //         </button>
-  //       </div>
-  //     </main>
-  //   );
-  // }
 
   return (
     <main className="px-4 py-5 bg-gray-100 dark:bg-slate-900 min-h-screen">
@@ -191,10 +149,7 @@ export default function AddTransaction() {
 
         {/* Transaction Name */}
         <section className="mb-5">
-          <label
-            htmlFor="transaction-name"
-            className="block mb-2 font-sans text-base font-medium text-neutral-800 dark:text-neutral-300"
-          >
+          <label htmlFor="transaction-name" className="block mb-2 font-sans text-base font-medium text-neutral-800 dark:text-neutral-300">
             Transaction Name
           </label>
           <input
@@ -204,16 +159,7 @@ export default function AddTransaction() {
             value={formData.transactionName}
             onChange={handleInputChange}
             required
-            className="block w-full px-3 py-2
-                       font-sans text-base font-normal
-                       text-neutral-900 dark:text-neutral-100
-                       placeholder:text-neutral-500 dark:placeholder:text-neutral-400
-                       bg-white dark:bg-slate-700
-                       border border-neutral-300 dark:border-slate-600
-                       rounded-md outline-none transition-colors
-                       hover:border-neutral-400 dark:hover:border-slate-500
-                       focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:ring-sky-500
-                       disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-slate-800"
+            className="block w-full px-3 py-2 font-sans text-base font-normal text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 dark:placeholder:text-neutral-400 bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 rounded-md outline-none transition-colors hover:border-neutral-400 dark:hover:border-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:ring-sky-500 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-slate-800"
             placeholder="e.g., Monthly Salary, Groceries"
             disabled={isSubmitting}
           />
@@ -221,10 +167,7 @@ export default function AddTransaction() {
 
         {/* Amount */}
         <section className="mb-5">
-          <label
-            htmlFor="amount"
-            className="block mb-2 font-sans text-base font-medium text-neutral-800 dark:text-neutral-300"
-          >
+          <label htmlFor="amount" className="block mb-2 font-sans text-base font-medium text-neutral-800 dark:text-neutral-300">
             Amount (NGN)
           </label>
           <input
@@ -235,16 +178,7 @@ export default function AddTransaction() {
             value={formData.amount}
             onChange={handleAmountChange}
             required
-            className="block w-full px-3 py-2
-                       font-sans text-base font-normal
-                       text-neutral-900 dark:text-neutral-100
-                       placeholder:text-neutral-500 dark:placeholder:text-neutral-400
-                       bg-white dark:bg-slate-700
-                       border border-neutral-300 dark:border-slate-600
-                       rounded-md outline-none transition-colors
-                       hover:border-neutral-400 dark:hover:border-slate-500
-                       focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:ring-sky-500
-                       disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-slate-800"
+            className="block w-full px-3 py-2 font-sans text-base font-normal text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 dark:placeholder:text-neutral-400 bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 rounded-md outline-none transition-colors hover:border-neutral-400 dark:hover:border-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:ring-sky-500 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-slate-800"
             placeholder="0.00"
             disabled={isSubmitting}
           />
@@ -265,40 +199,31 @@ export default function AddTransaction() {
 
         {/* Category Picker */}
         <section className="mb-5 relative">
-          <label
-            htmlFor="category"
-            className="block mb-2 font-sans text-base font-medium text-neutral-800 dark:text-neutral-300"
-          >
+          <label htmlFor="category" className="block mb-2 font-sans text-base font-medium text-neutral-800 dark:text-neutral-300">
             Category
           </label>
           <CategoryPicker
             value={formData.category}
-            handleCategoryChange={handleCategoryChange}
+            setFormData={setFormData}
             disabled={isSubmitting}
           />
         </section>
 
         {/* Date Picker */}
         <section className="mb-5 relative">
-          <label
-            htmlFor="date"
-            className="block mb-2 font-sans text-base font-medium text-neutral-800 dark:text-neutral-300"
-          >
+          <label htmlFor="date" className="block mb-2 font-sans text-base font-medium text-neutral-800 dark:text-neutral-300">
             Date
           </label>
           <DatePicker
             value={formData.date}
-            handleDateChange={handleDateChange}
+            setFormData={setFormData}
             disabled={isSubmitting}
           />
         </section>
 
         {/* Notes Textarea */}
         <section className="mb-8">
-          <label
-            htmlFor="notes"
-            className="block mb-2 font-sans text-base font-medium text-neutral-800 dark:text-neutral-300"
-          >
+          <label htmlFor="notes" className="block mb-2 font-sans text-base font-medium text-neutral-800 dark:text-neutral-300">
             Notes (Optional)
           </label>
           <textarea
@@ -307,16 +232,7 @@ export default function AddTransaction() {
             rows={3}
             value={formData.notes}
             onChange={handleInputChange}
-            className="block w-full px-3 py-2
-                       font-sans text-base font-normal
-                       text-neutral-600 dark:text-neutral-300 resize-none
-                       placeholder:text-neutral-400 dark:placeholder:text-neutral-500
-                       bg-white dark:bg-slate-700
-                       border border-neutral-300 dark:border-slate-600
-                       rounded-md outline-none transition-colors
-                       hover:border-neutral-400 dark:hover:border-slate-500
-                       focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:ring-sky-500
-                       disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-slate-800"
+            className="block w-full px-3 py-2 font-sans text-base font-normal text-neutral-600 dark:text-neutral-300 resize-none placeholder:text-neutral-400 dark:placeholder:text-neutral-500 bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 rounded-md outline-none transition-colors hover:border-neutral-400 dark:hover:border-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:focus:ring-sky-500 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-slate-800"
             placeholder="Add a note or description..."
             disabled={isSubmitting}
           ></textarea>
@@ -337,10 +253,10 @@ export default function AddTransaction() {
             type="submit"
             disabled={isSubmitting}
             className={cn(
-              "h-11 py-2 px-3 w-full mb-4 flex items-center justify-center font-sans text-sm font-medium text-white leading-[22px] bg-[#0079BF] border-none rounded-[10px] shadow-xs transition-colors duration-200",
+              "h-11 py-2 px-3 w-full mb-4 flex items-center justify-center font-sans text-sm font-medium text-white leading-5.5 bg-[#0079BF] border-none rounded-[10px] shadow-xs transition-colors duration-200",
               isSubmitting
                 ? "bg-blue-300 dark:bg-sky-800 cursor-not-allowed"
-                : "hover:bg-[#006CAB] active:bg-[#005586]"
+                : "hover:bg-[#006CAB] active:bg-[#005586]",
             )}
           >
             {isSubmitting ? (
@@ -356,7 +272,7 @@ export default function AddTransaction() {
             type="button"
             onClick={() => router.back()}
             disabled={isSubmitting}
-            className="h-11 py-2 px-3 w-full flex items-center justify-center font-sans text-sm font-medium text-neutral-900 dark:text-neutral-300 leading-[22px] bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 rounded-[10px] shadow-xs transition-colors duration-150 hover:bg-gray-50 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="h-11 py-2 px-3 w-full flex items-center justify-center font-sans text-sm font-medium text-neutral-900 dark:text-neutral-300 leading-5.5 bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 rounded-[10px] shadow-xs transition-colors duration-150 hover:bg-gray-50 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>

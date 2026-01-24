@@ -7,17 +7,19 @@ import { cn } from "@/lib/utils";
 import { Filters } from "./types/filtertypes";
 
 interface FilterByTypeDesktopProps {
-  setFilters: React.Dispatch<React.SetStateAction<Filters>>
+  setFilters?: React.Dispatch<React.SetStateAction<Filters>>
 }
 
 export function FilterByTypeDesktop({setFilters} : FilterByTypeDesktopProps) {
   const [filterType, setFilterType] = React.useState("all");
 
   React.useEffect(() => {
-    setFilters((prev) => ({
-      ...prev,
-      type: filterType
-    }))
+    if (setFilters){
+      setFilters((prev) => ({
+        ...prev,
+        type: filterType
+      }))
+    }
   }, [filterType])
 
   return (

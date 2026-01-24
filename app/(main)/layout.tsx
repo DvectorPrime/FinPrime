@@ -9,6 +9,7 @@ import Image from "next/image";
 
 import { useState } from "react";
 import { useMenu } from "@/context/menuContext";
+import { ToastProvider } from "@/context/toastContext";
 
 export default function MainLayout({
     children
@@ -61,7 +62,9 @@ export default function MainLayout({
                             </div> */}
                         </div>
                     </header>
-                    {children}
+                    <ToastProvider>
+                        {children}
+                    </ToastProvider>
                 </div>
             </div>
             {menuShowing && (

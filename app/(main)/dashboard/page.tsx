@@ -95,7 +95,7 @@ export default function Dashboard() {
         if (err.name === 'AbortError') {
           console.log('Fetch successfully aborted.');
         } else {
-          console.error('An error occurred:', err.message);
+          console.log('An error occurred:', err.message);
           setError(err.message);
         }
       }

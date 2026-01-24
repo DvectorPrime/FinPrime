@@ -21,6 +21,7 @@ import {
 import { CategoryIcon } from "./CategoryIcon";
 
 import { Filters } from "./types/filtertypes";
+import { FormData } from "./types/transactionFormDataTypes";
 
 export interface Category {
   id: string;
@@ -36,33 +37,57 @@ const allCategoriesOption = {
   icon: "all_icon", 
 };
 
+// 1. Create a placeholder for 'Others' to use while loading in Form Mode
+const defaultFormCategory: Category = {
+    id: "temp_others",
+    name: "Others",
+    type: "expense",
+    icon: "LuLightbulb" // Default icon until real one loads
+};
+
 interface CategoryPickerProps{
   preferredBg?: string
   value?: string
-  handleCategoryChange?: (selectedOption: Category) => void
   disabled: boolean
-  setFilters: React.Dispatch<React.SetStateAction<Filters>>
+  setFilters?: React.Dispatch<React.SetStateAction<Filters>>
+  setFormData?: React.Dispatch<React.SetStateAction<FormData>>
 }
 
-export function CategoryPicker({preferredBg = "default", handleCategoryChange, value, setFilters} : CategoryPickerProps) {
+export function CategoryPicker({preferredBg = "default", value, setFilters, setFormData} : CategoryPickerProps) {
   const [open, setOpen] = React.useState(false);
-  const [selectedCategory, setSelectedCategory] = React.useState<
-    Category | typeof allCategoriesOption
-  >(allCategoriesOption);
   const [categories, setCategories] = React.useState<Category[]>([]);
   const [loading, setLoading] = React.useState(true);
 
-  // 1. Sync Filters with Selection
-  React.useEffect(() => {
-    setFilters((prev) => {
-      return {
-        ...prev,
-        category : selectedCategory.id === "all" ? selectedCategory.id : selectedCategory.name
-      }
-    })
-  }, [selectedCategory, setFilters])
+  // 2. Logic to determine fallback: "All Categories" (Filter Mode) vs "Others" (Form Mode)
+  const fallbackCategory = setFilters ? allCategoriesOption : defaultFormCategory;
 
-  // 2. Fetch Categories
+  const [selectedCategory, setSelectedCategory] = React.useState<
+    Category | typeof allCategoriesOption
+  >(
+    // Try to find "Others" immediately (if re-rendering with data), otherwise use fallback
+    categories.find(category => category.name === "Others") || fallbackCategory
+  );
+
+  // 3. Sync Selection with Parent State
+  React.useEffect(() => {
+    // Mode A: Filter Mode
+    if (setFilters){
+      setFilters((prev) => ({
+          ...prev,
+          category : selectedCategory.id === "all" ? selectedCategory.id : selectedCategory.name
+      }))  
+    }
+    
+    // Mode B: Form Mode
+    if (setFormData) {
+        setFormData((prev) => ({
+            ...prev,
+            category: selectedCategory.name
+        }));
+    }
+  }, [selectedCategory])
+
+  // 4. Fetch Categories
   React.useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -78,16 +103,19 @@ export function CategoryPicker({preferredBg = "default", handleCategoryChange, v
     fetchCategories();
   }, []);
 
-  // 3. Handle External Value Changes (The Fix)
-  // BUG FIX: Added [value, categories] to dependencies. 
-  // Previously this only ran on mount ([]), so it missed the moment when 'categories' finished loading.
+  // 5. Handle External Value Changes OR Update Placeholder to Real Data
   React.useEffect(() => {
-    if (value && categories.length > 0) {
-      const current_category = categories.find(category => category.name === value)
-  
-      if (current_category){
-        setSelectedCategory(current_category)
-      }
+    if (categories.length > 0) {
+        // Case A: Parent passed a specific value (e.g. "Food")
+        if (value) {
+            const current_category = categories.find(c => c.name === value);
+            if (current_category) setSelectedCategory(current_category);
+        }
+        // Case B: We are holding the "temp_others" placeholder -> Swap it for the real "Others" object
+        else if (selectedCategory.id === "temp_others") {
+            const realOthers = categories.find(c => c.name === "Others");
+            if (realOthers) setSelectedCategory(realOthers);
+        }
     } 
   }, [value, categories]) 
 
@@ -110,7 +138,6 @@ export function CategoryPicker({preferredBg = "default", handleCategoryChange, v
             )}
           >
             <div className="flex items-center gap-2">
-               {/* Handle special icon for "All Categories" vs Standard Icons */}
                {selectedCategory.id === "all" ? (
                   <List className="w-4 h-4" />
                ) : (
@@ -129,31 +156,29 @@ export function CategoryPicker({preferredBg = "default", handleCategoryChange, v
                 {loading ? "Loading..." : "No category found."}
               </CommandEmpty>
               
-              <CommandItem
-                key={allCategoriesOption.id}
-                value={allCategoriesOption.name}
-                onSelect={() => {
-                  setSelectedCategory(allCategoriesOption);
-                  setOpen(false);
-                  if (handleCategoryChange) {
-                    handleCategoryChange(allCategoriesOption)
-                  }
-                }}
-                className="cursor-pointer aria-selected:bg-accent aria-selected:text-accent-foreground dark:aria-selected:bg-slate-700 dark:text-neutral-300"
-              >
-                <div className="flex items-center gap-2 grow">
-                  <List className="w-4 h-4" />
-                  {allCategoriesOption.name}
-                </div>
-                <Check
-                  className={cn(
-                    "ml-auto h-4 w-4",
-                    selectedCategory.id === allCategoriesOption.id
-                      ? "opacity-100"
-                      : "opacity-0"
-                  )}
-                />
-              </CommandItem>
+              {/* Only show "All Categories" in Filter Mode */}
+              {!setFormData && (
+                <CommandItem
+                  key={allCategoriesOption.id}
+                  value={allCategoriesOption.name}
+                  onSelect={() => {
+                    setSelectedCategory(allCategoriesOption);
+                    setOpen(false);
+                  }}
+                  className="cursor-pointer aria-selected:bg-accent aria-selected:text-accent-foreground dark:aria-selected:bg-slate-700 dark:text-neutral-300"
+                >
+                  <div className="flex items-center gap-2 grow">
+                    <List className="w-4 h-4" />
+                    {allCategoriesOption.name}
+                  </div>
+                  <Check
+                    className={cn(
+                      "ml-auto h-4 w-4",
+                      selectedCategory.id === allCategoriesOption.id ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                </CommandItem>  
+              )}
 
               <CommandGroup className="text-xs text-muted-foreground dark:text-neutral-500 px-2 py-1.5" heading="Income">
                 {incomeCategories.map((category) => (
@@ -163,25 +188,17 @@ export function CategoryPicker({preferredBg = "default", handleCategoryChange, v
                     onSelect={() => {
                       setSelectedCategory(category);
                       setOpen(false);
-                      if (handleCategoryChange) {
-                        handleCategoryChange(category)
-                      }
                     }}
                     className="cursor-pointer aria-selected:bg-accent aria-selected:text-accent-foreground dark:aria-selected:bg-slate-700 dark:text-neutral-300"
                   >
                     <div className="flex items-center gap-2 grow">
-                      <CategoryIcon
-                        iconName={category.icon}
-                        className="w-4 h-4"
-                      />
+                      <CategoryIcon iconName={category.icon} className="w-4 h-4" />
                       {category.name}
                     </div>
                     <Check
                       className={cn(
                         "ml-auto h-4 w-4",
-                        selectedCategory?.id === category.id
-                          ? "opacity-100"
-                          : "opacity-0"
+                        selectedCategory?.id === category.id ? "opacity-100" : "opacity-0"
                       )}
                     />
                   </CommandItem>
@@ -195,25 +212,17 @@ export function CategoryPicker({preferredBg = "default", handleCategoryChange, v
                     onSelect={() => {
                       setSelectedCategory(category);
                       setOpen(false);
-                      if (handleCategoryChange) {
-                        handleCategoryChange(category)
-                      }
                     }}
                     className="cursor-pointer aria-selected:bg-accent aria-selected:text-accent-foreground dark:aria-selected:bg-slate-700 dark:text-neutral-300"
                   >
                     <div className="flex items-center gap-2 grow">
-                      <CategoryIcon
-                        iconName={category.icon}
-                        className="w-4 h-4"
-                      />
+                      <CategoryIcon iconName={category.icon} className="w-4 h-4" />
                       {category.name}
                     </div>
                     <Check
                       className={cn(
                           "ml-auto h-4 w-4",
-                        selectedCategory?.id === category.id
-                          ? "opacity-100"
-                          : "opacity-0"
+                        selectedCategory?.id === category.id ? "opacity-100" : "opacity-0"
                       )}
                     />
                   </CommandItem>
