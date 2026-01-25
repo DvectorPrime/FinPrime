@@ -38,7 +38,7 @@ const allCategoriesOption = {
 };
 
 // 1. Create a placeholder for 'Others' to use while loading in Form Mode
-const defaultFormCategory: Category = {
+export const defaultFormCategory: Category = {
     id: "temp_others",
     name: "Others",
     type: "expense",

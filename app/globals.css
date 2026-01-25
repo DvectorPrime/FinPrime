@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@source "../src";
+
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
