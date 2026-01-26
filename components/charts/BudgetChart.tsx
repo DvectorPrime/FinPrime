@@ -31,12 +31,12 @@ interface OverviewChartProps {
 
 interface FinancialDataPoint {
   label: string;
-  income: number;
+  budget: number;
   expense: number;
 }
 
 const OverviewChart: React.FC<OverviewChartProps> = ({ dataPoints, isLoading }) => {
-  const incomeColor = "#2563EB"; 
+  const budgetColor = "#2563EB"; 
   const expenseColor = "#ef4444"; 
 
   // Loading UI: Mimics bars using styled divs
@@ -60,9 +60,9 @@ const OverviewChart: React.FC<OverviewChartProps> = ({ dataPoints, isLoading }) 
     labels: dataPoints.map((point) => point.label),
     datasets: [
       {
-        label: "Income",
-        data: dataPoints.map((point) => point.income),
-        backgroundColor: incomeColor,
+        label: "Budget",
+        data: dataPoints.map((point) => point.budget),
+        backgroundColor: budgetColor,
         borderRadius: 4,
         barPercentage: 0.6,
         categoryPercentage: 0.8,

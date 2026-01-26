@@ -74,6 +74,12 @@ const expenseCategories: Category[] = [
     type: 'expense',
     icon: 'BsReceiptCutoff',
   },
+  {
+    id: 'exp_6',
+    name: 'Others',
+    type: 'expense',
+    icon: 'LuLightbulb',
+  },
 ];
 
 // This is the API route handler for GET requests
