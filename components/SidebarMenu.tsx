@@ -44,7 +44,7 @@ export const SidebarMenu = ({ menuShowing }: SidebarMenuProps) => {
   return (
     <nav
       className={`
-        absolute top-0 left-0 w-[240px] h-full p-2 bg-white dark:bg-slate-800 border-r border-neutral-200 dark:border-slate-700 z-40
+        absolute top-0 left-0 w-60 h-full p-2 bg-white dark:bg-slate-800 border-r border-neutral-200 dark:border-slate-700 z-40
         transition-transform duration-300 ease-in-out
         lg:relative lg:translate-x-0
         ${menuShowing ? "translate-x-0" : "-translate-x-full"}
@@ -73,7 +73,7 @@ export const SidebarMenu = ({ menuShowing }: SidebarMenuProps) => {
       />
       <button onClick={logOut} className="absolute w-[calc(100%-16px)] bottom-4 h-10 px-3 mt-auto
         flex items-center justify-center gap-4
-        font-sans text-sm leading-[22px] font-medium text-white
+        font-sans text-sm leading-5.5 font-medium text-white
         bg-red-500/90 border-none rounded-md
         transition-colors duration-200
         hover:bg-red-500
