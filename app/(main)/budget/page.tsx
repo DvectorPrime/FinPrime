@@ -9,8 +9,9 @@ import { RiRobot2Line } from "react-icons/ri";
 import OverviewChart from "@/components/charts/BudgetChart";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { formatCurrency } from "@/lib/utils";
+import { useAuth } from "@/context/authContext"; // 1. Import Auth Context
 
-/** --- TYPES (Match your API Response) --- */
+/** --- TYPES --- */
 interface OverviewData {
   totalBudget: number;
   totalSpent: number;
@@ -24,7 +25,6 @@ interface CategoryBudget {
   remaining: number;
   percentage: number;
   isOverBudget: boolean;
-  // We don't get 'icon' from backend yet, so we'll handle that in UI
 }
 
 interface ChartDataPoint {
@@ -62,6 +62,10 @@ const BudgetSkeleton = () => (
 
 export default function Budget() {
   const router = useRouter();
+  
+  // 2. Use Global Auth State
+  const { user, loading: authLoading } = useAuth();
+  
   const [loading, setLoading] = useState<boolean>(true);
 
   // --- STATE ---
@@ -74,9 +78,20 @@ export default function Budget() {
   const [categories, setCategories] = useState<CategoryBudget[]>([]);
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
 
+  // 3. Protect Route
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/login");
+    }
+  }, [authLoading, user, router]);
+
   // --- FETCH DATA ---
   useEffect(() => {
+    // 4. Wait for user before fetching
+    if (!user) return;
+
     (async () => {
+      setLoading(true);
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/budgets`, {
           method: "GET",
@@ -90,7 +105,6 @@ export default function Budget() {
           return;
         }
 
-        // Set all state from the response
         setOverview(data.overview);
         setCategories(data.categories);
         setChartData(data.chartData);
@@ -100,11 +114,9 @@ export default function Budget() {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [user]); // Re-run when user becomes available
 
   // --- RENDER HELPERS ---
-  
-  // Icon Mapping Helper (since DB doesn't store icon names yet)
   const getIconForCategory = (catName: string) => {
     const map: Record<string, string> = {
       Housing: "FaHome",
@@ -165,6 +177,9 @@ export default function Budget() {
     );
   });
 
+  // Prevent flash
+  if (authLoading || !user) return null;
+
   return (
     <main className="p-4 min-h-screen bg-white dark:bg-slate-900 transition-colors">
       <div className="mb-8 md:grid md:grid-cols-[1fr_200px] items-center">
@@ -178,7 +193,7 @@ export default function Budget() {
         </div>
         <div>
           <button 
-            onClick={() => router.push('/budget/manage')} // Assume you have a create page
+            onClick={() => router.push('/budget/manage')} 
             className="w-full h-12 px-3 flex items-center justify-center gap-4 font-sans text-md font-medium leading-5.5 text-white bg-[#2563EB] dark:bg-blue-600 rounded-[18px] border-0 shadow-md transition-all cursor-pointer active:scale-95 hover:bg-blue-700"
           >
             Manage Budget
@@ -248,15 +263,12 @@ export default function Budget() {
         </h4>
         <div className="md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-10">
           {loading
-            ? Array(3)
-                .fill(0)
-                .map((_, i) => <BudgetSkeleton key={i} />)
+            ? Array(3).fill(0).map((_, i) => <BudgetSkeleton key={i} />)
             : budgetsElements}
           
-          {/* Show empty state if no categories */}
           {!loading && categories.length === 0 && (
              <div className="col-span-full text-center py-10 text-gray-500">
-                No budgets set for this month.
+               No budgets set for this month.
              </div>
           )}
         </div>
@@ -268,12 +280,11 @@ export default function Budget() {
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6">
             <div className="flex flex-wrap items-center gap-4 mb-6">
               <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-[#2563EB]"></div> {/* Matched Chart Color */}
+                <div className="h-3 w-3 rounded-full bg-[#2563EB]"></div>
                 <span className="text-sm text-gray-500 dark:text-slate-400">
                   Budgeted
                 </span>
                 <span className="text-lg font-bold text-gray-900 dark:text-white">
-                   {/* Sum of the visible chart data, or just use current month overview */}
                   {loading ? "..." : formatCurrency(overview.totalBudget)}
                 </span>
               </div>
@@ -289,14 +300,13 @@ export default function Budget() {
               </div>
             </div>
             <div className="w-full">
-              {/* Pass the REAL chart data here */}
               <OverviewChart dataPoints={chartData} />
             </div>
           </div>
         </div>
       </section>
 
-      {/* --- AI INSIGHT --- */}
+      {/* --- 5. AI INSIGHT (Conditional based on preference) --- */}
       <section className="w-full p-5 bg-[#F1F5FE4D] dark:bg-blue-900/20 rounded-[18px] border border-[#DEDFE3] dark:border-blue-800 shadow-sm">
         <div className="mb-4 flex justify-start gap-5 items-center">
           <RiRobot2Line className="w-6 h-6 text-blue-600 dark:text-blue-400" />
@@ -305,9 +315,11 @@ export default function Budget() {
           </h4>
         </div>
         <p className="font-sans text-sm font-normal leading-5 text-[#071B46] dark:text-slate-300">
-          Your dining out expenses are 15% higher this month. Consider packing
-          lunch twice a week to stay within your budget. This could save you
-          approximately ₦15,000.
+          {/* Check user preference */}
+          {user?.aiInsights 
+            ? "Your dining out expenses are 15% higher this month. Consider packing lunch twice a week to stay within your budget. This could save you approximately ₦15,000."
+            : "Enable AI insights in Settings to get personalized spending tips and budget recommendations."
+          }
         </p>
       </section>
       <section className="h-10"></section>

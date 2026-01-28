@@ -9,6 +9,7 @@ import { FaArrowRightToBracket } from "react-icons/fa6";
 import { useMenu } from "@/context/menuContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/authContext"; // 1. Import useAuth
 
 type summaryData = {
   summaryType: string;
@@ -27,50 +28,33 @@ const SummaryCardSkeleton = () => (
   </div>
 );
 
-
 export default function Dashboard() {
-  const [firstName, setFirstName] = useState<string | null>("User");
-  const router = useRouter()
-  const { setMenuShowing } = useMenu()
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(true);
-  const [basicSummaryData, setBasicSummaryData] = useState<summaryData[]>([])
+  // 2. Use Global Auth State
+  const { user, loading: authLoading } = useAuth();
+  
+  const router = useRouter();
+  const { setMenuShowing } = useMenu();
+  const [error, setError] = useState("");
+  
+  // Local loading state just for the dashboard stats
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [basicSummaryData, setBasicSummaryData] = useState<summaryData[]>([]);
 
+  // 3. Protect the Route
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-          method: 'GET',
-          credentials: "include"
-        });
+    if (!authLoading && !user) {
+      router.push("/login");
+    }
+  }, [user, authLoading, router]);
 
-        const data = await res.json();
-
-        if (!res.ok) {
-          console.log("data.error", data.error)
-          setLoading(false)
-          throw new Error(data.error || 'Something went wrong');
-        }
-
-        console.log('Success:', data);
-        if(!data.isAuthenticated){
-          console.log("not")
-          router.push('/login')
-        }
-
-        setFirstName(data.name)
-
-        setLoading(false)
-      } catch (error: any) {
-        console.log('Failed:', error.message);
-        router.push("/login")
-      }
-      })()
-  }, [])
-
+  // 4. Fetch Dashboard Stats (Only when user is confirmed)
   useEffect(() => {
     setMenuShowing(false);
-    setLoading(true)
+
+    // Don't fetch stats if we don't have a user yet
+    if (!user) return; 
+
+    setStatsLoading(true);
 
     const fetchTotals = async () => {
       try {
@@ -80,7 +64,7 @@ export default function Dashboard() {
         });
 
         if (!response.ok){
-          throw new Error('Failed to get dashboard summary from teh server.')
+          throw new Error('Failed to get dashboard summary from the server.')
         }
 
         const data = await response.json()
@@ -95,25 +79,31 @@ export default function Dashboard() {
         if (err.name === 'AbortError') {
           console.log('Fetch successfully aborted.');
         } else {
-          console.log('An error occurred:', err.message);
+          console.error('An error occurred:', err.message);
           setError(err.message);
         }
+      } finally {
+        setStatsLoading(false);
       }
-
-      setLoading(false)
     }
     
-    fetchTotals()
-  }, [setMenuShowing]);
+    fetchTotals();
+  }, [setMenuShowing, user]); // Re-run when user becomes available
 
+  // Combined loading state: If Auth OR Stats are loading, show skeletons
+  const isLoading = authLoading || statsLoading;
+
+  // Prevent flash of content if not authenticated
+  if (!authLoading && !user) return null; 
 
   return (
       <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 h-[calc(100vh-56px)] overflow-y-auto p-4 md:p-6 bg-white dark:bg-slate-900">
         <h1 className="font-sans text-2xl md:text-3xl font-bold md:col-span-2 lg:col-span-4 text-neutral-900 dark:text-white">
-          Welcome back, {firstName} 👋
+          Welcome back, {user?.firstName || "User"} 👋
         </h1>
 
-        {loading
+        {/* Show skeletons while loading either Auth or Stats */}
+        {isLoading
           ? Array.from({ length: 4 }).map((_, i) => <SummaryCardSkeleton key={i} />)
           : basicSummaryData.map((data) => (
               <SummaryCard
@@ -148,8 +138,9 @@ export default function Dashboard() {
         <section className="grid grid-cols-[auto_1fr] items-start gap-4 w-full p-4 bg-sky-50 dark:bg-sky-900/50 rounded-xl shadow-xs my-4 md:col-span-2 lg:col-span-4">
           <FaRegLightbulb className="w-5 h-5 text-sky-600 dark:text-sky-300 mt-1" />
           <p className="font-sans text-sm leading-relaxed font-normal text-sky-800 dark:text-sky-200">
-            Your spending on Groceries is 12% higher than last month. Consider
-            reviewing your weekly meal plan.
+            {user?.aiInsights 
+                ? "Your spending on Groceries is 12% higher than last month. Consider reviewing your weekly meal plan."
+                : "Enable AI insights in Settings to get personalized spending tips."}
           </p>
         </section>
       </main>

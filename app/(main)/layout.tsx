@@ -10,20 +10,26 @@ import Image from "next/image";
 import { useState } from "react";
 import { useMenu } from "@/context/menuContext";
 import { ToastProvider } from "@/context/toastContext";
+import { UserAvatar } from "@/components/UserAvatar";
+import {  useAuth } from "@/context/authContext";
+import { useRouter } from "next/navigation";
 
 export default function MainLayout({
     children
 }: {
     children: React.ReactNode
 }) {
-    const [imgError, setImgError] = useState(false);
+    const {user} = useAuth()
+
+    const router = useRouter()
+
     const { menuShowing, setMenuShowing, toggleMenu } = useMenu();
 
     const profileImage = '/default-avatar.png';
 
     return (
         <>
-            <div className="relative grid grid-cols-1 w-full h-screen lg:grid-cols-[240px_1fr]">
+            <div className="grid grid-cols-1 w-full h-full lg:flex">
                 <SidebarMenu menuShowing={menuShowing} />
                 <div className="flex flex-col w-full">
                     <header className="flex items-center justify-between w-full px-4 py-2 md:px-8 h-14 bg-[#0079BF] dark:bg-slate-800 dark:border-b dark:border-slate-700 shadow-xs z-20">
@@ -46,20 +52,14 @@ export default function MainLayout({
                             />
                             <button
                                 className="w-8 h-8 flex items-center justify-center text-white bg-white/20 cursor-pointer dark:bg-white/10 rounded-md transition-colors duration-200 hover:bg-white/30 dark:hover:bg-white/20"
+                                onClick={() => {
+                                    router.push("/notifications")
+                                }}
                             >
                                 <IoMdNotificationsOutline className="w-6 h-6 text-white" />
                             </button>
-                            {/* <div className="relative w-9 h-9 rounded-full overflow-hidden bg-[#FCFBC9]">
-                                {/* <Image 
-                                    {/* src={profileImage}
-                                    alt={`${user?.displayName || 'User'}'s profile`}
-                                    width={36}
-                                    height={36}
-                                    className="w-full h-full object-cover"
-                                    onError={() => setImgError(true)}
-                                    priority
-                                /> 
-                            </div> */}
+                            <UserAvatar size="md" src={`${user?.avatarUrl ? user?.avatarUrl : "" }`} name={`${user?.firstName} ${user?.lastName}`} />
+
                         </div>
                     </header>
                     <ToastProvider>

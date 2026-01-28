@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { LuInfo, LuLoader, LuRefreshCw } from "react-icons/lu";
 import { CategoryIcon } from "@/components/CategoryIcon";
-import { toast } from "sonner"; // Assuming you use sonner/react-hot-toast, or remove if not
+import { toast } from "sonner"; 
+import { useAuth } from "@/context/authContext"; // 1. Import Auth
 
 // Define the shape of our data
 type CategoryKey = "Housing" | "Food" | "Transport" | "Shopping" | "Subscriptions" | "Others";
@@ -14,7 +15,9 @@ type FormDataType = Record<CategoryKey, number>;
 export default function ManageBudget() {
   const router = useRouter();
   
-  // Loading States
+  // 2. Use Global Auth
+  const { user, loading: authLoading } = useAuth();
+  
   const [initialLoading, setInitialLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -27,8 +30,18 @@ export default function ManageBudget() {
     Others: 0,
   });
 
-  // --- 1. GET Request (Fetch Current Data) ---
+  // 3. Protect Route
   useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/login");
+    }
+  }, [authLoading, user, router]);
+
+  // --- 1. GET Request ---
+  useEffect(() => {
+    // 4. Wait for User
+    if (!user) return;
+
     const fetchCurrentBudget = async () => {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/budgets`, {
@@ -40,8 +53,6 @@ export default function ManageBudget() {
         
         const data = await res.json();
         
-        // Transform API Array -> Form Object
-        // API returns: categories: [{ category: "Food", budgeted: 20000 }, ...]
         const currentData: any = { ...formData };
         
         if (data.categories) {
@@ -55,15 +66,13 @@ export default function ManageBudget() {
         setFormData(currentData);
       } catch (error) {
         console.error("Error fetching budget", error);
-        Optional: toast.error("Could not load current budget");
       } finally {
         setInitialLoading(false);
       }
     };
 
     fetchCurrentBudget();
-  }, []);
-
+  }, [user]); // Re-run if user status changes (though usually just once)
 
   const getIconForCategory = (catName: string) => {
     const map: Record<string, string> = {
@@ -78,7 +87,6 @@ export default function ManageBudget() {
   };
 
   const handleInputChange = (key: string, value: string) => {
-    // Prevent NaN
     const numValue = value === "" ? 0 : parseFloat(value);
     setFormData((prev) => ({
       ...prev,
@@ -86,8 +94,6 @@ export default function ManageBudget() {
     }));
   };
 
-  // --- 2. PUT Request (Update Data) ---
-  // Added optional 'dataOverride' to handle the Reset button correctly
   const updateBudget = async (dataOverride?: FormDataType) => {
     setIsSaving(true);
     const payload = dataOverride || formData;
@@ -101,8 +107,6 @@ export default function ManageBudget() {
         });
 
         if (!res.ok) throw new Error("Update failed");
-
-        // Success Feedback could go here
         return true;
     } catch (error) {
         console.error("Failed to update", error);
@@ -115,10 +119,9 @@ export default function ManageBudget() {
   const formElements = Object.keys(formData).map((key) => {
     const typedKey = key as CategoryKey;
     
-    // Skeleton Loader for inputs
     if (initialLoading) {
         return (
-            <div key={key} className="w-full h-[100px] bg-gray-100 dark:bg-slate-800 rounded-[18px] animate-pulse" />
+            <div key={key} className="w-full h-25 bg-gray-100 dark:bg-slate-800 rounded-[18px] animate-pulse" />
         )
     }
 
@@ -150,7 +153,6 @@ export default function ManageBudget() {
               type="number"
               id={key}
               name={key}
-              // Value handling: If 0, show empty string to make typing easier, or keep 0
               value={formData[typedKey] === 0 ? "" : formData[typedKey]}
               onChange={(e) => handleInputChange(key, e.target.value)}
               placeholder="0"
@@ -165,11 +167,13 @@ export default function ManageBudget() {
     );
   });
 
+  // Prevent Flash
+  if (authLoading || !user) return null;
+
   return (
     <main className="p-4 md:p-8 min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
       <div className="max-w-6xl mx-auto">
         
-        {/* Visual Cue: Sync Status */}
         <div className="h-6 mb-2 flex justify-end">
             {initialLoading && (
                 <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 font-medium animate-pulse">
@@ -199,7 +203,6 @@ export default function ManageBudget() {
           </div>
           
           <div className="flex gap-3">
-            {/* RESET BUTTON */}
             <button 
                 disabled={isSaving || initialLoading}
                 className="flex-1 md:flex-none h-11 px-6 font-sans text-sm font-bold text-neutral-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 active:scale-95 transition-all shadow-sm disabled:opacity-50" 
@@ -213,14 +216,13 @@ export default function ManageBudget() {
                         Others: 20000,
                     };
                     setFormData(defaultValues);
-                    await updateBudget(defaultValues); // Pass directly to avoid stale state
+                    await updateBudget(defaultValues); 
                     router.push("/budget");
                 }}
             >
               Reset Default
             </button>
 
-            {/* SAVE BUTTON */}
             <button 
                 disabled={isSaving || initialLoading}
                 className="flex-1 md:flex-none h-11 px-8 font-sans text-sm font-bold text-white bg-blue-600 dark:bg-sky-600 rounded-xl hover:bg-blue-700 dark:hover:bg-sky-500 active:scale-95 transition-all shadow-md shadow-blue-500/20 dark:shadow-sky-500/10 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed" 
@@ -234,7 +236,6 @@ export default function ManageBudget() {
           </div>
         </div>
 
-        {/* FORM GRID */}
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
           {formElements}
         </section>

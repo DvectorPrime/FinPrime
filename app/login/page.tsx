@@ -6,21 +6,31 @@ import { FiLock } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@/context/authContext"; // 1. Import Hook
 
-export default function Home() {
+export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  
+  // 2. Get Global Auth State
+  const { user, loading: authLoading, refreshUser } = useAuth();
 
   // State
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  // New State: Block rendering while we check the session
-  const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const [loading, setLoading] = useState(false); // Local loading for form submit
 
   const googleEffectRan = useRef(false);
 
+  // --- 1. SESSION CHECK (Replaces your manual fetch) ---
+  useEffect(() => {
+    // If auth is done loading and we have a user, kick them to dashboard
+    if (!authLoading && user) {
+      router.push("/dashboard");
+    }
+  }, [user, authLoading, router]);
+
+  // --- 2. GOOGLE LOGIN HANDLER ---
   useEffect(() => {
     (async () => {
       const code = searchParams.get("code");
@@ -44,6 +54,7 @@ export default function Home() {
 
           if (res.ok) {
             console.log({ Success: data });
+            await refreshUser(); // Update context immediately
             router.push("/dashboard");
           } else {
             setError(data.error || "Login failed");
@@ -55,36 +66,7 @@ export default function Home() {
         }
       }
     })();
-  }, [searchParams, router]);
-
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-          method: "GET",
-          credentials: "include", // vital for sending the cookie
-        });
-
-        const data = await res.json();
-        console.log("data");
-        // DEBUG: See exactly what the backend sends
-        console.log("Session Check Data:", data);
-
-        // FIX: Check 'authenticated', not 'isAuthenticated'
-        if (data.isAuthenticated) {
-          router.push("/dashboard");
-        } else {
-          // Only stop checking if we are sure they are NOT logged in
-          setIsCheckingSession(false);
-        }
-      } catch (err) {
-        console.log("Session Check Failed", err);
-        setIsCheckingSession(false);
-      }
-    };
-
-    checkSession();
-  }, [router]);
+  }, [searchParams, router, refreshUser]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -111,21 +93,23 @@ export default function Home() {
       const data = await res.json();
 
       if (!res.ok) {
-        console.log("data.error", data.error);
         setLoading(false);
         throw new Error(data.error || "Something went wrong");
       }
 
       console.log("Success:", data);
-      setLoading(false);
+      
+      // CRITICAL: Refresh the context so Dashboard knows we are logged in
+      await refreshUser(); 
+      
       router.push("/dashboard");
     } catch (error: any) {
       setLoading(false);
-      console.log("Failed:", error.message);
+      setError(error.message); // Display the error message
     }
   };
 
-  const handleGoogleSignup = async () => {
+  const handleGoogleSignup = () => {
     const rootUrl = "https://accounts.google.com/o/oauth2/auth";
 
     const options = {
@@ -144,8 +128,10 @@ export default function Home() {
     window.location.href = `${rootUrl}?${qs}`;
   };
 
+  // Prevent form flicker while checking session
+  if (authLoading) return null; 
+
   return (
-    // Added a background color that changes with the theme
     <div className="relative w-full min-h-screen bg-gray-100 dark:bg-slate-900">
       <div className="w-full h-30 bg-linear-to-br from-[#0078BD] to-[#93C5FD] rounded-none"></div>
       <main className="block h-fit">
@@ -160,7 +146,7 @@ export default function Home() {
             Welcome back 👋
           </p>
           {error && (
-            <div className="w-[85%] mx-auto mt-4 p-2 text-red-500 bg-red-100 dark:bg-red-900/20 rounded">
+            <div className="w-[85%] mx-auto mt-4 p-2 text-red-500 bg-red-100 dark:bg-red-900/20 rounded text-sm text-center">
               {error}
             </div>
           )}
@@ -201,9 +187,6 @@ export default function Home() {
             >
               {loading ? "Logging in..." : "Login"}
             </button>
-            {/* <button onClick={handleForgotPassword} className="mt-3 ml-auto w-fit border-none flex items-center justify-center font-sans text-sm font-medium text-[#0078BD] dark:text-sky-400 bg-transparent rounded-md hover:underline hover:cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
-              Forgot Password?
-            </button> */}
           </form>
           <fieldset className="border-t border-neutral-300 dark:border-slate-600 w-[85%] mx-auto mt-3 pt-4">
             <legend className="text-center px-2 font-medium text-neutral-600 dark:text-neutral-400">

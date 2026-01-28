@@ -9,14 +9,14 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FormData } from "@/components/types/transactionFormDataTypes";
 import { useToast } from "@/context/toastContext";
+import { useAuth } from "@/context/authContext"; // 1. Import Auth Context
 
 export default function AddTransaction() {
   const router = useRouter();
-  const { showToast } = useToast(); // <--- 2. Initialize Hook
-
-  // State for current user
-  const [firstName, setFirstName] = useState<String | null>(null)
-  const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
+  
+  // 2. Use Global Auth State
+  const { user, loading: authLoading } = useAuth();
 
   // State for form data
   const [formData, setFormData] = useState<FormData>({
@@ -30,7 +30,14 @@ export default function AddTransaction() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  
+
+  // --- 3. Auth Check (Redirect if not logged in) ---
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/login");
+    }
+  }, [authLoading, user, router]);
+
   // --- Handlers ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -55,7 +62,7 @@ export default function AddTransaction() {
     setSubmitError(null);
 
     // Basic Frontend Validation
-    if (!firstName) {
+    if (!user) {
       setSubmitError("Please sign in to add a transaction");
       setIsSubmitting(false);
       return;
@@ -86,15 +93,13 @@ export default function AddTransaction() {
       if (!response.ok) {
         const errorData = await response.json();
         console.log(errorData.error || "Failed to create transaction");
-        showToast("Failed to create transaction due to server error. Try again later", "error");
+        throw new Error(errorData.error || "Failed to create transaction");
       }
 
       // --- STEP 3: SUCCESS FLOW ---
-      // 1. Trigger Animation
       showToast("Transaction added successfully!", "success");
       
-      // 2. Refresh Data & Redirect
-      router.refresh();
+      router.refresh(); // Refresh server components
       router.push("/transactions");
 
     } catch (error: any) {
@@ -106,30 +111,8 @@ export default function AddTransaction() {
     }
   };
 
-  // --- Auth Check ---
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-            method: "GET",
-            credentials: "include",
-        });
-        const data = await res.json();
-
-        if (!res.ok) throw new Error(data.error || "Something went wrong");
-
-        if (!data.isAuthenticated) {
-          router.push("/login");
-        }
-        setFirstName(data.name);
-        setLoading(false);
-      } catch (error: any) {
-        router.push("/login");
-      }
-    })();
-  }, []);
-
-  if (loading) {
+  // 4. Loading State (Wait for Auth)
+  if (authLoading || !user) {
     return (
       <main className="px-4 py-5 bg-gray-100 dark:bg-slate-900 min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-blue-500" />

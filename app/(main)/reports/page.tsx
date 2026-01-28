@@ -1,18 +1,13 @@
-"use client"
+"use client";
+import { LuChartBarBig } from "react-icons/lu";
+import ComingSoon from "@/components/ComingSoon";
 
-import { useRouter } from "next/navigation";
-
-export default function Dashboard() {
-  const router = useRouter();
-
+export default function ReportsPage() {
   return (
-      <div className="bg-gray-100 dark:bg-slate-900">
-        <div className="p-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            Welcome, {'User'}! to reports
-          </h1>
-          {/* Add your dashboard content here */}
-        </div>
-      </div>
+    <ComingSoon 
+      title="Advanced Reports"
+      description="We are building powerful analytics to help you visualize your financial health over time. Exportable PDFs and CSVs are coming in v2."
+      icon={LuChartBarBig}
+    />
   );
 }

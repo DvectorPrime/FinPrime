@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronDown, Coins } from "lucide-react";
+import { Check, ChevronDown, Coins, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,16 +17,30 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-const currencies = [
-  {
-    value: "ngn",
-    label: "NGN",
-  },
+// 1. Define Active Currencies
+const activeCurrencies = [
+  { value: "NGN", label: "NGN" },
 ];
 
-export default function CurrencyDropdown({ preferredBg = "default" }) {
+// 2. Define Future Currencies
+const comingSoonCurrencies = [
+  { value: "USD", label: "USD" },
+  { value: "EUR", label: "EUR" },
+  { value: "GBP", label: "GBP" },
+];
+
+interface CurrencyDropdownProps {
+    value?: string;
+    onChange?: (val: string) => void;
+    preferredBg?: string;
+}
+
+export default function CurrencyDropdown({ preferredBg = "default", value = "NGN", onChange }: CurrencyDropdownProps) {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("ngn");
+
+  // Helper to find label for display button
+  const allCurrencies = [...activeCurrencies, ...comingSoonCurrencies];
+  const selectedLabel = allCurrencies.find((c) => c.value === value)?.label;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -46,24 +60,24 @@ export default function CurrencyDropdown({ preferredBg = "default" }) {
         >
           <div className="flex items-center gap-2">
             <Coins className="w-4 h-4 text-neutral-500" />
-            {value
-              ? currencies.find((c) => c.value === value)?.label
-              : "Select currency..."}
+            {selectedLabel || "Select currency..."}
           </div>
           <ChevronDown className="h-4 w-4 shrink-0 opacity-50 text-neutral-600 dark:text-neutral-400" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[--radix-popover-trigger-width] rounded-lg p-0 bg-white border border-neutral-300 dark:bg-slate-800 dark:border-slate-700 shadow-lg text-sm">
+      <PopoverContent className="w-60 rounded-lg p-0 bg-white border border-neutral-300 dark:bg-slate-800 dark:border-slate-700 shadow-lg text-sm">
         <Command>
           <CommandList>
             <CommandEmpty>No currency found.</CommandEmpty>
-            <CommandGroup heading="Available Currencies">
-              {currencies.map((currency) => (
+            
+            {/* GROUP 1: ACTIVE (Selectable) */}
+            <CommandGroup heading="Available">
+              {activeCurrencies.map((currency) => (
                 <CommandItem
                   key={currency.value}
                   value={currency.value}
                   onSelect={(currentValue) => {
-                    setValue(currentValue);
+                    onChange?.(currency.value); 
                     setOpen(false);
                   }}
                   className="cursor-pointer aria-selected:bg-accent aria-selected:text-accent-foreground dark:aria-selected:bg-slate-700 dark:text-neutral-300"
@@ -80,11 +94,24 @@ export default function CurrencyDropdown({ preferredBg = "default" }) {
                 </CommandItem>
               ))}
             </CommandGroup>
-            <CommandGroup heading="Coming Soon" className="opacity-50">
-              <div className="px-2 py-1.5 text-xs italic">
-                More options will be added shortly.
-              </div>
+
+            {/* GROUP 2: COMING SOON (Disabled) */}
+            <CommandGroup heading="Coming Soon">
+              {comingSoonCurrencies.map((currency) => (
+                <CommandItem
+                  key={currency.value}
+                  disabled={true} // Makes it non-interactive
+                  className="opacity-50 cursor-not-allowed aria-selected:bg-transparent"
+                >
+                  <div className="flex items-center gap-2 grow">
+                    <span className="font-medium">{currency.label}</span>
+                  </div>
+                  {/* Lock icon to indicate restricted access */}
+                  <Lock className="ml-auto h-3 w-3 text-neutral-400" />
+                </CommandItem>
+              ))}
             </CommandGroup>
+            
           </CommandList>
         </Command>
       </PopoverContent>

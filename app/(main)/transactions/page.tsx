@@ -15,6 +15,7 @@ import FilterByTypeMobile from "@/components/FilterByTypeMobile";
 import { FilterByTypeDesktop } from "@/components/FilterByTypeDesktop";
 import TransactionTable from "@/components/TransactionTable";
 import useWindowWidth from "@/app/hooks/useWindowWidth";
+import { useAuth } from "@/context/authContext"; // 1. Import Auth Context
 
 interface PaginatedApiResponse {
   data: Transaction[];
@@ -29,11 +30,14 @@ interface PaginatedApiResponse {
   };
 }
 
-const ITEMS_PER_PAGE = 15; // Matches backend default
+const ITEMS_PER_PAGE = 15;
 
 export default function Transactions() {
   const router = useRouter();
   const { setMenuShowing } = useMenu();
+
+  // 2. Get Global Auth State
+  const { user, loading: authLoading } = useAuth();
 
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
@@ -55,11 +59,18 @@ export default function Transactions() {
 
   const observer = useRef<IntersectionObserver | null>(null);
 
-  // Helper to construct query params (Used by both Initial Fetch and Load More)
+  // 3. Protect Route
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/login");
+    }
+  }, [authLoading, user, router]);
+
+  // Helper to construct query params
   const getQueryParams = (pageNumber: number) => {
     const params = new URLSearchParams();
     params.append("page", pageNumber.toString());
-    params.append("limit", ITEMS_PER_PAGE.toString()); // Optional, backend has default
+    params.append("limit", ITEMS_PER_PAGE.toString());
     params.append("month", filters.month.toString());
     params.append("year", filters.year.toString());
 
@@ -70,14 +81,12 @@ export default function Transactions() {
     return params;
   };
 
-  // Helper for Month Label
   const getMonthName = (monthIndex: number) => {
     return new Date(0, monthIndex).toLocaleString('default', { month: 'long' });
   };
   
   const dateLabel = `(${getMonthName(filters.month)} ${filters.year})`;
 
-  // Callback ref for intersection observer (Infinite Scroll)
   const lastTransactionElementRef = useCallback(
     (node: HTMLElement | null) => {
       if (loadingMore || !hasMore || loading) return;
@@ -87,11 +96,10 @@ export default function Transactions() {
       observer.current = new IntersectionObserver(
         (entries) => {
           if (entries[0].isIntersecting && hasMore) {
-            console.log("Last item visible, loading more...");
             setPage((prevPage) => prevPage + 1);
           }
         },
-        { threshold: 0.1, rootMargin: "100px" } // Load slightly before reaching bottom
+        { threshold: 0.1, rootMargin: "100px" }
       );
 
       if (node) observer.current.observe(node);
@@ -103,14 +111,17 @@ export default function Transactions() {
     setMenuShowing(false);
   }, [setMenuShowing]);
 
-  // 1. Initial Fetch (Resets list when filters change)
+  // 1. Initial Fetch
   useEffect(() => {
+    // 4. Don't fetch if not authenticated yet
+    if (!user) return;
+
     const fetchTransactions = async () => {
       setLoading(true);
       setError("");
 
       try {
-        const params = getQueryParams(1); // Always page 1 on filter change
+        const params = getQueryParams(1);
         
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/transactions?${params.toString()}`,
@@ -121,11 +132,9 @@ export default function Transactions() {
 
         const data: PaginatedApiResponse = await response.json();
 
-        // Update List
         setTransactions(data.data || []);
         setHasMore(data.meta?.hasNextPage || false);
 
-        // Update Totals (The Summary from Backend)
         if (data.summary) {
             setTotalsData({
                 income: data.summary.totalIncome || 0,
@@ -133,7 +142,7 @@ export default function Transactions() {
             });
         }
 
-        setPage(1); // Reset internal page counter
+        setPage(1);
       } catch (err: any) {
         if (err.name !== "AbortError") {
           console.error("Fetch error:", err.message);
@@ -145,19 +154,18 @@ export default function Transactions() {
     };
 
     fetchTransactions();
-  }, [filters]); // Dependency: Only runs when filters change
+  }, [filters, user]); // Added user as dependency
 
-  // 2. Fetch More Data (Infinite Scroll)
+  // 2. Fetch More Data
   useEffect(() => {
-    // Only run if we are moving past page 1
     if (page === 1) return;
     if (!hasMore) return;
+    if (!user) return;
 
     const fetchMoreTransactions = async () => {
       setLoadingMore(true);
       
       try {
-        // Use the SAME filters, but new page number
         const params = getQueryParams(page);
 
         const response = await fetch(
@@ -169,7 +177,6 @@ export default function Transactions() {
 
         const data: PaginatedApiResponse = await response.json();
 
-        // Append new items to existing list
         setTransactions((prev) => [...prev, ...(data.data || [])]);
         setHasMore(data.meta?.hasNextPage || false);
         
@@ -182,7 +189,7 @@ export default function Transactions() {
     };
 
     fetchMoreTransactions();
-  }, [page]); // Dependency: Only runs when 'page' increases
+  }, [page, user]); 
 
   const displayTotalIncome = new Intl.NumberFormat("en-NG", {
     style: "currency",
@@ -193,6 +200,9 @@ export default function Transactions() {
     style: "currency",
     currency: "NGN",
   }).format(totalsData.expenses);
+
+  // Prevent flash while checking auth
+  if (authLoading || !user) return null; 
 
   return (
     <main className="lg:flex flex-col p-3 bg-white dark:bg-slate-900 h-fit min-h-screen">
@@ -234,7 +244,7 @@ export default function Transactions() {
         </div>
       </section>
 
-      <section className="grid grid-cols-2 lg:flex lg:justify-between gap-2 w-full mt-7 px-2 py-3 bg-white dark:bg-slate-800 rounded-xl shadow-xs lg:order-3">
+      <section className="grid grid-cols-2 lg:grid-cols-5 lg:justify-between gap-2 w-full mt-7 px-2 py-3 bg-white dark:bg-slate-800 rounded-xl shadow-xs lg:order-3">
         <SearchInput
           containerClassName="w-full col-span-2 lg:col-span-1 lg:grow lg:order-4"
           icon={
@@ -258,7 +268,7 @@ export default function Transactions() {
                     search: "",
                 })
             }}
-            className="hidden w-fit min-w-25 h-10 px-1 order-5 cursor-pointer lg:flex items-center justify-center font-sans text-sm font-medium text-neutral-900 dark:text-neutral-300 bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 rounded-2xl transition-colors hover:bg-gray-50 dark:hover:bg-slate-600">
+            className="hidden w-full text-center min-w-25 h-10 px-1 order-5 cursor-pointer lg:flex items-center justify-center font-sans text-sm font-medium text-neutral-900 dark:text-neutral-300 bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 rounded-2xl transition-colors hover:bg-gray-50 dark:hover:bg-slate-600">
           Reset Filters
         </button>
       </section>
