@@ -1,18 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { LuUser } from "react-icons/lu";
 
 interface UserAvatarProps {
   src?: string | null;  // The URL from the database
   name: string;         // Full name (e.g., "John Doe")
-  size?: "sm" | "md" | "lg" | "xl"; // Different sizes for Navbar vs Profile
+  size?: "sm" | "md" | "lg" | "xl"; // Different sizes
   className?: string;   // Allow custom overrides
 }
 
 export function UserAvatar({ src, name, size = "md", className = "" }: UserAvatarProps) {
   const [imageError, setImageError] = useState(false);
+
+  // CRITICAL: If the URL changes (user uploads new pic), reset the error state
+  useEffect(() => {
+    setImageError(false);
+  }, [src]);
 
   // 1. Size Configurations
   const sizeClasses = {
@@ -25,35 +30,40 @@ export function UserAvatar({ src, name, size = "md", className = "" }: UserAvata
   // 2. Initials Logic: "John Doe" -> "JD", "Admin" -> "A"
   const getInitials = (fullName: string) => {
     if (!fullName) return "";
-    const names = fullName.trim().split(" ");
+    // Split by any whitespace to handle multiple spaces safely
+    const names = fullName.trim().split(/\s+/); 
     if (names.length === 1) return names[0].charAt(0).toUpperCase();
     return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
   };
+
+  const initials = getInitials(name);
 
   // 3. Render
   return (
     <div
       className={`
-        relative overflow-hidden rounded-full flex items-center justify-center font-bold shrink-0
+        relative overflow-hidden rounded-full flex items-center justify-center font-bold shrink-0 select-none
         ${sizeClasses[size]} 
         ${className}
         ${!src || imageError ? "bg-linear-to-br from-blue-500 to-blue-600 text-white shadow-sm" : "bg-gray-100 dark:bg-slate-800"}
       `}
     >
-      {/* CASE A: Valid Image exists */}
+      {/* CASE A: Valid Image exists AND hasn't failed to load */}
       {src && !imageError ? (
         <Image
           src={src}
           alt={name}
           fill
           className="object-cover"
-          onError={() => setImageError(true)} // Fallback if URL is broken
+          referrerPolicy="no-referrer" // Required for Google Images
+          onError={() => setImageError(true)} // If image fails, switch to Initials
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          priority={size === "xl"} // Prioritize loading for large profile view
         />
       ) : (
-        /* CASE B: No Image -> Show Initials or Icon */
+        /* CASE B: No Image URL OR Image failed to load -> Show Initials */
         <span>
-            {getInitials(name) || <LuUser />} 
+            {initials || <LuUser />} 
         </span>
       )}
     </div>

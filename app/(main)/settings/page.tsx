@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; // 1. Import Router
+import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { UserAvatar } from "@/components/UserAvatar";
 import {
   LuImage,
@@ -20,18 +20,20 @@ import CustomSwitch from "@/components/switchButton";
 import { ChangePasswordModal } from "@/components/ChangePasswordModal";
 import { cn } from "@/lib/utils";
 import { useAutoSave } from "@/hooks/useAutoSave";
-import { useAuth } from "@/context/authContext";
+import { useAuth } from "@/context/authContext"; // Ensure casing matches your file structure
 
-export default function Dashboard() {
-  const router = useRouter(); // 2. Initialize Router
+export default function SettingsPage() {
+  const router = useRouter();
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
-  // 3. Get User AND Loading state
+  // 1. New State for Avatar Uploading
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Get User AND Loading state
   const { user, refreshUser, loading: authLoading } = useAuth();
 
   // --- STATE MANAGEMENT ---
-
-  // 1. Text Inputs (Profile)
   const [profileData, setProfileData] = useState({
     firstName: "",
     lastName: "",
@@ -39,18 +41,15 @@ export default function Dashboard() {
     avatar: "",
   });
 
-  // 2. Preferences
   const [theme, setTheme] = useState("System");
   const [currency, setCurrency] = useState("NGN");
 
-  // 3. Notifications
   const [notifications, setNotifications] = useState({
     aiInsights: true,
     budgetAlerts: false,
   });
 
   // --- AUTH PROTECTION ---
-  // 4. Redirect if not logged in
   useEffect(() => {
     if (!authLoading && !user) {
       router.push("/login");
@@ -58,11 +57,8 @@ export default function Dashboard() {
   }, [authLoading, user, router]);
 
   // --- DATA SYNC ---
-
-  // 5. Sync Local State with Global Context on Load
   useEffect(() => {
     if (user) {
-      // PREVENT INFINITE LOOP LOGIC
       setProfileData((prev) => {
         const newFirstName = user.firstName || "";
         const newLastName = user.lastName || "";
@@ -75,7 +71,7 @@ export default function Dashboard() {
           prev.email === newEmail &&
           prev.avatar === newAvatar
         ) {
-          return prev; 
+          return prev;
         }
 
         return {
@@ -95,7 +91,54 @@ export default function Dashboard() {
     }
   }, [user]);
 
-  // Generic Save Function
+  // --- AVATAR UPLOAD HANDLER ---
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Optional: Check file size (e.g. 5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+        alert("File size too large. Please select an image under 5MB.");
+        return;
+    }
+
+    setIsUploadingAvatar(true);
+
+    try {
+        const formData = new FormData();
+        formData.append("avatar", file);
+
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/upload-avatar`, {
+            method: "POST",
+            body: formData, // No Content-Type header needed; browser sets it
+            credentials: "include"
+        });
+
+        if (!res.ok) {
+            throw new Error("Failed to upload image");
+        }
+
+        const data = await res.json();
+
+        // 1. Update local state to show new image immediately
+        setProfileData(prev => ({ ...prev, avatar: data.avatarUrl }));
+        
+        // 2. Refresh global context so Navbar updates instantly
+        await refreshUser();
+
+    } catch (error) {
+        console.error("Avatar upload error:", error);
+        alert("Failed to upload image. Please try again.");
+    } finally {
+        setIsUploadingAvatar(false);
+        // Reset input so you can select the same file again if needed
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    }
+  };
+
+  // --- GENERIC SAVE FUNCTION ---
   const saveToBackend = async (data: any) => {
     try {
       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`, {
@@ -108,16 +151,15 @@ export default function Dashboard() {
       await refreshUser();
     } catch (err) {
       console.error("Failed to save settings", err);
-      throw err; 
+      throw err;
     }
   };
 
-  // --- AUTO SAVE LOGIC ---
-
+  // --- AUTO SAVE ---
   const profileSaveStatus = useAutoSave(profileData, saveToBackend, 1000);
 
   const handleThemeChange = async (newTheme: string) => {
-    setTheme(newTheme); 
+    setTheme(newTheme);
     await saveToBackend({ themePreference: newTheme });
   };
 
@@ -131,20 +173,17 @@ export default function Dashboard() {
     await saveToBackend({ [key]: value });
   };
 
-  // 6. Logout Handler
   const handleLogout = async () => {
     try {
       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
-        credentials: "include"
+        credentials: "include",
       });
-      // Force a hard refresh/redirect to clear state
       window.location.href = "/login";
     } catch (error) {
       console.error("Logout failed", error);
     }
-  }
+  };
 
-  // 7. Loading State (Wait for Auth)
   if (authLoading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white dark:bg-slate-950">
@@ -156,6 +195,7 @@ export default function Dashboard() {
   return (
     <main className="min-h-screen bg-white dark:bg-slate-950 text-neutral-900 dark:text-neutral-100 transition-colors duration-300">
       <div className="max-w-4xl mx-auto px-4 py-10 md:px-8 lg:py-16 space-y-12">
+        
         {/* Header */}
         <header className="space-y-1 border-b border-neutral-100 dark:border-slate-900 pb-6 flex justify-between items-end">
           <div>
@@ -163,20 +203,6 @@ export default function Dashboard() {
             <p className="text-neutral-500 dark:text-neutral-400">
               Manage your account settings, preferences, and security.
             </p>
-          </div>
-
-          {/* VISUAL SAVE INDICATOR */}
-          <div className="h-6 flex items-center text-sm font-medium">
-            {profileSaveStatus === "saving" && (
-              <span className="flex items-center gap-2 text-neutral-500">
-                <LuLoader className="animate-spin" /> Saving...
-              </span>
-            )}
-            {profileSaveStatus === "saved" && (
-              <span className="flex items-center gap-2 text-green-600">
-                <LuCheck /> Saved
-              </span>
-            )}
           </div>
         </header>
 
@@ -190,23 +216,62 @@ export default function Dashboard() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center p-4 rounded-3xl bg-neutral-50 dark:bg-slate-900/50">
-            <div className="relative group cursor-pointer">
-              <div className="w-20 h-20 flex items-center justify-center rounded-full bg-neutral-200 dark:bg-slate-800 overflow-hidden border-2 border-white dark:border-slate-700 shadow-sm">
+            {/* 2. Hidden Input Field */}
+            <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleImageChange} 
+                className="hidden" 
+                accept="image/*"
+            />
+
+            {/* 3. Clickable Avatar Area */}
+            <div 
+                className="relative group cursor-pointer"
+                onClick={() => fileInputRef.current?.click()} // Trigger the hidden input
+            >
+              <div className="w-20 h-20 flex items-center justify-center rounded-full bg-neutral-200 dark:bg-slate-800 overflow-hidden border-2 border-white dark:border-slate-700 shadow-sm relative">
+                
                 <UserAvatar
                   src={profileData.avatar}
                   name={`${profileData.firstName} ${profileData.lastName}`}
                   size="lg"
                 />
+
+                {/* Loading Overlay */}
+                {isUploadingAvatar && (
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
+                        <LuLoader className="w-6 h-6 text-white animate-spin" />
+                    </div>
+                )}
               </div>
-              <button className="absolute -bottom-1 -right-1 p-2 bg-blue-600 text-white rounded-full shadow-lg transition-transform group-hover:scale-110">
+              <button 
+                disabled={isUploadingAvatar}
+                className="absolute -bottom-1 -right-1 p-2 bg-blue-600 text-white rounded-full shadow-lg transition-transform group-hover:scale-110"
+              >
                 <LuImage size={14} />
               </button>
             </div>
+
             <div>
               <p className="font-medium">Change Avatar</p>
               <p className="text-xs text-neutral-500">
                 Recommended size: 400x400px
               </p>
+            </div>
+
+            {/* VISUAL SAVE INDICATOR */}
+            <div className="h-6 flex items-center text-sm font-medium sm:ml-auto">
+              {profileSaveStatus === "saving" && (
+                <span className="flex items-center gap-2 text-neutral-500">
+                  <LuLoader className="animate-spin" /> Saving...
+                </span>
+              )}
+              {profileSaveStatus === "saved" && (
+                <span className="flex items-center gap-2 text-green-600">
+                  <LuCheck /> Saved
+                </span>
+              )}
             </div>
           </div>
 
@@ -369,9 +434,10 @@ export default function Dashboard() {
             >
               Change Password
             </button>
-            <button 
-                onClick={handleLogout}
-                className="w-full flex items-center justify-center gap-2 py-2 text-sm text-red-500 font-medium hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center gap-2 py-2 text-sm text-red-500 font-medium hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors"
+            >
               <LuLogOut size={16} /> Logout
             </button>
           </div>
