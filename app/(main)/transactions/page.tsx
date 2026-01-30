@@ -7,7 +7,7 @@ import { IoAddOutline } from "react-icons/io5";
 import { TiArrowDown, TiArrowUp } from "react-icons/ti";
 import TransactionList from "@/components/TransactionsList";
 import { Transaction } from "@/components/types/transactionTypes";
-import { CiSearch } from "react-icons/ci";
+import { FaSearch } from "react-icons/fa";
 import { SearchInput } from "@/components/SearchInput";
 import { CategoryPicker } from "@/components/CategoryPicker";
 import { DatePicker } from "@/components/DatePicker";
@@ -248,7 +248,7 @@ export default function Transactions() {
         <SearchInput
           containerClassName="w-full col-span-2 lg:col-span-1 lg:grow lg:order-4"
           icon={
-            <CiSearch className="text-md text-neutral-600 dark:text-neutral-400" />
+            <FaSearch className="text-md text-neutral-600 dark:text-neutral-400" />
           }
           placeHolder="Search for transactions..."
           className="dark:bg-slate-700 dark:border-slate-600 dark:placeholder:text-neutral-400 dark:text-white"

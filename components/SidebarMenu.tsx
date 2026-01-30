@@ -95,13 +95,13 @@ export const SidebarMenu = ({ menuShowing }: SidebarMenuProps) => {
             );
           })}
           
-          <div className="mt-4 px-2">
+          {/* <div className="mt-4 px-2">
             <HeaderSearchInput
                 icon={<FaSearch className="w-4 h-4" />}
                 placeholder="Search..."
                 menuSearch={true}
             />
-          </div>
+          </div> */}
         </div>
 
         {/* Footer / Logout Section (Stays at bottom) */}

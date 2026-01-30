@@ -13,6 +13,8 @@ interface User {
   currencyPreference: string;
   aiInsights: boolean;
   budgetAlerts: boolean;
+  isGoogleAccount: boolean;
+  hasPassword: boolean;
 }
 
 interface AuthContextType {

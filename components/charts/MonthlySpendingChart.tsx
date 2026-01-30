@@ -115,7 +115,7 @@ const SpendingChart = () => {
         data: chartData.map(d => d.expense),
         borderColor: '#0079BF', // Brand Blue
         backgroundColor: 'rgba(0, 121, 191, 0.1)',
-        pointRadius: 3,
+        pointRadius: 2,
         pointBackgroundColor: '#0079BF',
         borderWidth: 2,
         fill: true,

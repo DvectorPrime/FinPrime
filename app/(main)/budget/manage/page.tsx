@@ -5,18 +5,20 @@ import { useRouter } from "next/navigation";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { LuInfo, LuLoader, LuRefreshCw } from "react-icons/lu";
 import { CategoryIcon } from "@/components/CategoryIcon";
-import { toast } from "sonner"; 
-import { useAuth } from "@/context/authContext"; // 1. Import Auth
+import { useAuth } from "@/context/authContext"; 
+import { useToast } from "@/context/toastContext"; // 1. Import Toast Hook
 
 // Define the shape of our data
 type CategoryKey = "Housing" | "Food" | "Transport" | "Shopping" | "Subscriptions" | "Others";
 type FormDataType = Record<CategoryKey, number>;
 
 export default function ManageBudget() {
+
   const router = useRouter();
   
   // 2. Use Global Auth
   const { user, loading: authLoading } = useAuth();
+  const { showToast } = useToast(); // 3. Initialize Toast
   
   const [initialLoading, setInitialLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -30,16 +32,15 @@ export default function ManageBudget() {
     Others: 0,
   });
 
-  // 3. Protect Route
+  // Protect Route
   useEffect(() => {
     if (!authLoading && !user) {
       router.push("/login");
     }
   }, [authLoading, user, router]);
 
-  // --- 1. GET Request ---
+  // GET Request
   useEffect(() => {
-    // 4. Wait for User
     if (!user) return;
 
     const fetchCurrentBudget = async () => {
@@ -66,13 +67,14 @@ export default function ManageBudget() {
         setFormData(currentData);
       } catch (error) {
         console.error("Error fetching budget", error);
+        showToast("Failed to load current budget. Check your connection and try again.", "error")
       } finally {
         setInitialLoading(false);
       }
     };
 
     fetchCurrentBudget();
-  }, [user]); // Re-run if user status changes (though usually just once)
+  }, [user]); 
 
   const getIconForCategory = (catName: string) => {
     const map: Record<string, string> = {
@@ -107,9 +109,14 @@ export default function ManageBudget() {
         });
 
         if (!res.ok) throw new Error("Update failed");
+
+        // 4. Success Toast
+        showToast("Budget updated successfully!", "success");
         return true;
     } catch (error) {
         console.error("Failed to update", error);
+        // 5. Error Toast
+        showToast("Failed to update budget. Please try again.", "error");
         return false;
     } finally {
         setIsSaving(false);

@@ -1,9 +1,16 @@
 "use client";
 
 import ComingSoon from "@/components/ComingSoon";
+import { useMenu } from "@/context/menuContext";
+import { useEffect } from "react";
 import { LuBellRing } from "react-icons/lu";
 
 export default function NotificationsPage() {
+  const {setMenuShowing} = useMenu()
+
+  useEffect(() => {
+    setMenuShowing(false)
+  }, [setMenuShowing])
   return (
     <ComingSoon 
       title="Notification Center"

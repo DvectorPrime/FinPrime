@@ -1,8 +1,15 @@
 "use client";
 import { LuChartBarBig } from "react-icons/lu";
 import ComingSoon from "@/components/ComingSoon";
+import { useMenu } from "@/context/menuContext";
+import { useEffect } from "react";
 
 export default function ReportsPage() {
+  const { setMenuShowing } = useMenu()
+
+  useEffect(() => {
+    setMenuShowing(false)
+  }, [setMenuShowing])
   return (
     <ComingSoon 
       title="Advanced Reports"

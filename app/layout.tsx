@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { MenuProvider } from "@/context/menuContext";
 import { AuthProvider } from "@/context/authContext";
+import { ToastProvider } from "@/context/toastContext";
 
 // 1. Set up the Inter font with a CSS variable
 const inter = Inter({
@@ -30,7 +31,9 @@ export default function RootLayout({
         </div>
             <AuthProvider>
               <MenuProvider>
-                {children}
+                <ToastProvider>
+                  {children}
+                </ToastProvider>
               </MenuProvider>
             </AuthProvider>
       </body>

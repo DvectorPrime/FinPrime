@@ -25,8 +25,6 @@ export default function MainLayout({
 
     const { menuShowing, setMenuShowing, toggleMenu } = useMenu();
 
-    const profileImage = '/default-avatar.png';
-
     return (
         <>
             <div className="grid grid-cols-1 w-full h-full lg:flex">
@@ -62,9 +60,7 @@ export default function MainLayout({
 
                         </div>
                     </header>
-                    <ToastProvider>
-                        {children}
-                    </ToastProvider>
+                    {children}
                 </div>
             </div>
             {menuShowing && (

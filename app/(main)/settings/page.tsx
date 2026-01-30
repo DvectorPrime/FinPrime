@@ -18,13 +18,19 @@ import {
 import CurrencyDropdown from "@/components/CurrencyPicker";
 import CustomSwitch from "@/components/switchButton";
 import { ChangePasswordModal } from "@/components/ChangePasswordModal";
+import { DeleteAccountModal } from "@/components/DeleteAccountModal"; // 1. IMPORT HERE
 import { cn } from "@/lib/utils";
 import { useAutoSave } from "@/hooks/useAutoSave";
-import { useAuth } from "@/context/authContext"; // Ensure casing matches your file structure
+import { useAuth } from "@/context/authContext";
+import { useMenu } from "@/context/menuContext";
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { setMenuShowing } = useMenu();
+
+  // Modal States
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // 2. NEW STATE
 
   // 1. New State for Avatar Uploading
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
@@ -48,6 +54,10 @@ export default function SettingsPage() {
     aiInsights: true,
     budgetAlerts: false,
   });
+
+  useEffect(() => {
+    setMenuShowing(false);
+  }, [setMenuShowing]);
 
   // --- AUTH PROTECTION ---
   useEffect(() => {
@@ -98,43 +108,45 @@ export default function SettingsPage() {
 
     // Optional: Check file size (e.g. 5MB limit)
     if (file.size > 5 * 1024 * 1024) {
-        alert("File size too large. Please select an image under 5MB.");
-        return;
+      alert("File size too large. Please select an image under 5MB.");
+      return;
     }
 
     setIsUploadingAvatar(true);
 
     try {
-        const formData = new FormData();
-        formData.append("avatar", file);
+      const formData = new FormData();
+      formData.append("avatar", file);
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/upload-avatar`, {
-            method: "POST",
-            body: formData, // No Content-Type header needed; browser sets it
-            credentials: "include"
-        });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/upload/upload-avatar`,
+        {
+          method: "POST",
+          body: formData, // No Content-Type header needed; browser sets it
+          credentials: "include",
+        },
+      );
 
-        if (!res.ok) {
-            throw new Error("Failed to upload image");
-        }
+      if (!res.ok) {
+        throw new Error("Failed to upload image");
+      }
 
-        const data = await res.json();
+      const data = await res.json();
 
-        // 1. Update local state to show new image immediately
-        setProfileData(prev => ({ ...prev, avatar: data.avatarUrl }));
-        
-        // 2. Refresh global context so Navbar updates instantly
-        await refreshUser();
+      // 1. Update local state to show new image immediately
+      setProfileData((prev) => ({ ...prev, avatar: data.avatarUrl }));
 
+      // 2. Refresh global context so Navbar updates instantly
+      await refreshUser();
     } catch (error) {
-        console.error("Avatar upload error:", error);
-        alert("Failed to upload image. Please try again.");
+      console.error("Avatar upload error:", error);
+      alert("Failed to upload image. Please try again.");
     } finally {
-        setIsUploadingAvatar(false);
-        // Reset input so you can select the same file again if needed
-        if (fileInputRef.current) {
-            fileInputRef.current.value = "";
-        }
+      setIsUploadingAvatar(false);
+      // Reset input so you can select the same file again if needed
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
@@ -195,7 +207,6 @@ export default function SettingsPage() {
   return (
     <main className="min-h-screen bg-white dark:bg-slate-950 text-neutral-900 dark:text-neutral-100 transition-colors duration-300">
       <div className="max-w-4xl mx-auto px-4 py-10 md:px-8 lg:py-16 space-y-12">
-        
         {/* Header */}
         <header className="space-y-1 border-b border-neutral-100 dark:border-slate-900 pb-6 flex justify-between items-end">
           <div>
@@ -216,22 +227,21 @@ export default function SettingsPage() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center p-4 rounded-3xl bg-neutral-50 dark:bg-slate-900/50">
-            {/* 2. Hidden Input Field */}
-            <input 
-                type="file" 
-                ref={fileInputRef} 
-                onChange={handleImageChange} 
-                className="hidden" 
-                accept="image/*"
+            {/* Hidden Input Field */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImageChange}
+              className="hidden"
+              accept="image/*"
             />
 
-            {/* 3. Clickable Avatar Area */}
-            <div 
-                className="relative group cursor-pointer"
-                onClick={() => fileInputRef.current?.click()} // Trigger the hidden input
+            {/* Clickable Avatar Area */}
+            <div
+              className="relative group cursor-pointer"
+              onClick={() => fileInputRef.current?.click()} // Trigger the hidden input
             >
               <div className="w-20 h-20 flex items-center justify-center rounded-full bg-neutral-200 dark:bg-slate-800 overflow-hidden border-2 border-white dark:border-slate-700 shadow-sm relative">
-                
                 <UserAvatar
                   src={profileData.avatar}
                   name={`${profileData.firstName} ${profileData.lastName}`}
@@ -240,12 +250,12 @@ export default function SettingsPage() {
 
                 {/* Loading Overlay */}
                 {isUploadingAvatar && (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
-                        <LuLoader className="w-6 h-6 text-white animate-spin" />
-                    </div>
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
+                    <LuLoader className="w-6 h-6 text-white animate-spin" />
+                  </div>
                 )}
               </div>
-              <button 
+              <button
                 disabled={isUploadingAvatar}
                 className="absolute -bottom-1 -right-1 p-2 bg-blue-600 text-white rounded-full shadow-lg transition-transform group-hover:scale-110"
               >
@@ -450,7 +460,11 @@ export default function SettingsPage() {
               Permanently delete your account and all associated data. This
               cannot be undone.
             </p>
-            <button className="w-full py-2.5 px-4 bg-red-600 text-white text-sm font-medium rounded-xl hover:bg-red-700 transition-colors shadow-sm">
+            {/* 3. UPDATED DELETE BUTTON */}
+            <button
+              onClick={() => setIsDeleteModalOpen(true)}
+              className="w-full py-2.5 px-4 bg-red-600 text-white text-sm font-medium rounded-xl hover:bg-red-700 transition-colors shadow-sm"
+            >
               Delete Account
             </button>
           </div>
@@ -460,6 +474,13 @@ export default function SettingsPage() {
       <ChangePasswordModal
         open={isPasswordModalOpen}
         onOpenChange={setIsPasswordModalOpen}
+        hasPassword={user?.hasPassword}
+      />
+      {/* 4. CONNECT MODAL */}
+      <DeleteAccountModal
+        open={isDeleteModalOpen}
+        onOpenChange={setIsDeleteModalOpen}
+        isGoogleAccount={user?.isGoogleAccount} // <--- PASS THIS PROP
       />
     </main>
   );

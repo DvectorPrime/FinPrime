@@ -10,6 +10,7 @@ import OverviewChart from "@/components/charts/BudgetChart";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { formatCurrency } from "@/lib/utils";
 import { useAuth } from "@/context/authContext"; // 1. Import Auth Context
+import { useMenu } from "@/context/menuContext";
 
 /** --- TYPES --- */
 interface OverviewData {
@@ -62,6 +63,8 @@ const BudgetSkeleton = () => (
 
 export default function Budget() {
   const router = useRouter();
+
+  const {setMenuShowing} = useMenu()
   
   // 2. Use Global Auth State
   const { user, loading: authLoading } = useAuth();
@@ -77,6 +80,10 @@ export default function Budget() {
 
   const [categories, setCategories] = useState<CategoryBudget[]>([]);
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
+
+  useEffect(() => {
+    setMenuShowing(false)
+  }, [setMenuShowing])
 
   // 3. Protect Route
   useEffect(() => {
