@@ -6,39 +6,38 @@ import { FiLock } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuth } from "@/context/authContext"; // 1. Import Hook
+import { useAuth } from "@/context/authContext"; 
+import { ForgotPasswordModal } from "@/components/ForgotPasswordModal"; // 1. Import Modal
 
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
-  // 2. Get Global Auth State
   const { user, loading: authLoading, refreshUser } = useAuth();
 
   // State
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // Local loading for form submit
+  const [loading, setLoading] = useState(false);
+  
+  // 2. New State for Forgot Password Modal
+  const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
 
   const googleEffectRan = useRef(false);
 
-  // --- 1. SESSION CHECK (Replaces your manual fetch) ---
+  // --- SESSION CHECK ---
   useEffect(() => {
-    // If auth is done loading and we have a user, kick them to dashboard
     if (!authLoading && user) {
       router.push("/dashboard");
     }
   }, [user, authLoading, router]);
 
-  // --- 2. GOOGLE LOGIN HANDLER ---
+  // --- GOOGLE LOGIN HANDLER ---
   useEffect(() => {
     (async () => {
       const code = searchParams.get("code");
-
       if (code && !googleEffectRan.current) {
         googleEffectRan.current = true;
         setLoading(true);
-
         try {
           const res = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/auth/google`,
@@ -49,12 +48,9 @@ export default function LoginPage() {
               credentials: "include",
             },
           );
-
           const data = await res.json();
-
           if (res.ok) {
-            console.log({ Success: data });
-            await refreshUser(); // Update context immediately
+            await refreshUser(); 
             router.push("/dashboard");
           } else {
             setError(data.error || "Login failed");
@@ -83,9 +79,7 @@ export default function LoginPage() {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
         credentials: "include",
       });
@@ -96,22 +90,17 @@ export default function LoginPage() {
         setLoading(false);
         throw new Error(data.error || "Something went wrong");
       }
-
-      console.log("Success:", data);
       
-      // CRITICAL: Refresh the context so Dashboard knows we are logged in
       await refreshUser(); 
-      
       router.push("/dashboard");
     } catch (error: any) {
       setLoading(false);
-      setError(error.message); // Display the error message
+      setError(error.message); 
     }
   };
 
   const handleGoogleSignup = () => {
     const rootUrl = "https://accounts.google.com/o/oauth2/auth";
-
     const options = {
       redirect_uri: "http://localhost:3000/login",
       client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID as string,
@@ -123,34 +112,38 @@ export default function LoginPage() {
         "https://www.googleapis.com/auth/userinfo.email",
       ].join(" "),
     };
-
     const qs = new URLSearchParams(options).toString();
     window.location.href = `${rootUrl}?${qs}`;
   };
 
-  // Prevent form flicker while checking session
   if (authLoading) return null; 
 
   return (
-    <div className="relative w-full min-h-screen bg-gray-100 dark:bg-slate-900">
+    <div className="relative w-full min-h-screen bg-gray-100 dark:bg-slate-900 transition-colors">
       <div className="w-full h-30 bg-linear-to-br from-[#0078BD] to-[#93C5FD] rounded-none"></div>
       <main className="block h-fit">
         <div className="mx-auto -mt-7.5 w-[90%] md:w-[60%] max-w-125 pt-4 pb-8 bg-white dark:bg-slate-800 rounded-xl shadow-xs">
+          
           <div className="flex justify-center items-center mt-6 mx-auto gap-1">
             <Image src="/logo.png" alt="FinPrime" width={32} height={32} />
             <p className="hidden lg:block font-sans text-[38px] leading-9.5 font-bold text-[#0078BD] italic">
               FinPrime
             </p>
           </div>
+          
           <p className="mt-6.25 text-center font-sans text-2xl leading-8 font-bold text-neutral-900 dark:text-neutral-100">
             Welcome back 👋
           </p>
+          
           {error && (
             <div className="w-[85%] mx-auto mt-4 p-2 text-red-500 bg-red-100 dark:bg-red-900/20 rounded text-sm text-center">
               {error}
             </div>
           )}
+
           <form onSubmit={handleSubmit} className="w-[85%] mx-auto">
+            
+            {/* Email Field */}
             <label htmlFor="user-email" className="block relative mt-4">
               <span className="hidden">Email</span>
               <HiOutlineMail className="absolute left-2.5 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500 dark:text-neutral-400" />
@@ -161,10 +154,12 @@ export default function LoginPage() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Email"
-                className="block w-full h-11 pr-3 pl-8.5 text-base font-sans rounded-md bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 text-neutral-900 dark:text-neutral-100 outline-none focus:ring-2 focus:ring-blue-500"
+                className="block w-full h-11 pr-3 pl-8.5 text-base font-sans rounded-md bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 text-neutral-900 dark:text-neutral-100 outline-none focus:ring-2 focus:ring-blue-500 transition-colors placeholder:text-neutral-400"
                 required
               />
             </label>
+
+            {/* Password Field */}
             <label htmlFor="user-password" className="block relative mt-4">
               <span className="hidden">Password</span>
               <FiLock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500 dark:text-neutral-400" />
@@ -175,10 +170,21 @@ export default function LoginPage() {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Password"
-                className="block w-full h-11 pr-3 pl-8.5 text-base font-sans rounded-md bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 text-neutral-900 dark:text-neutral-100 outline-none focus:ring-2 focus:ring-blue-500"
+                className="block w-full h-11 pr-3 pl-8.5 text-base font-sans rounded-md bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 text-neutral-900 dark:text-neutral-100 outline-none focus:ring-2 focus:ring-blue-500 transition-colors placeholder:text-neutral-400"
                 required
               />
             </label>
+
+            {/* 3. Forgot Password Link */}
+            <div className="flex justify-end mt-2">
+                <button
+                    type="button"
+                    onClick={() => setIsForgotModalOpen(true)}
+                    className="text-sm font-medium text-[#0078BD] dark:text-sky-400 hover:underline focus:outline-none"
+                >
+                    Forgot Password?
+                </button>
+            </div>
 
             <button
               type="submit"
@@ -188,6 +194,7 @@ export default function LoginPage() {
               {loading ? "Logging in..." : "Login"}
             </button>
           </form>
+
           <fieldset className="border-t border-neutral-300 dark:border-slate-600 w-[85%] mx-auto mt-3 pt-4">
             <legend className="text-center px-2 font-medium text-neutral-600 dark:text-neutral-400">
               or continue with
@@ -214,6 +221,12 @@ export default function LoginPage() {
           </fieldset>
         </div>
       </main>
+
+      {/* 4. Render Modal */}
+      <ForgotPasswordModal 
+        open={isForgotModalOpen} 
+        onOpenChange={setIsForgotModalOpen} 
+      />
     </div>
   );
 }
