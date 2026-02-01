@@ -6,10 +6,11 @@ import { useEffect, useState } from "react";
 import RecentTransactionsList from "@/components/RecentTransactionsList";
 import { FaRegLightbulb } from "react-icons/fa";
 import { FaArrowRightToBracket } from "react-icons/fa6";
+import { LuLoader } from "react-icons/lu"; // Import loader
 import { useMenu } from "@/context/menuContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/authContext"; // 1. Import useAuth
+import { useAuth } from "@/context/authContext";
 
 type summaryData = {
   summaryType: string;
@@ -17,7 +18,6 @@ type summaryData = {
   growthPercent?: number;
 };
 
-// Skeleton component for summary cards
 const SummaryCardSkeleton = () => (
   <div className="h-25 w-full px-3 py-3 bg-gray-200 dark:bg-slate-700 rounded-xl shadow-xs animate-pulse">
     <div className="flex justify-start items-center gap-2 mb-2">
@@ -29,29 +29,30 @@ const SummaryCardSkeleton = () => (
 );
 
 export default function Dashboard() {
-  // 2. Use Global Auth State
   const { user, loading: authLoading } = useAuth();
   
   const router = useRouter();
   const { setMenuShowing } = useMenu();
   const [error, setError] = useState("");
   
-  // Local loading state just for the dashboard stats
+  // Dashboard Stats State
   const [statsLoading, setStatsLoading] = useState(true);
   const [basicSummaryData, setBasicSummaryData] = useState<summaryData[]>([]);
 
-  // 3. Protect the Route
+  // AI Insight State
+  const [aiTip, setAiTip] = useState("");
+  const [loadingTip, setLoadingTip] = useState(false);
+
+  // Protect Route
   useEffect(() => {
     if (!authLoading && !user) {
       router.push("/login");
     }
   }, [user, authLoading, router]);
 
-  // 4. Fetch Dashboard Stats (Only when user is confirmed)
+  // Fetch Dashboard Stats
   useEffect(() => {
     setMenuShowing(false);
-
-    // Don't fetch stats if we don't have a user yet
     if (!user) return; 
 
     setStatsLoading(true);
@@ -63,11 +64,9 @@ export default function Dashboard() {
           credentials: "include"
         });
 
-        if (!response.ok){
-          throw new Error('Failed to get dashboard summary from the server.')
-        }
+        if (!response.ok) throw new Error('Failed to get dashboard summary.');
 
-        const data = await response.json()
+        const data = await response.json();
 
         setBasicSummaryData([
           { summaryType: "Balance", amount: data.balance.value },
@@ -76,24 +75,50 @@ export default function Dashboard() {
           { summaryType: "Savings Rate", amount: data.savingsRate.value },
         ]);
       } catch (err : any) {
-        if (err.name === 'AbortError') {
-          console.log('Fetch successfully aborted.');
-        } else {
-          console.error('An error occurred:', err.message);
-          setError(err.message);
-        }
+        console.error('Error:', err.message);
+        setError(err.message);
       } finally {
         setStatsLoading(false);
       }
-    }
+    };
     
     fetchTotals();
-  }, [setMenuShowing, user]); // Re-run when user becomes available
+  }, [setMenuShowing, user]);
 
-  // Combined loading state: If Auth OR Stats are loading, show skeletons
+  // --- NEW: Fetch AI Insight ---
+  useEffect(() => {
+    // Only fetch if user exists AND they have AI Insights enabled in settings
+    if (!user || !user.aiInsights) return;
+
+    const fetchAiInsight = async () => {
+        setLoadingTip(true);
+        try {
+            // Note: Make sure your route path matches where you mounted it in index.js
+            // I am assuming /api/ai/insight based on our previous step
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ai-insight`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ type: "DASHBOARD" }), // Request specific dashboard tip
+                credentials: "include"
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                setAiTip(data.insight);
+            }
+        } catch (err) {
+            console.error("Failed to load AI tip", err);
+            // We don't show an error to the user for this, just leave it blank or default
+        } finally {
+            setLoadingTip(false);
+        }
+    };
+
+    fetchAiInsight();
+  }, [user]);
+
   const isLoading = authLoading || statsLoading;
 
-  // Prevent flash of content if not authenticated
   if (!authLoading && !user) return null; 
 
   return (
@@ -102,7 +127,6 @@ export default function Dashboard() {
           Welcome back, {user?.firstName || "User"} 👋
         </h1>
 
-        {/* Show skeletons while loading either Auth or Stats */}
         {isLoading
           ? Array.from({ length: 4 }).map((_, i) => <SummaryCardSkeleton key={i} />)
           : basicSummaryData.map((data) => (
@@ -135,13 +159,29 @@ export default function Dashboard() {
           <RecentTransactionsList />
         </section>
 
-        <section className="grid grid-cols-[auto_1fr] items-start gap-4 w-full p-4 bg-sky-50 dark:bg-sky-900/50 rounded-xl shadow-xs my-4 md:col-span-2 lg:col-span-4">
-          <FaRegLightbulb className="w-5 h-5 text-sky-600 dark:text-sky-300 mt-1" />
-          <p className="font-sans text-sm leading-relaxed font-normal text-sky-800 dark:text-sky-200">
-            {user?.aiInsights 
-                ? "Your spending on Groceries is 12% higher than last month. Consider reviewing your weekly meal plan."
-                : "Enable AI insights in Settings to get personalized spending tips."}
-          </p>
+        {/* AI Insight Section */}
+        <section className="grid grid-cols-[auto_1fr] items-start gap-4 w-full p-4 bg-sky-50 dark:bg-sky-900/50 rounded-xl shadow-xs my-4 md:col-span-2 lg:col-span-4 min-h-20">
+          <FaRegLightbulb className="w-5 h-5 text-sky-600 dark:text-sky-300 mt-1 shrink-0" />
+          
+          <div className="font-sans text-sm leading-relaxed font-normal text-sky-800 dark:text-sky-200">
+            {/* Logic: 
+                1. If Loading -> Show Spinner
+                2. If User disabled it -> Show "Enable" message
+                3. If Tip exists -> Show Tip
+                4. Fallback -> "Analyzing..." (In case loading finished but no tip returned yet)
+            */}
+            {user?.aiInsights ? (
+                loadingTip ? (
+                    <div className="flex items-center gap-2 animate-pulse">
+                        <LuLoader className="animate-spin" /> Analyzing your finances...
+                    </div>
+                ) : (
+                    aiTip || "Your financial health looks stable. Keep tracking your expenses!"
+                )
+            ) : (
+                "Enable AI insights in Settings to get personalized spending tips."
+            )}
+          </div>
         </section>
       </main>
   );
