@@ -92,7 +92,7 @@ export default function LoginPage() {
       }
       
       await refreshUser(); 
-      router.push("/dashboard");
+      router.push("/budget");
     } catch (error: any) {
       setLoading(false);
       setError(error.message); 

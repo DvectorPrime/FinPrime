@@ -85,20 +85,16 @@ export default function Dashboard() {
     fetchTotals();
   }, [setMenuShowing, user]);
 
-  // --- NEW: Fetch AI Insight ---
   useEffect(() => {
-    // Only fetch if user exists AND they have AI Insights enabled in settings
     if (!user || !user.aiInsights) return;
 
     const fetchAiInsight = async () => {
         setLoadingTip(true);
         try {
-            // Note: Make sure your route path matches where you mounted it in index.js
-            // I am assuming /api/ai/insight based on our previous step
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ai-insight`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ type: "DASHBOARD" }), // Request specific dashboard tip
+                body: JSON.stringify({ type: "DASHBOARD" }), 
                 credentials: "include"
             });
 
@@ -108,7 +104,6 @@ export default function Dashboard() {
             }
         } catch (err) {
             console.error("Failed to load AI tip", err);
-            // We don't show an error to the user for this, just leave it blank or default
         } finally {
             setLoadingTip(false);
         }
@@ -160,16 +155,10 @@ export default function Dashboard() {
         </section>
 
         {/* AI Insight Section */}
-        <section className="grid grid-cols-[auto_1fr] items-start gap-4 w-full p-4 bg-sky-50 dark:bg-sky-900/50 rounded-xl shadow-xs my-4 md:col-span-2 lg:col-span-4 min-h-20">
+        <section className="grid grid-cols-[auto_1fr] items-start gap-4 h-fit w-full p-4 bg-sky-50 dark:bg-sky-900/50 rounded-xl shadow-xs my-4 md:col-span-2 lg:col-span-4 min-h-20">
           <FaRegLightbulb className="w-5 h-5 text-sky-600 dark:text-sky-300 mt-1 shrink-0" />
           
           <div className="font-sans text-sm leading-relaxed font-normal text-sky-800 dark:text-sky-200">
-            {/* Logic: 
-                1. If Loading -> Show Spinner
-                2. If User disabled it -> Show "Enable" message
-                3. If Tip exists -> Show Tip
-                4. Fallback -> "Analyzing..." (In case loading finished but no tip returned yet)
-            */}
             {user?.aiInsights ? (
                 loadingTip ? (
                     <div className="flex items-center gap-2 animate-pulse">
