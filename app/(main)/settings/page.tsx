@@ -282,6 +282,12 @@ export default function SettingsPage() {
                   <LuCheck /> Saved
                 </span>
               )}
+              {/* Added error visual for auto-save failure - shows error message */}
+              {profileSaveStatus === "error" && (
+                <span className="flex items-center gap-2 text-red-600">
+                  <LuLoader className="animate-spin" /> Failed to save
+                </span>
+              )}
             </div>
           </div>
 

@@ -39,6 +39,7 @@ const SpendingChart = () => {
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDark, setIsDark] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // 1. Fetch Real Data
   useEffect(() => {
@@ -60,6 +61,7 @@ const SpendingChart = () => {
             setChartData(data); 
         } catch (error) {
             console.error("Chart data error:", error);
+            setError("Failed to load chart data");
             // Fallback empty data to prevent crash
             setChartData([]);
         } finally {
@@ -205,7 +207,17 @@ const SpendingChart = () => {
     )
   }
 
-  // 5. Empty State
+  // 5. Error State
+  if (error) {
+    return (
+        <div className="w-full h-[300px] flex flex-col items-center justify-center bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+            <p className="text-sm text-red-600 dark:text-red-400">Failed to load chart</p>
+            <p className="text-xs text-red-500 dark:text-red-300">{error}</p>
+        </div>
+    )
+  }
+
+  // 6. Empty State
   if (chartData.length === 0) {
     return (
         <div className="w-full h-[300px] flex flex-col items-center justify-center bg-gray-50 dark:bg-slate-800/50 rounded-lg border border-dashed border-gray-300 dark:border-slate-700">

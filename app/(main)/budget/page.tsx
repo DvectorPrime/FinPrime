@@ -79,6 +79,7 @@ export default function Budget() {
 
   const [categories, setCategories] = useState<CategoryBudget[]>([]);
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   // AI State
   const [aiTip, setAiTip] = useState("");
@@ -101,6 +102,7 @@ export default function Budget() {
 
     (async () => {
       setLoading(true);
+      setError(null);
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/budgets`, {
           method: "GET",
@@ -111,6 +113,7 @@ export default function Budget() {
 
         if (!response.ok) {
           console.error("API Error:", data.error);
+          setError(data.error || "Failed to load budget data");
           return;
         }
 
@@ -119,6 +122,7 @@ export default function Budget() {
         setChartData(data.chartData);
       } catch (error) {
         console.error("Network Error:", error);
+        setError("Failed to load budget data");
       } finally {
         setLoading(false);
       }
@@ -237,6 +241,15 @@ export default function Budget() {
           </button>
         </div>
       </div>
+
+      {/* Added error visual for budget data fetch failure - shows if error occurred */}
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <p className="text-sm text-red-600 dark:text-red-400">
+            {error}
+          </p>
+        </div>
+      )}
 
       {/* --- STAT CARDS --- */}
       <section className="mb-5 md:grid md:grid-cols-2 lg:grid-cols-3 gap-10">

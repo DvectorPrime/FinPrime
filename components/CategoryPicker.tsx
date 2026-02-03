@@ -57,6 +57,7 @@ export function CategoryPicker({preferredBg = "default", value, setFilters, setF
   const [open, setOpen] = React.useState(false);
   const [categories, setCategories] = React.useState<Category[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
 
   // 2. Logic to determine fallback: "All Categories" (Filter Mode) vs "Others" (Form Mode)
   const fallbackCategory = setFilters ? allCategoriesOption : defaultFormCategory;
@@ -96,6 +97,7 @@ export function CategoryPicker({preferredBg = "default", value, setFilters, setF
         setCategories(data);
       } catch (error) {
         console.error("Failed to fetch categories:", error);
+        setError("Failed to load categories");
       } finally {
         setLoading(false);
       }
@@ -134,7 +136,9 @@ export function CategoryPicker({preferredBg = "default", value, setFilters, setF
               `w-full h-10 justify-between rounded-2xl border border-neutral-300 ${preferredBg === "default" ? "bg-neutral-300/20" : preferredBg} px-3 font-sans text-sm font-normal text-neutral-900 transition-colors hover:bg-neutral-300/30 focus:ring-2 focus:ring-blue-500`,
               "dark:bg-slate-700 dark:border-slate-600 dark:text-neutral-100 dark:hover:bg-slate-600 dark:focus:ring-sky-500",
               "lg:rounded-full lg:bg-white lg:text-neutral-600 lg:hover:bg-gray-50",
-              "lg:dark:bg-slate-800 lg:dark:border-slate-700 lg:dark:text-neutral-300 lg:dark:hover:bg-slate-700"
+              "lg:dark:bg-slate-800 lg:dark:border-slate-700 lg:dark:text-neutral-300 lg:dark:hover:bg-slate-700",
+              // Added error styling when categories fail to load - shows red border and text
+              error && "border-red-300 text-red-600 dark:border-red-600 dark:text-red-400"
             )}
           >
             <div className="flex items-center gap-2">

@@ -27,6 +27,7 @@ export default function TransactionCard({
   createdAt,
 }: TransactionCardProps) {
   const [categoryIcon, setCategoryIcon] = useState<string | null>(null);
+  const [iconError, setIconError] = useState(false);
 
   useEffect(() => {
     // This is a more efficient way to get the icon.
@@ -41,6 +42,7 @@ export default function TransactionCard({
         }
       } catch (error) {
         console.error('Failed to find category icon:', error);
+        setIconError(true);
       }
     };
     findIcon();
@@ -62,10 +64,15 @@ export default function TransactionCard({
   return (
     <li className="flex items-center gap-4 py-3 border-b border-gray-200 dark:border-slate-700">
       <div className={`shrink-0 flex justify-center items-center w-10 h-10 ${type.toLowerCase() === 'income' ? 'bg-green-50 dark:bg-green-900/50' : 'bg-red-50 dark:bg-red-900/50'} rounded-full`}>
-        <CategoryIcon
-          iconName={categoryIcon}
-          className={`h-5 w-5 ${type.toLowerCase() === 'income' ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-400'}`}
-        />
+        {iconError ? (
+          // Added fallback icon when category icon fails to load - shows generic icon
+          <span className={`h-5 w-5 ${type.toLowerCase() === 'income' ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-400'}`}>⚠️</span>
+        ) : (
+          <CategoryIcon
+            iconName={categoryIcon}
+            className={`h-5 w-5 ${type.toLowerCase() === 'income' ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-400'}`}
+          />
+        )}
       </div>
       <div className="grow">
         <p className="font-sans text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-1">

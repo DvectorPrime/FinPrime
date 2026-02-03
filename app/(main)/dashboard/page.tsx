@@ -35,7 +35,7 @@ export default function Dashboard() {
   const { setMenuShowing } = useMenu();
   const [error, setError] = useState("");
   const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-  
+
   console.log(userTimeZone)
   
   // Dashboard Stats State
@@ -124,6 +124,15 @@ export default function Dashboard() {
         <h1 className="font-sans text-2xl md:text-3xl font-bold md:col-span-2 lg:col-span-4 text-neutral-900 dark:text-white">
           Welcome back, {user?.firstName || "User"} 👋
         </h1>
+
+        {/* Added error visual for dashboard summary fetch failure - shows if error occurred */}
+        {error && (
+          <div className="md:col-span-2 lg:col-span-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg mb-4">
+            <p className="text-sm text-red-600 dark:text-red-400">
+              Failed to load dashboard data: {error}
+            </p>
+          </div>
+        )}
 
         {isLoading
           ? Array.from({ length: 4 }).map((_, i) => <SummaryCardSkeleton key={i} />)

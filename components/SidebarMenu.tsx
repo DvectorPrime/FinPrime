@@ -7,6 +7,7 @@ import { LuPiggyBank } from "react-icons/lu";
 import { MdLogout } from "react-icons/md";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import Image from "next/image";
+import { useToast } from "@/context/toastContext";
 
 type SidebarMenuProps = {
   menuShowing: boolean;
@@ -30,6 +31,7 @@ const menuItems: MenuItem[] = [
 export const SidebarMenu = ({ menuShowing }: SidebarMenuProps) => {
   const router = useRouter();
   const pathname = usePathname();
+  const { showToast } = useToast();
 
   const isActive = (itemId: string) => {
     if (itemId === "dashboard" && pathname === "/") return true;
@@ -44,6 +46,8 @@ export const SidebarMenu = ({ menuShowing }: SidebarMenuProps) => {
       window.location.href = "/login";
     } catch (err) {
       console.log("failed to log out", err);
+      // Added error visual for logout failure - shows toast notification
+      showToast("Failed to logout. Please try again.", "error");
     }
   }
 

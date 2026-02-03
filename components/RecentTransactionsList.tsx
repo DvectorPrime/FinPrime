@@ -27,6 +27,7 @@ const TransactionSkeleton = () => (
 export default function RecentTransactionsList() {
   const [recentTransactions, setRecentTransactions] = useState<transactionType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const getRecentTransactions = async () => {
@@ -40,6 +41,7 @@ export default function RecentTransactionsList() {
         console.log(data)
       } catch (error) {
         console.error("Couldn't Fetch recent transactions:", error);
+        setError("Failed to load recent transactions");
       } finally {
         setLoading(false);
       }
@@ -53,6 +55,11 @@ export default function RecentTransactionsList() {
       {loading ? (
         // Show 5 skeleton items while loading
         Array.from({ length: 5 }).map((_, i) => <TransactionSkeleton key={i} />)
+      ) : error ? (
+        // Added error visual when recent transactions fail to load - shows error message
+        <li className="flex items-center justify-center py-8 text-red-500 dark:text-red-400">
+          <span>{error}</span>
+        </li>
       ) : (
         recentTransactions.map((tx) => <TransactionCard key={tx.id} {...tx} />)
       
