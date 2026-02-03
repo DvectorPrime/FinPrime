@@ -6,18 +6,15 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LuLoader, LuMailCheck } from "react-icons/lu";
 
-// UI Components (Ensure these exist in your project)
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-// --- VERIFICATION MODAL COMPONENT ---
 interface VerificationModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -84,8 +81,6 @@ function VerificationModal({ open, onOpenChange, email, onVerify, loading, error
     );
 }
 
-// --- MAIN SIGNUP PAGE ---
-
 export default function SignUp() {
     const router = useRouter();
 
@@ -97,7 +92,6 @@ export default function SignUp() {
       confirmPassword: ""
     });
     
-    // UI States
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false); // For Step 1 (Sending Email)
     const [verificationLoading, setVerificationLoading] = useState(false); // For Step 2 (Verifying Code)
@@ -105,7 +99,6 @@ export default function SignUp() {
     const [isVerificationOpen, setIsVerificationOpen] = useState(false);
     const [isCheckingSession, setIsCheckingSession] = useState(true);
 
-    // 1. Session Check
     useEffect(() => {
         const checkSession = async () => {
             try {
@@ -135,7 +128,6 @@ export default function SignUp() {
         });
     };
 
-    // 2. Step 1: Validate Form & Send Code
     const handleInitialSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
@@ -148,7 +140,6 @@ export default function SignUp() {
         }
 
         try {
-            // Call the NEW endpoint to send the code
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/send-code`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -164,7 +155,6 @@ export default function SignUp() {
                 throw new Error(data.error || 'Failed to send verification code');
             }
 
-            // Success! Open Modal
             setIsVerificationOpen(true);
 
         } catch (error: any) {
@@ -174,7 +164,6 @@ export default function SignUp() {
         }
     };
 
-    // 3. Step 2: Verify Code & Register
     const handleVerifyAndRegister = async (code: string) => {
         setVerificationError("");
         setVerificationLoading(true);
@@ -196,7 +185,6 @@ export default function SignUp() {
                 throw new Error(data.error || 'Verification failed');
             }
 
-            // Full Success -> Redirect
             router.push('/dashboard');
 
         } catch (error: any) {
@@ -256,7 +244,6 @@ export default function SignUp() {
             </div>
            )}
            
-          {/* Inputs Section */}
           <section className="space-y-4">
               <div>
                 <label htmlFor="first-name" className="block mb-1.5 font-sans text-sm font-semibold text-neutral-700 dark:text-neutral-300">First Name</label>
@@ -296,6 +283,7 @@ export default function SignUp() {
                   onChange={handleChange}
                   className="block w-full px-4 py-2.5 bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 rounded-lg text-neutral-900 dark:text-white placeholder-neutral-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                   placeholder="example@email.com"
+                  autoComplete="new-password"
                   required
                 />
               </div>
@@ -310,6 +298,7 @@ export default function SignUp() {
                   onChange={handleChange}
                   className="block w-full px-4 py-2.5 bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 rounded-lg text-neutral-900 dark:text-white placeholder-neutral-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                   placeholder="Create a password"
+                  autoComplete="new-password"
                   required
                 />
               </div>
@@ -368,7 +357,6 @@ export default function SignUp() {
         </p>
       </div>
 
-      {/* VERIFICATION MODAL */}
       <VerificationModal 
         open={isVerificationOpen}
         onOpenChange={setIsVerificationOpen}

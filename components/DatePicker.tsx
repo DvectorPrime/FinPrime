@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ChevronDown, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronDown, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ interface DatePickerProps {
   value?: Date | null;
   disabled?: boolean;
   setFilters?: React.Dispatch<React.SetStateAction<Filters>>;
+  filters?: Filters
   setFormData?: React.Dispatch<React.SetStateAction<FormData>>;
 }
 
@@ -26,6 +27,7 @@ export function DatePicker({
   preferredBg = "default",
   value,
   setFilters,
+  filters,
   setFormData
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
@@ -126,7 +128,7 @@ export function DatePicker({
                 className="rounded-md border bg-white dark:bg-slate-800 dark:border-slate-700 pointer-events-auto p-3"
                 classNames={{
                     // Navigation
-                    nav_button: "border border-neutral-200 dark:border-slate-700 hover:bg-neutral-100 dark:hover:bg-slate-700 rounded-md transition-colors",
+                    nav_button: "border border-neutral-200 dark:border-slate-700 hover:bg-neutral-100 dark:hover:bg-slate-700 rounded-md cursor-pointer transition-colors",
                     caption: "flex justify-center pt-1 relative items-center text-neutral-900 dark:text-neutral-100 font-semibold",
                     
                     // Days Container
@@ -135,7 +137,7 @@ export function DatePicker({
                     // Individual Days
                     day: cn(
                         "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
-                        "hover:bg-neutral-100 dark:hover:bg-slate-700", // Hover effect
+                        "hover:bg-neutral-100 dark:hover:bg-slate-700 hover:cursor-pointer", // Hover effect
                         "rounded-md cursor-pointer transition-colors",   // Cursor & Shape
                         "text-neutral-900 dark:text-neutral-100"       // Text Color
                     ),

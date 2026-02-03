@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import RecentTransactionsList from "@/components/RecentTransactionsList";
 import { FaRegLightbulb } from "react-icons/fa";
 import { FaArrowRightToBracket } from "react-icons/fa6";
-import { LuLoader } from "react-icons/lu"; // Import loader
+import { LuLoader } from "react-icons/lu"; 
 import { useMenu } from "@/context/menuContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -34,6 +34,9 @@ export default function Dashboard() {
   const router = useRouter();
   const { setMenuShowing } = useMenu();
   const [error, setError] = useState("");
+  const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+  
+  console.log(userTimeZone)
   
   // Dashboard Stats State
   const [statsLoading, setStatsLoading] = useState(true);
@@ -94,7 +97,7 @@ export default function Dashboard() {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ai-insight`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ type: "DASHBOARD" }), 
+                body: JSON.stringify({ type: "DASHBOARD", timezone: userTimeZone }), 
                 credentials: "include"
             });
 

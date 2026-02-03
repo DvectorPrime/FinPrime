@@ -7,31 +7,27 @@ import { FcGoogle } from "react-icons/fc";
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/authContext"; 
-import { ForgotPasswordModal } from "@/components/ForgotPasswordModal"; // 1. Import Modal
+import { ForgotPasswordModal } from "@/components/ForgotPasswordModal";
 
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading, refreshUser } = useAuth();
 
-  // State
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   
-  // 2. New State for Forgot Password Modal
   const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
 
   const googleEffectRan = useRef(false);
 
-  // --- SESSION CHECK ---
   useEffect(() => {
     if (!authLoading && user) {
       router.push("/dashboard");
     }
   }, [user, authLoading, router]);
 
-  // --- GOOGLE LOGIN HANDLER ---
   useEffect(() => {
     (async () => {
       const code = searchParams.get("code");
@@ -175,7 +171,6 @@ export default function LoginPage() {
               />
             </label>
 
-            {/* 3. Forgot Password Link */}
             <div className="flex justify-end mt-2">
                 <button
                     type="button"

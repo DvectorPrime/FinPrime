@@ -43,11 +43,11 @@ export default function MainLayout({
                         <div className="flex gap-4 items-center">
                             <Image src="/logo-white.png" alt="FinPrime" width={36} height={36}
                                 className="block lg:hidden" />
-                            <HeaderSearchInput
+                            {/* <HeaderSearchInput
                                 icon={<FaSearch className="w-4 h-4" />}
                                 placeholder="Search..."
                                 menuSearch={false}
-                            />
+                            /> */}
                             <button
                                 className="w-8 h-8 flex items-center justify-center text-white bg-white/20 cursor-pointer dark:bg-white/10 rounded-md transition-colors duration-200 hover:bg-white/30 dark:hover:bg-white/20"
                                 onClick={() => {

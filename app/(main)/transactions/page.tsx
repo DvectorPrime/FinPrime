@@ -15,7 +15,7 @@ import FilterByTypeMobile from "@/components/FilterByTypeMobile";
 import { FilterByTypeDesktop } from "@/components/FilterByTypeDesktop";
 import TransactionTable from "@/components/TransactionTable";
 import useWindowWidth from "@/app/hooks/useWindowWidth";
-import { useAuth } from "@/context/authContext"; // 1. Import Auth Context
+import { useAuth } from "@/context/authContext"; 
 
 interface PaginatedApiResponse {
   data: Transaction[];
@@ -36,7 +36,6 @@ export default function Transactions() {
   const router = useRouter();
   const { setMenuShowing } = useMenu();
 
-  // 2. Get Global Auth State
   const { user, loading: authLoading } = useAuth();
 
   const [loading, setLoading] = useState<boolean>(true);
@@ -59,14 +58,12 @@ export default function Transactions() {
 
   const observer = useRef<IntersectionObserver | null>(null);
 
-  // 3. Protect Route
   useEffect(() => {
     if (!authLoading && !user) {
       router.push("/login");
     }
   }, [authLoading, user, router]);
 
-  // Helper to construct query params
   const getQueryParams = (pageNumber: number) => {
     const params = new URLSearchParams();
     params.append("page", pageNumber.toString());
@@ -111,9 +108,7 @@ export default function Transactions() {
     setMenuShowing(false);
   }, [setMenuShowing]);
 
-  // 1. Initial Fetch
   useEffect(() => {
-    // 4. Don't fetch if not authenticated yet
     if (!user) return;
 
     const fetchTransactions = async () => {
@@ -154,9 +149,8 @@ export default function Transactions() {
     };
 
     fetchTransactions();
-  }, [filters, user]); // Added user as dependency
+  }, [filters, user]);
 
-  // 2. Fetch More Data
   useEffect(() => {
     if (page === 1) return;
     if (!hasMore) return;
@@ -201,7 +195,6 @@ export default function Transactions() {
     currency: "NGN",
   }).format(totalsData.expenses);
 
-  // Prevent flash while checking auth
   if (authLoading || !user) return null; 
 
   return (
@@ -254,7 +247,7 @@ export default function Transactions() {
           className="dark:bg-slate-700 dark:border-slate-600 dark:placeholder:text-neutral-400 dark:text-white"
           setFilters={setFilters}
         />
-        <DatePicker setFilters={setFilters} />
+        <DatePicker setFilters={setFilters} filters = {filters} />
         <CategoryPicker disabled={false} setFilters={setFilters} />
         <FilterByTypeMobile disabled={windowWidth > 760} setFilters={setFilters} />
         <FilterByTypeDesktop setFilters={setFilters} />
