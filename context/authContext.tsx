@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { useRouter } from "next/navigation";
 
 // 1. Define User Shape
 interface User {
@@ -9,7 +8,7 @@ interface User {
   lastName: string;
   email: string;
   avatarUrl: string;
-  themePreference: "Light" | "Dark" | "System"; // Typed specifically
+  themePreference: "Light" | "Dark" | "System";
   currencyPreference: string;
   aiInsights: boolean;
   budgetAlerts: boolean;
@@ -28,7 +27,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
   // --- 1. Fetch User Data ---
   const fetchUser = async () => {
@@ -76,7 +74,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else if (preference === "System") {
         // Check OS system setting
         isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        console.log(isDark, preference)
       }
 
       // Toggle the class on <html>
