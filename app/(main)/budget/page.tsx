@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { LuWallet, LuPiggyBank, LuLoader } from "react-icons/lu"; // Added LuLoader2
 import { TbCashBanknote } from "react-icons/tb";
@@ -67,6 +67,7 @@ export default function Budget() {
   const {setMenuShowing} = useMenu()
   const { user, loading: authLoading } = useAuth();
   const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+  const effectRan = useRef(false)
   
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -131,6 +132,13 @@ export default function Budget() {
 
   // --- NEW: FETCH AI INSIGHT ---
   useEffect(() => {
+
+    if (effectRan.current === true){
+      return
+    }
+
+    effectRan.current = true
+
     if (!user || !user.aiInsights) return;
 
     const fetchBudgetInsight = async () => {
@@ -174,7 +182,10 @@ export default function Budget() {
   };
 
   const budgetsElements = categories.map((item, index) => {
-    const width = item.percentage > 100 ? 100 : item.percentage.toFixed(0);
+    if (!item.percentage){
+      item.percentage = 0
+    }
+    const width = item.percentage > 100 ? 100 : item.percentage?.toFixed(0) ?? 0;
 
     return (
       <div

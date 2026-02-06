@@ -2,7 +2,7 @@
 
 import SummaryCard from "@/components/SummaryCard";
 import SpendingChart from "@/components/charts/MonthlySpendingChart";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import RecentTransactionsList from "@/components/RecentTransactionsList";
 import { FaRegLightbulb } from "react-icons/fa";
 import { FaArrowRightToBracket } from "react-icons/fa6";
@@ -32,6 +32,7 @@ export default function Dashboard() {
   const { user, loading: authLoading } = useAuth();
   
   const router = useRouter();
+  const effectRan = useRef(false)
   const { setMenuShowing } = useMenu();
   const [error, setError] = useState("");
   const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -89,6 +90,10 @@ export default function Dashboard() {
   }, [setMenuShowing, user]);
 
   useEffect(() => {
+    if (effectRan.current === true) return;
+
+    effectRan.current = true
+
     if (!user || !user.aiInsights) return;
 
     const fetchAiInsight = async () => {

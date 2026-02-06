@@ -13,6 +13,8 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading, refreshUser } = useAuth();
+  
+  console.log(user)
 
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -88,7 +90,7 @@ export default function LoginPage() {
       }
       
       await refreshUser(); 
-      router.push("/budget");
+      router.push("/dashboard");
     } catch (error: any) {
       setLoading(false);
       setError(error.message); 

@@ -59,6 +59,15 @@ export function DatePicker({
     }
   }, [date, setFormData]);
 
+  React.useEffect(() => {
+    if (filters){
+      const year = filters.year
+      const month = filters.month 
+
+      setDate(new Date(year, month, 1))
+    }
+  }, [filters])
+
   // --- HANDLERS ---
   const nextYear = () => setMenuYear((prev) => prev + 1);
   const prevYear = () => setMenuYear((prev) => prev - 1);
@@ -115,7 +124,7 @@ export function DatePicker({
         </PopoverTrigger>
 
         {/* --- POP CONTENT --- */}
-        <PopoverContent className={cn("p-0", setFormData ? "w-auto" : "w-75 border-2 border-white dark:border-slate-700")} align="start">
+        <PopoverContent className={cn("p-0 bg-white", setFormData ? "w-auto" : "w-75 border-2 border-white dark:border-slate-700")} align="start">
           
           {setFormData ? (
              // === MODE A: FORM MODE (Full Calendar) ===

@@ -51,9 +51,10 @@ interface CategoryPickerProps{
   disabled: boolean
   setFilters?: React.Dispatch<React.SetStateAction<Filters>>
   setFormData?: React.Dispatch<React.SetStateAction<FormData>>
+  filters?: Filters
 }
 
-export function CategoryPicker({preferredBg = "default", value, setFilters, setFormData} : CategoryPickerProps) {
+export function CategoryPicker({preferredBg = "default", value, setFilters, setFormData, filters} : CategoryPickerProps) {
   const [open, setOpen] = React.useState(false);
   const [categories, setCategories] = React.useState<Category[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -104,7 +105,13 @@ export function CategoryPicker({preferredBg = "default", value, setFilters, setF
     };
     fetchCategories();
   }, []);
-
+  
+  React.useEffect(() => {
+    if (filters){
+      if (filters.category === "all")
+      setSelectedCategory(allCategoriesOption)
+    }
+  }, [filters])
   // 5. Handle External Value Changes OR Update Placeholder to Real Data
   React.useEffect(() => {
     if (categories.length > 0) {

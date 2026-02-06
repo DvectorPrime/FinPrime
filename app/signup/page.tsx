@@ -325,6 +325,11 @@ export default function SignUp() {
           >
             {loading ? <><LuLoader className="animate-spin" /> Sending Code...</> : "Create Account"}
           </button>
+          {error && (
+            <div className="mb-4 p-3 text-sm font-medium text-red-600 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-lg flex items-center gap-2">
+                ⚠️ {error}
+            </div>
+           )}
         </form>
 
         <div className="relative my-6">

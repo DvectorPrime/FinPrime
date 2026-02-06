@@ -63,7 +63,7 @@ export const SidebarMenu = ({ menuShowing }: SidebarMenuProps) => {
         ${menuShowing ? "translate-x-0" : "-translate-x-full"}
 
         /* Desktop Styles: Sticky positioning to stay fixed while content scrolls */
-        lg:sticky lg:top-0 lg:translate-x-0 lg:h-screen lg:shrink-0
+        lg:sticky lg:top-0 lg:translate-x-0 lg:h-screen lg:shrink-0 lg:w-48
       `}
     >
       <div className="flex flex-col h-full">

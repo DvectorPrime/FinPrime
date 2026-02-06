@@ -8,9 +8,10 @@ import { Filters } from "./types/filtertypes";
 
 interface FilterByTypeDesktopProps {
   setFilters?: React.Dispatch<React.SetStateAction<Filters>>
+  filters?: Filters
 }
 
-export function FilterByTypeDesktop({setFilters} : FilterByTypeDesktopProps) {
+export function FilterByTypeDesktop({setFilters, filters} : FilterByTypeDesktopProps) {
   const [filterType, setFilterType] = React.useState("all");
 
   React.useEffect(() => {
@@ -21,6 +22,12 @@ export function FilterByTypeDesktop({setFilters} : FilterByTypeDesktopProps) {
       }))
     }
   }, [filterType])
+
+  React.useEffect(() => {
+    if (filters){
+      setFilterType(filters.type)
+    }
+  }, [filters])
 
   return (
     <div className="hidden lg:block lg:order-3 relative w-full">

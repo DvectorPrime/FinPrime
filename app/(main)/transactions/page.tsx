@@ -199,7 +199,7 @@ export default function Transactions() {
 
   return (
     <main className="lg:flex flex-col p-3 bg-white dark:bg-slate-900 h-fit min-h-screen">
-      <section className="sticky top-2 z-20 lg:order-1">
+      <section className="sticky top-3 z-20 lg:order-1">
         <button
           className="h-10 px-3 ml-auto flex items-center justify-center gap-2 font-sans text-sm font-medium text-white bg-[#0079BF] rounded-2xl shadow-xs transition-colors hover:bg-[#006CAB] active:bg-[#005586] cursor-pointer"
           onClick={() => router.push("/transactions/add")}
@@ -208,7 +208,7 @@ export default function Transactions() {
         </button>
       </section>
 
-      <h3 className="hidden lg:block lg:order-2 font-sans text-3xl font-bold text-neutral-900 dark:text-white">
+      <h3 className="hidden lg:block lg:-mt-9 lg:order-2 font-sans text-3xl font-bold text-neutral-900 dark:text-white">
         Transactions
       </h3>
 
@@ -246,11 +246,12 @@ export default function Transactions() {
           placeHolder="Search for transactions..."
           className="dark:bg-slate-700 dark:border-slate-600 dark:placeholder:text-neutral-400 dark:text-white"
           setFilters={setFilters}
+          filters={filters}
         />
         <DatePicker setFilters={setFilters} filters = {filters} />
-        <CategoryPicker disabled={false} setFilters={setFilters} />
+        <CategoryPicker disabled={false} setFilters={setFilters} filters={filters} />
         <FilterByTypeMobile disabled={windowWidth > 760} setFilters={setFilters} />
-        <FilterByTypeDesktop setFilters={setFilters} />
+        <FilterByTypeDesktop setFilters={setFilters} filters={filters} />
         <button 
             onClick={() => {
                 setFilters({

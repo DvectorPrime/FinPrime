@@ -9,6 +9,7 @@ type SearchInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   placeHolder: string;
   className: string;
   setFilters?: React.Dispatch<React.SetStateAction<Filters>>;
+  filters?: Filters
 };
 
 export const SearchInput = ({
@@ -18,6 +19,7 @@ export const SearchInput = ({
   placeHolder = "Search...",
   className,
   setFilters,
+  filters,
   ...props
 }: SearchInputProps) => {
   // 1. Local state for immediate UI feedback
@@ -41,8 +43,13 @@ export const SearchInput = ({
     };
   }, [localSearch, setFilters]);
 
+  useEffect(() => {
+    if (filters){
+      setLocalSearch(filters.search)
+    }
+  }, [filters])
   return (
-    <div className={`lg:w-62.5 relative block ${containerClassName}`}>
+    <div className={`relative block ${containerClassName}`}>
       <div
         className={`
           absolute top-1/2 -translate-y-1/2 text-neutral-600
