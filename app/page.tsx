@@ -38,19 +38,24 @@ const App = () => {
           scrolled ? 'bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-5'
         }`}>
           <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-
+          <div className='flex justify-start items-center gap-4'>
             {
               isDark ? 
               <Image src={logoWhite} alt='FinPrime' width={32} height={32}></Image> : 
               <Image src={logo} alt='FinPrime' width={32} height={32}></Image>
             }
 
+            <p className="font-sans text-2xl font-bold text-[#0079BF] dark:text-white italic">
+              FinPrime
+            </p>
+          </div>
+
             {/* Desktop Links */}
             <div className="hidden md:flex items-center gap-8">
               <a></a>
               <div className="flex items-center gap-6 pl-8 dark:border-slate-800">
-                <button className="text-sm font-semibold hover:text-blue-600 transition-colors" onClick={() => {router.push("/login")}}>Login</button>
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-md hover:shadow-lg active:scale-95" onClick={() => {router.push("/signup")}}>
+                <button className="text-sm font-semibold hover:text-blue-600 transition-colors cursor-pointer" onClick={() => {router.push("/login")}}>Login</button>
+                <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-md hover:shadow-lg active:scale-95 cursor-pointer" onClick={() => {router.push("/signup")}}>
                   Get Started
                 </button>
               </div>
@@ -73,7 +78,7 @@ const App = () => {
                 Track expenses, manage budgets, and understand your money — all in one place. Powered by AI to help you save more.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                <button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full text-lg font-bold shadow-xl shadow-blue-500/20 transition-all hover:-translate-y-1" onClick={() => {router.push("/signup")}}>
+                <button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full text-lg font-bold shadow-xl shadow-blue-500/20 transition-all cursor-pointer hover:-translate-y-1" onClick={() => {router.push("/signup")}}>
                   Get Started Free
                 </button>
               </div>
@@ -180,7 +185,7 @@ const App = () => {
                 Ready to start making smarter financial decisions today?
               </h2>
               <div className="relative z-10 pt-4">
-                <button className="bg-white text-blue-600 hover:bg-slate-100 px-10 py-4 rounded-full text-lg font-bold shadow-2xl transition-all hover:scale-105 active:scale-95" onClick={() => {router.push("/signup")}}>
+                <button className="bg-white text-blue-600 hover:bg-slate-100 px-10 py-4 rounded-full text-lg font-bold shadow-2xl transition-all cursor-pointer hover:scale-105 active:scale-95" onClick={() => {router.push("/signup")}}>
                   Create Free Account
                 </button>
               </div>

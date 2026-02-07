@@ -14,6 +14,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { FiAlertCircle } from "react-icons/fi";
 
 interface VerificationModalProps {
     open: boolean;
@@ -53,9 +54,10 @@ function VerificationModal({ open, onOpenChange, email, onVerify, loading, error
                     />
                     
                     {error && (
-                        <p className="text-sm text-red-500 text-center bg-red-50 dark:bg-red-900/20 p-2 rounded-lg font-medium">
-                            {error}
-                        </p>
+                        <div className="flex items-center gap-3 text-red-600 bg-red-50 dark:bg-red-900/10 p-4 rounded-2xl text-sm border border-red-100 dark:border-red-900/20">
+                            <FiAlertCircle className="shrink-0 w-5 h-5" />
+                            <span>{error}</span>
+                        </div>
                     )}
                 </div>
 
@@ -225,6 +227,7 @@ export default function SignUp() {
 
   return (
     <main className="bg-gray-100 dark:bg-slate-900 w-full min-h-screen py-8 transition-colors duration-300">
+        <title>Finprime - Signup</title>
       <div className="w-11/12 max-w-md mx-auto px-6 py-8 bg-white dark:bg-slate-800 rounded-xl shadow-xs text-neutral-800 dark:text-neutral-300">
         <Image
           src="/logo.png"
@@ -239,8 +242,9 @@ export default function SignUp() {
         
         <form onSubmit={handleInitialSubmit}>
           {error && (
-            <div className="mb-4 p-3 text-sm font-medium text-red-600 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-lg flex items-center gap-2">
-                ⚠️ {error}
+            <div className="flex items-center gap-3 text-red-600 bg-red-50 dark:bg-red-900/10 p-4 rounded-2xl text-sm border border-red-100 dark:border-red-900/20">
+                <FiAlertCircle className="shrink-0 w-5 h-5" />
+                <span>{error}</span>
             </div>
            )}
            
@@ -321,13 +325,14 @@ export default function SignUp() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-11 px-3 mt-8 flex items-center justify-center gap-2 font-sans text-base font-bold text-white bg-[#0079BF] rounded-lg shadow-sm hover:bg-[#006CAB] active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full h-11 px-3 mt-8 flex items-center justify-center gap-2 font-sans text-base font-bold text-white bg-[#0079BF] rounded-lg shadow-sm cursor-pointer hover:bg-[#006CAB] active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {loading ? <><LuLoader className="animate-spin" /> Sending Code...</> : "Create Account"}
           </button>
           {error && (
-            <div className="mb-4 p-3 text-sm font-medium text-red-600 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-lg flex items-center gap-2">
-                ⚠️ {error}
+            <div className="flex items-center gap-3 text-red-600 bg-red-50 dark:bg-red-900/10 p-4 rounded-2xl text-sm border border-red-100 dark:border-red-900/20">
+                <FiAlertCircle className="shrink-0 w-5 h-5" />
+                <span>{error}</span>
             </div>
            )}
         </form>
@@ -344,7 +349,7 @@ export default function SignUp() {
         <button
           onClick={handleGoogleSignup}
           type="button"
-          className="w-full h-11 px-3 mb-6 flex items-center justify-center gap-2 font-sans text-sm font-bold text-neutral-700 dark:text-white bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 rounded-lg hover:bg-neutral-50 dark:hover:bg-slate-600 transition-all active:scale-[0.98]"
+          className="w-full h-11 px-3 mb-6 flex items-center justify-center gap-2 font-sans text-sm font-bold text-neutral-700 cursor-pointer dark:text-white bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 rounded-lg hover:bg-neutral-50 dark:hover:bg-slate-600 transition-all active:scale-[0.98]"
         >
           <FcGoogle className="w-5 h-5" />
           <span>Sign up with Google</span>
@@ -354,7 +359,7 @@ export default function SignUp() {
           Already have an account?
           <button
             onClick={toLoginPage}
-            className="ml-1 font-semibold text-[#0079BF] dark:text-sky-400 hover:underline focus:outline-none"
+            className="ml-1 font-semibold text-[#0079BF] c dark:text-sky-400 cursor-pointer hover:underline focus:outline-none"
             type="button"
           >
             Login

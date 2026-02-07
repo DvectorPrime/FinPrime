@@ -164,13 +164,13 @@ export default function MainLayout({
                                 <>
                                     <button
                                         onClick={() => setIsTourOpen(true)}
-                                        className="hidden md:block px-4 py-1.5 text-sm font-bold text-[#0079BF] bg-white rounded-full shadow-lg animate-pulse hover:bg-gray-100 hover:scale-105 transition-all duration-200"
+                                        className="hidden md:block px-4 py-1.5 text-sm font-bold text-[#0079BF] bg-white rounded-full shadow-lg animate-pulse cursor-pointer hover:bg-gray-100 hover:scale-105 transition-all duration-200"
                                     >
                                         Take a Tour 🚀
                                     </button>
                                     <button
                                         onClick={() => setIsTourOpen(true)}
-                                        className="md:hidden px-3 py-1 text-sm font-bold text-[#0079BF] bg-white rounded-full shadow-md animate-pulse"
+                                        className="md:hidden px-3 py-1 text-sm font-bold text-[#0079BF] bg-white rounded-full shadow-md animate-pulse cursor-pointer"
                                     >
                                         Tour 🚀
                                     </button>
@@ -220,7 +220,7 @@ export default function MainLayout({
                             <span className="text-xs font-bold text-[#0079BF] bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded-md">
                                 Step {currentStep + 1} / {TOUR_STEPS.length}
                             </span>
-                            <button onClick={handleSkip} className="text-gray-400 hover:text-red-500 text-sm font-medium transition-colors">
+                            <button onClick={handleSkip} className="text-gray-400 hover:text-red-500 text-sm font-medium transition-colors cursor-pointer">
                                 Skip Tour
                             </button>
                         </div>
@@ -241,7 +241,7 @@ export default function MainLayout({
                                 className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors
                                     ${currentStep === 0 
                                         ? 'text-gray-300 cursor-not-allowed' 
-                                        : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-slate-700'
+                                        : 'cursor-pointer text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-slate-700'
                                     }`}
                             >
                                 ← Prev
@@ -249,7 +249,7 @@ export default function MainLayout({
 
                             <button
                                 onClick={handleNext}
-                                className="px-6 py-2 text-sm font-bold text-white bg-[#0079BF] hover:bg-blue-600 rounded-lg shadow-md transition-transform hover:scale-105"
+                                className="px-6 py-2 text-sm font-bold text-white bg-[#0079BF] hover:bg-blue-600 rounded-lg shadow-md transition-transform cursor-pointer hover:scale-105"
                             >
                                 {currentStep === TOUR_STEPS.length - 1 ? "Finish! 🥳" : "Next →"}
                             </button>

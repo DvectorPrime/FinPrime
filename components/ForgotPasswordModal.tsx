@@ -183,7 +183,7 @@ export function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswordProps)
                 <Button 
                     onClick={step === "EMAIL" ? handleSendCode : handleResetPassword} 
                     disabled={loading}
-                    className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl"
+                    className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl cursor-pointer disabled:cursor-not-allowed"
                 >
                     {loading ? <LuLoader className="animate-spin" /> : (step === "EMAIL" ? "Send Code" : "Reset Password")}
                 </Button>
@@ -192,7 +192,7 @@ export function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswordProps)
                 variant="ghost" 
                 onClick={handleClose} 
                 disabled={loading}
-                className="w-full rounded-xl dark:text-white"
+                className="w-full rounded-xl dark:text-white cursor-pointer disabled:cursor-not-allowed"
             >
                 Cancel
             </Button>

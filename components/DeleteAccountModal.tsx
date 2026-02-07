@@ -147,14 +147,14 @@ export function DeleteAccountModal({ open, onOpenChange, isGoogleAccount }: Dele
             <DialogFooter className="flex-col sm:flex-col gap-2">
               <Button 
                 onClick={handleVerify} 
-                className="w-full bg-red-600 hover:bg-red-700 text-white rounded-xl h-11 font-bold"
+                className="w-full bg-red-600 hover:bg-red-700 text-white rounded-xl h-11 font-bold cursor-pointer"
               >
                 Continue
               </Button>
               <Button 
                 variant="ghost" 
                 onClick={handleClose} 
-                className="w-full rounded-xl"
+                className="w-full rounded-xl cursor-pointer"
               >
                 Cancel
               </Button>
@@ -183,7 +183,7 @@ export function DeleteAccountModal({ open, onOpenChange, isGoogleAccount }: Dele
               <Button 
                 onClick={handleFinalDelete} 
                 disabled={loading}
-                className="w-full bg-red-600 hover:bg-red-700 text-white rounded-xl h-12 font-bold shadow-lg shadow-red-500/20"
+                className="w-full bg-red-600 hover:bg-red-700 text-white rounded-xl h-12 font-bold shadow-lg shadow-red-500/20 cursor-pointer disabled:cursor-not-allowed"
               >
                 {loading ? (
                     <>
@@ -195,7 +195,7 @@ export function DeleteAccountModal({ open, onOpenChange, isGoogleAccount }: Dele
                 variant="outline" 
                 onClick={() => setStep("input")} // Go back
                 disabled={loading}
-                className="w-full rounded-xl border-neutral-200 dark:border-slate-800"
+                className="w-full rounded-xl border-neutral-200 dark:border-slate-800 cursor-pointer disabled:cursor-not-allowed"
               >
                 Back
               </Button>

@@ -188,7 +188,7 @@ export function ChangePasswordModal({ open, onOpenChange, hasPassword = true }: 
           <Button
             onClick={handleSubmit}
             disabled={loading || success}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-12 text-md font-bold disabled:opacity-70"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-12 text-md font-bold cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
           >
             {loading ? (
               <>
@@ -204,7 +204,7 @@ export function ChangePasswordModal({ open, onOpenChange, hasPassword = true }: 
             variant="ghost"
             onClick={() => onOpenChange(false)}
             disabled={loading}
-            className="w-full rounded-xl text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+            className="w-full rounded-xl text-neutral-500 cursor-pointer disabled:cursor-not-allowed hover:text-neutral-700 dark:hover:text-neutral-300"
           >
             Cancel
           </Button>

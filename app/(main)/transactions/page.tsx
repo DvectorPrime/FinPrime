@@ -16,6 +16,7 @@ import { FilterByTypeDesktop } from "@/components/FilterByTypeDesktop";
 import TransactionTable from "@/components/TransactionTable";
 import useWindowWidth from "@/app/hooks/useWindowWidth";
 import { useAuth } from "@/context/authContext"; 
+import { FiAlertCircle } from "react-icons/fi";
 
 interface PaginatedApiResponse {
   data: Transaction[];
@@ -198,7 +199,8 @@ export default function Transactions() {
   if (authLoading || !user) return null; 
 
   return (
-    <main className="lg:flex flex-col p-3 bg-white dark:bg-slate-900 h-fit min-h-screen">
+    <main className="lg:flex flex-col p-3 bg-white dark:bg-slate-900 h-[calc(100vh-56px)] overflow-y-auto">
+      <title>Transactions</title>
       <section className="sticky top-3 z-20 lg:order-1">
         <button
           className="h-10 px-3 ml-auto flex items-center justify-center gap-2 font-sans text-sm font-medium text-white bg-[#0079BF] rounded-2xl shadow-xs transition-colors hover:bg-[#006CAB] active:bg-[#005586] cursor-pointer"
@@ -308,7 +310,12 @@ export default function Transactions() {
             — You have reached the end —
           </p>
         )}
-        {error && <p className="text-center my-4 text-red-500">{error}</p>}
+        {error &&
+          <div className="flex items-center gap-3 text-red-600 bg-red-50 dark:bg-red-900/10 p-4 rounded-2xl text-sm border border-red-100 dark:border-red-900/20">
+            <FiAlertCircle className="shrink-0 w-5 h-5" />
+            <span>{error}</span>
+          </div>
+        }
         {!loading && transactions.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12">
             <p className="text-gray-500 dark:text-gray-400 text-lg">No transactions found.</p>

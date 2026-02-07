@@ -178,7 +178,8 @@ export default function ManageBudget() {
   if (authLoading || !user) return null;
 
   return (
-    <main className="p-4 md:p-8 min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
+    <main className="p-4 md:p-8 h-[calc(100vh-56px)] overflow-y-auto bg-gray-50 dark:bg-slate-900 transition-colors">
+      <title>Manage Budget</title>
       <div className="max-w-6xl mx-auto">
         
         <div className="h-6 mb-2 flex justify-end">
@@ -192,7 +193,7 @@ export default function ManageBudget() {
         <div className="mb-6">
           <button
             onClick={() => router.push("/budget")}
-            className="group flex items-center gap-2 px-4 py-2 font-medium text-sm text-blue-600 dark:text-sky-400 bg-transparent hover:bg-blue-50 dark:hover:bg-sky-900/20 rounded-xl transition-all active:scale-95"
+            className="group flex items-center gap-2 px-4 py-2 font-medium text-sm text-blue-600 dark:text-sky-400 bg-transparent hover:bg-blue-50 dark:hover:bg-sky-900/20 rounded-xl transition-all cursor-pointer active:scale-95"
           >
             <IoIosArrowRoundBack className="text-2xl group-hover:-translate-x-1 transition-transform" />
             Back to Budget
@@ -212,7 +213,7 @@ export default function ManageBudget() {
           <div className="flex gap-3">
             <button 
                 disabled={isSaving || initialLoading}
-                className="flex-1 md:flex-none h-11 px-6 font-sans text-sm font-bold text-neutral-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 active:scale-95 transition-all shadow-sm disabled:opacity-50" 
+                className="flex-1 md:flex-none h-11 px-6 font-sans text-sm font-bold text-neutral-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 active:scale-95 transition-all cursor-pointer shadow-sm disabled:opacity-50" 
                 onClick={async () => {
                     const defaultValues = {
                         Housing: 20000,
@@ -232,7 +233,7 @@ export default function ManageBudget() {
 
             <button 
                 disabled={isSaving || initialLoading}
-                className="flex-1 md:flex-none h-11 px-8 font-sans text-sm font-bold text-white bg-blue-600 dark:bg-sky-600 rounded-xl hover:bg-blue-700 dark:hover:bg-sky-500 active:scale-95 transition-all shadow-md shadow-blue-500/20 dark:shadow-sky-500/10 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed" 
+                className="flex-1 md:flex-none h-11 px-8 font-sans text-sm font-bold text-white bg-blue-600 dark:bg-sky-600 rounded-xl hover:bg-blue-700 dark:hover:bg-sky-500 active:scale-95 transition-all shadow-md shadow-blue-500/20 dark:shadow-sky-500/10 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed" 
                 onClick={async () => {
                     const success = await updateBudget();
                     if (success) router.push("/budget");

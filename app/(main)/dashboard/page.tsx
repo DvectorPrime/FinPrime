@@ -11,6 +11,7 @@ import { useMenu } from "@/context/menuContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/authContext";
+import { FiAlertCircle } from "react-icons/fi";
 
 type summaryData = {
   summaryType: string;
@@ -29,15 +30,13 @@ const SummaryCardSkeleton = () => (
 );
 
 export default function Dashboard() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, refreshUser, loading: authLoading } = useAuth();
   
   const router = useRouter();
   const effectRan = useRef(false)
   const { setMenuShowing } = useMenu();
   const [error, setError] = useState("");
   const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-
-  console.log(userTimeZone)
   
   // Dashboard Stats State
   const [statsLoading, setStatsLoading] = useState(true);
@@ -53,6 +52,10 @@ export default function Dashboard() {
       router.push("/login");
     }
   }, [user, authLoading, router]);
+
+  useEffect(() => {
+    refreshUser()
+  }, [])
 
   // Fetch Dashboard Stats
   useEffect(() => {
@@ -126,16 +129,16 @@ export default function Dashboard() {
 
   return (
       <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 h-[calc(100vh-56px)] overflow-y-auto p-4 md:p-6 bg-white dark:bg-slate-900">
+        <title>Dashboard</title>
         <h1 className="font-sans text-2xl md:text-3xl font-bold md:col-span-2 lg:col-span-4 text-neutral-900 dark:text-white">
           Welcome back, {user?.firstName || "User"} 👋
         </h1>
 
         {/* Added error visual for dashboard summary fetch failure - shows if error occurred */}
         {error && (
-          <div className="md:col-span-2 lg:col-span-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg mb-4">
-            <p className="text-sm text-red-600 dark:text-red-400">
-              Failed to load dashboard data: {error}
-            </p>
+          <div className="flex items-center gap-3 text-red-600 bg-red-50 dark:bg-red-900/10 p-4 rounded-2xl text-sm border border-red-100 dark:border-red-900/20">
+              <FiAlertCircle className="shrink-0 w-5 h-5" />
+              <span>Failed to load dashboard data: {error}</span>
           </div>
         )}
 

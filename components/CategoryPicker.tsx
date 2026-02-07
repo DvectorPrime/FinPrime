@@ -140,7 +140,7 @@ export function CategoryPicker({preferredBg = "default", value, setFilters, setF
             role="combobox"
             aria-expanded={open}
             className={cn(
-              `w-full h-10 justify-between rounded-2xl border border-neutral-300 ${preferredBg === "default" ? "bg-neutral-300/20" : preferredBg} px-3 font-sans text-sm font-normal text-neutral-900 transition-colors hover:bg-neutral-300/30 focus:ring-2 focus:ring-blue-500`,
+              `w-full h-10 justify-between rounded-2xl border border-neutral-300 cursor-pointer ${preferredBg === "default" ? "bg-neutral-300/20" : preferredBg} px-3 font-sans text-sm font-normal text-neutral-900 transition-colors hover:bg-neutral-300/30 focus:ring-2 focus:ring-blue-500`,
               "dark:bg-slate-700 dark:border-slate-600 dark:text-neutral-100 dark:hover:bg-slate-600 dark:focus:ring-sky-500",
               "lg:rounded-full lg:bg-white lg:text-neutral-600 lg:hover:bg-gray-50",
               "lg:dark:bg-slate-800 lg:dark:border-slate-700 lg:dark:text-neutral-300 lg:dark:hover:bg-slate-700",

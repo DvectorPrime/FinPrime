@@ -50,7 +50,7 @@ export default function CurrencyDropdown({ preferredBg = "default", value = "NGN
           role="combobox"
           aria-expanded={open}
           className={cn(
-            `w-full h-10 justify-between rounded-2xl border border-neutral-300 ${
+            `w-full h-10 justify-between rounded-2xl border border-neutral-300 cursor-pointer ${
               preferredBg === "default" ? "bg-neutral-300/20" : preferredBg
             } px-3 font-sans text-sm font-normal text-neutral-900 transition-colors hover:bg-neutral-300/30 focus:ring-2 focus:ring-blue-500`,
             "dark:bg-slate-700 dark:border-slate-600 dark:text-neutral-100 dark:hover:bg-slate-600 dark:focus:ring-sky-500",

@@ -11,6 +11,7 @@ import { CategoryIcon } from "@/components/CategoryIcon";
 import { formatCurrency } from "@/lib/utils";
 import { useAuth } from "@/context/authContext"; 
 import { useMenu } from "@/context/menuContext";
+import { FiAlertCircle } from "react-icons/fi";
 
 // ... (Your Interfaces and Skeletons remain exactly the same) ...
 /** --- TYPES --- */
@@ -192,6 +193,7 @@ export default function Budget() {
         key={index}
         className="bg-white dark:bg-slate-800 p-4 mb-4 rounded-[18px] border border-transparent dark:border-slate-700 shadow-[0px_1px_2px_rgba(0,0,0,0.05),0px_1px_3px_rgba(0,0,0,0.07)] transition-colors"
       >
+        <title>Budgets</title>
         <div className="flex justify-start gap-2.5 items-center mb-4">
           <CategoryIcon
             iconName={getIconForCategory(item.category)}
@@ -233,7 +235,7 @@ export default function Budget() {
   if (authLoading || !user) return null;
 
   return (
-    <main className="p-4 min-h-screen bg-white dark:bg-slate-900 transition-colors">
+    <main className="p-4 h-[calc(100vh-56px)] overflow-y-auto bg-white dark:bg-slate-900 transition-colors">
       <div className="mb-8 md:grid md:grid-cols-[1fr_200px] items-center">
         <div>
           <h3 className="font-sans text-3xl font-bold text-neutral-900 dark:text-white mb-2">
@@ -255,10 +257,9 @@ export default function Budget() {
 
       {/* Added error visual for budget data fetch failure - shows if error occurred */}
       {error && (
-        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <p className="text-sm text-red-600 dark:text-red-400">
-            {error}
-          </p>
+        <div className="flex items-center gap-3 text-red-600 bg-red-50 dark:bg-red-900/10 p-4 rounded-2xl text-sm border border-red-100 dark:border-red-900/20">
+            <FiAlertCircle className="shrink-0 w-5 h-5" />
+            <span>{error}</span>
         </div>
       )}
 
@@ -376,12 +377,6 @@ export default function Budget() {
           </h4>
         </div>
         <div className="font-sans text-sm font-normal leading-5 text-[#071B46] dark:text-slate-300">
-          {/* Logic: 
-                1. If Loading -> Show Spinner
-                2. If User disabled it -> Show "Enable" message
-                3. If Tip exists -> Show Tip
-                4. Fallback -> "Analyzing..."
-            */}
             {user?.aiInsights ? (
                 loadingTip ? (
                     <div className="flex items-center gap-2 animate-pulse">

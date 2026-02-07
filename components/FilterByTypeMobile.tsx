@@ -33,7 +33,7 @@ export default function FilterByTypeMobile({allIncluded = true, value, handleTyp
             setActiveFilter("all")
           }}
             className={cn(
-              `w-full h-full px-3 flex items-center justify-center font-sans text-sm ${allIncluded  ? "rounded-xl" : "rounded-lg"} transition-colors duration-200`, // Rounded inside container
+              `w-full h-full px-3 flex items-center justify-center font-sans text-sm ${allIncluded  ? "rounded-xl" : "rounded-lg"} transition-colors duration-200 cursor-pointer`, // Rounded inside container
               activeFilter === "all"
                 ? "font-semibold text-white bg-[#0079BF] shadow-xs" // Active state
                 : "font-medium text-neutral-600 dark:text-neutral-300 hover:bg-black/5 dark:hover:bg-white/10" // Inactive state
@@ -48,7 +48,7 @@ export default function FilterByTypeMobile({allIncluded = true, value, handleTyp
             }
           }}
             className={cn(
-              `w-full h-full px-3 flex items-center justify-center font-sans text-sm ${allIncluded  ? "rounded-xl" : "rounded-lg"} transition-colors duration-200`,
+              `w-full h-full px-3 flex items-center justify-center font-sans text-sm ${allIncluded  ? "rounded-xl" : "rounded-lg"} transition-colors duration-200 cursor-pointer`,
               activeFilter === "income"
                 ? "font-semibold text-white bg-[#0079BF] shadow-xs"
                 : "font-medium text-neutral-600 dark:text-neutral-300 hover:bg-black/5 dark:hover:bg-white/10"
@@ -62,7 +62,7 @@ export default function FilterByTypeMobile({allIncluded = true, value, handleTyp
             }
           }}
             className={cn(
-              `w-full h-full px-3 flex items-center justify-center font-sans text-sm ${allIncluded  ? "rounded-xl" : "rounded-lg"} transition-colors duration-200`,
+              `w-full h-full px-3 flex items-center justify-center font-sans text-sm ${allIncluded  ? "rounded-xl" : "rounded-lg"} transition-colors duration-200 cursor-pointer`,
               activeFilter === "expense"
                 ? "font-semibold text-white bg-[#0079BF] shadow-xs"
                 : "font-medium text-neutral-600 dark:text-neutral-300 hover:bg-black/5 dark:hover:bg-white/10"

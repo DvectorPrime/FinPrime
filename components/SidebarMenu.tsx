@@ -6,6 +6,7 @@ import { BsReceiptCutoff } from "react-icons/bs";
 import { LuPiggyBank } from "react-icons/lu";
 import { MdLogout } from "react-icons/md";
 import { IoMdNotificationsOutline } from "react-icons/io";
+import { MdOutlineFeedback } from "react-icons/md";
 import Image from "next/image";
 import { useToast } from "@/context/toastContext";
 
@@ -26,6 +27,7 @@ const menuItems: MenuItem[] = [
   { id: "reports", label: "Reports", icon: <FaChartBar /> },
   { id: "notifications", label: "Notifications", icon: <IoMdNotificationsOutline /> },
   { id: "settings", label: "Settings", icon: <FaCog /> },
+  { id: "feedback", label: "Feedback", icon: <MdOutlineFeedback />}
 ];
 
 export const SidebarMenu = ({ menuShowing }: SidebarMenuProps) => {
@@ -116,6 +118,7 @@ export const SidebarMenu = ({ menuShowing }: SidebarMenuProps) => {
             font-sans text-sm leading-5.5 font-medium text-white
             bg-red-500/90 border-none rounded-md
             transition-colors duration-200
+            cursor-pointer
             hover:bg-red-500 active:bg-red-600
             disabled:opacity-40 disabled:cursor-not-allowed"
           >

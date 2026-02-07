@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { HiOutlineMail } from "react-icons/hi";
-import { FiLock } from "react-icons/fi";
+import { FiAlertCircle, FiLock } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -118,6 +118,7 @@ export default function LoginPage() {
 
   return (
     <div className="relative w-full min-h-screen bg-gray-100 dark:bg-slate-900 transition-colors">
+      <title>FinPrime - Login</title>
       <div className="w-full h-30 bg-linear-to-br from-[#0078BD] to-[#93C5FD] rounded-none"></div>
       <main className="block h-fit">
         <div className="mx-auto -mt-7.5 w-[90%] md:w-[60%] max-w-125 pt-4 pb-8 bg-white dark:bg-slate-800 rounded-xl shadow-xs">
@@ -134,8 +135,9 @@ export default function LoginPage() {
           </p>
           
           {error && (
-            <div className="w-[85%] mx-auto mt-4 p-2 text-red-500 bg-red-100 dark:bg-red-900/20 rounded text-sm text-center">
-              {error}
+            <div className="flex items-center gap-3 text-red-600 bg-red-50 dark:bg-red-900/10 p-4 rounded-2xl text-sm border border-red-100 dark:border-red-900/20">
+              <FiAlertCircle className="shrink-0 w-5 h-5" />
+              <span>{error}</span>
             </div>
           )}
 
@@ -177,7 +179,7 @@ export default function LoginPage() {
                 <button
                     type="button"
                     onClick={() => setIsForgotModalOpen(true)}
-                    className="text-sm font-medium text-[#0078BD] dark:text-sky-400 hover:underline focus:outline-none"
+                    className="text-sm font-medium text-[#0078BD] dark:text-sky-400 cursor-pointer hover:underline focus:outline-none"
                 >
                     Forgot Password?
                 </button>

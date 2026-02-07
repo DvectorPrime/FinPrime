@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { FormData } from "@/components/types/transactionFormDataTypes";
 import { useToast } from "@/context/toastContext";
 import { useAuth } from "@/context/authContext"; // 1. Import Auth Context
+import { FiAlertCircle } from "react-icons/fi";
 
 export default function AddTransaction() {
   const router = useRouter();
@@ -121,7 +122,8 @@ export default function AddTransaction() {
   }
 
   return (
-    <main className="px-4 py-5 bg-gray-100 dark:bg-slate-900 min-h-screen">
+    <main className="px-4 py-5 bg-gray-100 dark:bg-slate-900 h-[calc(100vh-56px)] overflow-y-auto">
+      <title>Add Transactions</title>
       <form
         onSubmit={handleSubmit}
         className="bg-white dark:bg-slate-800 rounded-xl shadow-xs px-6 py-8 max-w-lg lg:max-w-3xl mx-auto"
@@ -223,10 +225,9 @@ export default function AddTransaction() {
 
         {/* Display Submission Error */}
         {submitError && (
-          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-            <p className="text-sm text-red-600 dark:text-red-400">
-              {submitError}
-            </p>
+          <div className="flex items-center gap-3 text-red-600 bg-red-50 dark:bg-red-900/10 p-4 rounded-2xl text-sm border border-red-100 dark:border-red-900/20">
+              <FiAlertCircle className="shrink-0 w-5 h-5" />
+              <span>{submitError}</span>
           </div>
         )}
 
@@ -236,7 +237,7 @@ export default function AddTransaction() {
             type="submit"
             disabled={isSubmitting}
             className={cn(
-              "h-11 py-2 px-3 w-full mb-4 flex items-center justify-center font-sans text-sm font-medium text-white leading-5.5 bg-[#0079BF] border-none rounded-[10px] shadow-xs transition-colors duration-200",
+              "h-11 py-2 px-3 w-full mb-4 flex items-center justify-center font-sans text-sm font-medium text-white leading-5.5 bg-[#0079BF] border-none rounded-[10px] shadow-xs transition-colors duration-200 cursor-pointer",
               isSubmitting
                 ? "bg-blue-300 dark:bg-sky-800 cursor-not-allowed"
                 : "hover:bg-[#006CAB] active:bg-[#005586]",
@@ -255,7 +256,7 @@ export default function AddTransaction() {
             type="button"
             onClick={() => router.back()}
             disabled={isSubmitting}
-            className="h-11 py-2 px-3 w-full flex items-center justify-center font-sans text-sm font-medium text-neutral-900 dark:text-neutral-300 leading-5.5 bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 rounded-[10px] shadow-xs transition-colors duration-150 hover:bg-gray-50 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="h-11 py-2 px-3 w-full flex items-center justify-center font-sans text-sm font-medium text-neutral-900 dark:text-neutral-300 leading-5.5 bg-white dark:bg-slate-700 border border-neutral-300 dark:border-slate-600 rounded-[10px] shadow-xs transition-colors duration-150 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>

@@ -37,7 +37,7 @@ export default function SettingsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Get User AND Loading state
-  const { user, refreshUser, loading: authLoading } = useAuth();
+  const { user, setUser, refreshUser, loading: authLoading } = useAuth();
 
   // --- STATE MANAGEMENT ---
   const [profileData, setProfileData] = useState({
@@ -65,6 +65,10 @@ export default function SettingsPage() {
       router.push("/login");
     }
   }, [authLoading, user, router]);
+
+  useEffect(() => {
+    refreshUser()
+  }, [])
 
   // --- DATA SYNC ---
   useEffect(() => {
@@ -159,8 +163,6 @@ export default function SettingsPage() {
         body: JSON.stringify(data),
         credentials: "include",
       });
-
-      await refreshUser();
     } catch (err) {
       console.error("Failed to save settings", err);
       throw err;
@@ -172,8 +174,23 @@ export default function SettingsPage() {
 
   const handleThemeChange = async (newTheme: string) => {
     setTheme(newTheme);
+
+    // 1. Define the valid options (for a real JavaScript check)
+    const validThemes = ['System', 'Light', 'Dark'];
+
+    // 2. Check if the string is actually valid
+    if (user && validThemes.includes(newTheme)) {
+        setUser((prev) => {
+            return prev ? {
+                ...prev,
+                // 3. The Magic Fix: "as" casts the string to the specific type
+                themePreference: newTheme as 'System' | 'Light' | 'Dark'
+            } : null
+        })
+    }
+    
     await saveToBackend({ themePreference: newTheme });
-  };
+};
 
   const handleCurrencyChange = async (newCurrency: string) => {
     setCurrency(newCurrency);
@@ -205,7 +222,8 @@ export default function SettingsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-white dark:bg-slate-950 text-neutral-900 dark:text-neutral-100 transition-colors duration-300">
+    <main className="h-[calc(100vh-56px)] overflow-y-auto bg-white dark:bg-slate-950 text-neutral-900 dark:text-neutral-100 transition-colors duration-300">
+      <title>Settings</title>
       <div className="max-w-4xl mx-auto px-4 py-10 md:px-8 lg:py-16 space-y-12">
         {/* Header */}
         <header className="space-y-1 border-b border-neutral-100 dark:border-slate-900 pb-6 flex justify-between items-end">
@@ -257,7 +275,7 @@ export default function SettingsPage() {
               </div>
               <button
                 disabled={isUploadingAvatar}
-                className="absolute -bottom-1 -right-1 p-2 bg-blue-600 text-white rounded-full shadow-lg transition-transform group-hover:scale-110"
+                className="absolute -bottom-1 -right-1 p-2 bg-blue-600 text-white rounded-full shadow-lg cursor-pointer disabled:cursor-not-allowed transition-transform group-hover:scale-110"
               >
                 <LuImage size={14} />
               </button>
@@ -368,7 +386,7 @@ export default function SettingsPage() {
                     key={item.id}
                     onClick={() => handleThemeChange(item.id)}
                     className={cn(
-                      "flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all text-sm",
+                      "flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all text-sm cursor-pointer",
                       theme === item.id
                         ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600"
                         : "border-neutral-200 dark:border-slate-800 hover:bg-neutral-50 dark:hover:bg-slate-900",
@@ -446,13 +464,13 @@ export default function SettingsPage() {
             </h4>
             <button
               onClick={() => setIsPasswordModalOpen(true)}
-              className="w-full py-2.5 px-4 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-sm font-medium rounded-xl hover:opacity-90 transition-opacity"
+              className="w-full py-2.5 px-4 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-sm font-medium rounded-xl hover:opacity-90 transition-opacity cursor-pointer"
             >
               Change Password
             </button>
             <button
               onClick={handleLogout}
-              className="w-full flex items-center justify-center gap-2 py-2 text-sm text-red-500 font-medium hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-2 text-sm text-red-500 font-medium hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors cursor-pointer"
             >
               <LuLogOut size={16} /> Logout
             </button>
@@ -469,7 +487,7 @@ export default function SettingsPage() {
             {/* 3. UPDATED DELETE BUTTON */}
             <button
               onClick={() => setIsDeleteModalOpen(true)}
-              className="w-full py-2.5 px-4 bg-red-600 text-white text-sm font-medium rounded-xl hover:bg-red-700 transition-colors shadow-sm"
+              className="w-full py-2.5 px-4 bg-red-600 text-white text-sm font-medium rounded-xl hover:bg-red-700 transition-colors cursor-pointer shadow-sm"
             >
               Delete Account
             </button>

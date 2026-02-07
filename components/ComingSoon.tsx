@@ -18,7 +18,7 @@ export default function ComingSoon({
 
   return (
     <main className="min-h-[calc(100vh-56px)] flex flex-col items-center justify-center p-6 text-center bg-white dark:bg-slate-900 transition-colors">
-      
+      <title>{title}</title>
       {/* Visual Circle with Gradient Glow */}
       <div className="relative mb-8 group">
         <div className="absolute -inset-1 bg-linear-to-r from-blue-600 to-sky-400 rounded-full blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
@@ -45,7 +45,7 @@ export default function ComingSoon({
       <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
         <button
           onClick={() => router.back()}
-          className="flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium text-neutral-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 active:scale-95 transition-all shadow-sm"
+          className="flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium text-neutral-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 active:scale-95 transition-all cursor-pointer shadow-sm"
         >
           <LuArrowLeft className="w-4 h-4" />
           Go Back
@@ -53,7 +53,7 @@ export default function ComingSoon({
         
         <button
           onClick={() => router.push("/dashboard")}
-          className="flex items-center justify-center gap-2 px-8 py-3 text-sm font-bold text-white bg-blue-600 dark:bg-sky-600 rounded-xl hover:bg-blue-700 dark:hover:bg-sky-500 active:scale-95 transition-all shadow-md shadow-blue-500/20"
+          className="flex items-center justify-center gap-2 px-8 py-3 text-sm font-bold text-white bg-blue-600 dark:bg-sky-600 rounded-xl hover:bg-blue-700 dark:hover:bg-sky-500 active:scale-95 transition-all cursor-pointer shadow-md shadow-blue-500/20"
         >
           Return to Dashboard
         </button>
