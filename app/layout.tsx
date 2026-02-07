@@ -13,7 +13,15 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "FinPrime",
-  description: "Personal Finance App",
+  description: "Your Personal Finance App",
+  manifest: "/manifest.json"
+};
+
+export const viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#0079BF' }, 
+    { media: '(prefers-color-scheme: dark)', color: '#0F172A' },  
+  ],
 };
 
 export default function RootLayout({
