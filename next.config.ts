@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "https://finprime-backend-app.onrender.com"
+        destination: "https://finprime-backend-app.onrender.com/:path*"
       }
     ]
   }
