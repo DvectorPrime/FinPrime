@@ -88,7 +88,7 @@ function LoginContent() {
 
       if (!res.ok) {
         setLoading(false);
-        throw new Error(data.error || "Something went wrong");
+        setError(data.error)
       }
       
       await refreshUser(); 
