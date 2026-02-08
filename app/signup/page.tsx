@@ -199,7 +199,7 @@ export default function SignUp() {
     const handleGoogleSignup = async () =>{
       const rootUrl = "https://accounts.google.com/o/oauth2/auth"
       const options = {
-        redirect_uri: 'http://localhost:3000/login', 
+        redirect_uri: `${window.location.origin}/login`, 
         client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID as string,
         access_type: 'offline',
         response_type: 'code',

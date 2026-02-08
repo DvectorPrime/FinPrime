@@ -4,34 +4,34 @@ import Image from "next/image";
 import { HiOutlineMail } from "react-icons/hi";
 import { FiAlertCircle, FiLock } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/authContext"; 
 import { ForgotPasswordModal } from "@/components/ForgotPasswordModal";
 
-export default function LoginPage() {
+// 1. We create a sub-component for the logic
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading, refreshUser } = useAuth();
   
-  console.log(user)
-
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  
   const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
 
   const googleEffectRan = useRef(false);
 
+  // Redirect if already logged in
   useEffect(() => {
     if (!authLoading && user) {
       router.push("/dashboard");
     }
   }, [user, authLoading, router]);
 
+  // Handle Google OAuth Code
   useEffect(() => {
-    (async () => {
+    const handleGoogleAuth = async () => {
       const code = searchParams.get("code");
       if (code && !googleEffectRan.current) {
         googleEffectRan.current = true;
@@ -59,7 +59,9 @@ export default function LoginPage() {
           setLoading(false);
         }
       }
-    })();
+    };
+
+    handleGoogleAuth();
   }, [searchParams, router, refreshUser]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,7 +88,7 @@ export default function LoginPage() {
 
       if (!res.ok) {
         setLoading(false);
-        throw new Error(data.error || "Something went wrong");
+        setError(data.error)
       }
       
       await refreshUser(); 
@@ -100,7 +102,7 @@ export default function LoginPage() {
   const handleGoogleSignup = () => {
     const rootUrl = "https://accounts.google.com/o/oauth2/auth";
     const options = {
-      redirect_uri: "http://localhost:3000/login",
+      redirect_uri: `${window.location.origin}/login`, // Better to use window.location.origin dynamically
       client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID as string,
       access_type: "offline",
       response_type: "code",
@@ -119,7 +121,7 @@ export default function LoginPage() {
   return (
     <div className="relative w-full min-h-screen bg-gray-100 dark:bg-slate-900 transition-colors">
       <title>FinPrime - Login</title>
-      <div className="w-full h-30 bg-linear-to-br from-[#0078BD] to-[#93C5FD] rounded-none"></div>
+      <div className="w-full h-30 bg-gradient-to-br from-[#0078BD] to-[#93C5FD]"></div>
       <main className="block h-fit">
         <div className="mx-auto -mt-7.5 w-[90%] md:w-[60%] max-w-125 pt-4 pb-8 bg-white dark:bg-slate-800 rounded-xl shadow-xs">
           
@@ -135,7 +137,7 @@ export default function LoginPage() {
           </p>
           
           {error && (
-            <div className="flex items-center gap-3 text-red-600 bg-red-50 dark:bg-red-900/10 p-4 rounded-2xl text-sm border border-red-100 dark:border-red-900/20">
+            <div className="flex items-center gap-3 text-red-600 bg-red-50 dark:bg-red-900/10 p-4 rounded-2xl text-sm border border-red-100 dark:border-red-900/20 mx-auto w-[85%] mt-4">
               <FiAlertCircle className="shrink-0 w-5 h-5" />
               <span>{error}</span>
             </div>
@@ -221,11 +223,23 @@ export default function LoginPage() {
         </div>
       </main>
 
-      {/* 4. Render Modal */}
       <ForgotPasswordModal 
         open={isForgotModalOpen} 
         onOpenChange={setIsForgotModalOpen} 
       />
     </div>
+  );
+}
+
+// 2. We export the Main Page which wraps the content in Suspense
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+        <div className="w-full min-h-screen flex items-center justify-center bg-gray-100 dark:bg-slate-900">
+            <div className="w-8 h-8 border-4 border-[#0078BD] border-t-transparent rounded-full animate-spin"></div>
+        </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }
