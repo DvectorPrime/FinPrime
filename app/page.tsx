@@ -115,7 +115,7 @@ const App = () => {
                 { title: "Secure & Private", desc: "Your data is encrypted with industry-leading security measures.", icon: <ShieldCheck className="text-amber-500" /> }
               ].map((feat, i) => (
                 <div key={i} className="bg-white dark:bg-slate-800 p-8 rounded-4xl border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-xl transition-all group hover:-translate-y-2">
-                  <div className="w-14 h-14 rounded-2xl bg-slate-50 dark:bg-slate-700 flex items-center justify-center mb-6 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                  <div className="w-14 h-14 rounded-2xl bg-slate-50 dark:bg-slate-700 flex items-center justify-center mb-6  group-hover:text-white transition-colors">
                     {feat.icon}
                   </div>
                   <h3 className="text-xl font-bold mb-4">{feat.title}</h3>
