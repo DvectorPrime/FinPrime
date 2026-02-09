@@ -24,7 +24,7 @@ const SkeletonRow = () => (
        <div className="h-4 w-20 rounded bg-gray-200 dark:bg-slate-700 ml-auto"></div>
     </td>
     <td className="px-6 py-4 text-center">
-      <div className="h-6 w-6 rounded-full bg-gray-200 dark:bg-slate-700 mx-auto"></div> {/* Placeholder for button */}
+      <div className="h-6 w-6 rounded-full bg-gray-200 dark:bg-slate-700 mx-auto"></div>
     </td>
   </tr>
 );

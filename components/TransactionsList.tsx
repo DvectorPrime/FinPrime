@@ -66,8 +66,8 @@ function ListItem({ data, lastItemRef, isLastItem }: ListItemProp) {
           <p
             className={`ml-1 font-sans text-base font-semibold ${
             data.type.toLowerCase() === "income"
-              ? "text-neutral-900 dark:text-neutral-100" // Keep income amount neutral
-              : "text-[#D64651] dark:text-red-400" // Expense amount red
+              ? "text-neutral-900 dark:text-neutral-100" 
+              : "text-[#D64651] dark:text-red-400"
           }`}
           >
             {formattedAmount}

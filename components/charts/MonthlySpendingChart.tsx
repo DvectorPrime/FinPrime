@@ -14,7 +14,7 @@ import {
   Filler,
   ChartOptions
 } from 'chart.js';
-import { useAuth } from '@/context/authContext'; // Ensure casing matches your file
+import { useAuth } from '@/context/authContext'; 
 
 ChartJS.register(
   CategoryScale,
@@ -43,12 +43,10 @@ const SpendingChart = () => {
 
   // 1. Fetch Real Data
   useEffect(() => {
-    // Only fetch if user exists
     if (!user) return;
 
     const fetchData = async () => {
         try {
-            // Adjust endpoint to match your actual backend route for monthly stats
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/transactions/monthly-stats`, {
                 credentials: 'include'
             });
@@ -57,12 +55,10 @@ const SpendingChart = () => {
             
             const data = await res.json();
             // Expected format: [{ month: 'Jan', income: 5000, expense: 2000 }, ...]
-            // If your API returns something else, we map it here.
             setChartData(data); 
         } catch (error) {
             console.error("Chart data error:", error);
             setError("Failed to load chart data");
-            // Fallback empty data to prevent crash
             setChartData([]);
         } finally {
             setLoading(false);
@@ -72,7 +68,6 @@ const SpendingChart = () => {
     fetchData();
   }, [user]);
 
-  // 2. Dark Mode Logic (Kept from your original code)
   useEffect(() => {
     const preference = user?.themePreference || "System";
 
@@ -96,15 +91,14 @@ const SpendingChart = () => {
     }
   }, [user?.themePreference]);
 
-  // 3. Configure Chart Data
+  // 2. Configure Chart Data
   const data = {
-    // Map the labels from the fetched data (e.g., "Jan", "Feb")
     labels: chartData.map(d => d.month),
     datasets: [
       {
         label: 'Income',
         data: chartData.map(d => d.income),
-        borderColor: '#10B981', // Green
+        borderColor: '#10B981',
         backgroundColor: 'rgba(16, 185, 129, 0.1)',
         pointRadius: 3,
         pointBackgroundColor: '#10B981',
@@ -115,7 +109,7 @@ const SpendingChart = () => {
       {
         label: 'Expense',
         data: chartData.map(d => d.expense),
-        borderColor: '#0079BF', // Brand Blue
+        borderColor: '#0079BF',
         backgroundColor: 'rgba(0, 121, 191, 0.1)',
         pointRadius: 2,
         pointBackgroundColor: '#0079BF',
@@ -128,7 +122,7 @@ const SpendingChart = () => {
 
   const options: ChartOptions<'line'> = {
     responsive: true,
-    maintainAspectRatio: false, // Allows height control via CSS container
+    maintainAspectRatio: false,
     interaction: {
       mode: 'index',
       intersect: false,
@@ -177,7 +171,6 @@ const SpendingChart = () => {
           color: isDark ? '#9ca3af' : '#6b7280',
           font: { size: 11 },
           callback: function(value) {
-             // Abbreviate large numbers (e.g., 50k)
              return typeof value === 'number' && value >= 1000 
                 ? '₦' + (value / 1000).toFixed(0) + 'k' 
                 : '₦' + value;
@@ -198,7 +191,6 @@ const SpendingChart = () => {
     },
   };
 
-  // 4. Loading Skeleton
   if (loading) {
     return (
         <div className="w-full h-[300px] flex items-center justify-center bg-gray-50 dark:bg-slate-800/50 rounded-lg animate-pulse">
@@ -207,7 +199,6 @@ const SpendingChart = () => {
     )
   }
 
-  // 5. Error State
   if (error) {
     return (
         <div className="w-full h-[300px] flex flex-col items-center justify-center bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
@@ -217,7 +208,6 @@ const SpendingChart = () => {
     )
   }
 
-  // 6. Empty State
   if (chartData.length === 0) {
     return (
         <div className="w-full h-[300px] flex flex-col items-center justify-center bg-gray-50 dark:bg-slate-800/50 rounded-lg border border-dashed border-gray-300 dark:border-slate-700">

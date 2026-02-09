@@ -6,9 +6,8 @@ import { IoIosArrowRoundBack } from "react-icons/io";
 import { LuInfo, LuLoader, LuRefreshCw } from "react-icons/lu";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { useAuth } from "@/context/authContext"; 
-import { useToast } from "@/context/toastContext"; // 1. Import Toast Hook
+import { useToast } from "@/context/toastContext"; 
 
-// Define the shape of our data
 type CategoryKey = "Housing" | "Food" | "Transport" | "Shopping" | "Subscriptions" | "Others";
 type FormDataType = Record<CategoryKey, number>;
 
@@ -16,9 +15,8 @@ export default function ManageBudget() {
 
   const router = useRouter();
   
-  // 2. Use Global Auth
   const { user, loading: authLoading } = useAuth();
-  const { showToast } = useToast(); // 3. Initialize Toast
+  const { showToast } = useToast();
   
   const [initialLoading, setInitialLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -110,12 +108,10 @@ export default function ManageBudget() {
 
         if (!res.ok) throw new Error("Update failed");
 
-        // 4. Success Toast
         showToast("Budget updated successfully!", "success");
         return true;
     } catch (error) {
         console.error("Failed to update", error);
-        // 5. Error Toast
         showToast("Failed to update budget. Please try again.", "error");
         return false;
     } finally {

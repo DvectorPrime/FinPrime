@@ -9,17 +9,15 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FormData } from "@/components/types/transactionFormDataTypes";
 import { useToast } from "@/context/toastContext";
-import { useAuth } from "@/context/authContext"; // 1. Import Auth Context
+import { useAuth } from "@/context/authContext"; 
 import { FiAlertCircle } from "react-icons/fi";
 
 export default function AddTransaction() {
   const router = useRouter();
   const { showToast } = useToast();
   
-  // 2. Use Global Auth State
   const { user, loading: authLoading } = useAuth();
 
-  // State for form data
   const [formData, setFormData] = useState<FormData>({
     transactionName: "",
     amount: "",
@@ -32,7 +30,6 @@ export default function AddTransaction() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // --- 3. Auth Check (Redirect if not logged in) ---
   useEffect(() => {
     if (!authLoading && !user) {
       router.push("/login");
@@ -62,7 +59,6 @@ export default function AddTransaction() {
     setIsSubmitting(true);
     setSubmitError(null);
 
-    // Basic Frontend Validation
     if (!user) {
       setSubmitError("Please sign in to add a transaction");
       setIsSubmitting(false);
@@ -97,10 +93,9 @@ export default function AddTransaction() {
         throw new Error(errorData.error || "Failed to create transaction");
       }
 
-      // --- STEP 3: SUCCESS FLOW ---
       showToast("Transaction added successfully!", "success");
       
-      router.refresh(); // Refresh server components
+      router.refresh(); 
       router.push("/transactions");
 
     } catch (error: any) {
@@ -112,7 +107,6 @@ export default function AddTransaction() {
     }
   };
 
-  // 4. Loading State (Wait for Auth)
   if (authLoading || !user) {
     return (
       <main className="px-4 py-5 bg-gray-100 dark:bg-slate-900 min-h-screen flex items-center justify-center">

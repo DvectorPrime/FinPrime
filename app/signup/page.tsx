@@ -95,8 +95,8 @@ export default function SignUp() {
     });
     
     const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false); // For Step 1 (Sending Email)
-    const [verificationLoading, setVerificationLoading] = useState(false); // For Step 2 (Verifying Code)
+    const [loading, setLoading] = useState(false);
+    const [verificationLoading, setVerificationLoading] = useState(false);
     const [verificationError, setVerificationError] = useState("");
     const [isVerificationOpen, setIsVerificationOpen] = useState(false);
     const [isCheckingSession, setIsCheckingSession] = useState(true);

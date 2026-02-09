@@ -29,7 +29,7 @@ export function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswordProps)
 
   const handleClose = () => {
     onOpenChange(false);
-    // Reset state after animation
+
     setTimeout(() => {
         setStep("EMAIL");
         setEmail("");
@@ -60,7 +60,7 @@ export function ForgotPasswordModal({ open, onOpenChange }: ForgotPasswordProps)
         
         if (!res.ok) throw new Error(data.error || "Failed to send code");
 
-        setStep("RESET"); // Move to next step
+        setStep("RESET"); 
     } catch (err: any) {
         setError(err.message);
     } finally {

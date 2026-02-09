@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 FinPrime (Frontend)
 
-## Getting Started
+FinPrime is a modern, full-stack personal finance tracker designed to help users manage expenses, visualize income, and track budgets. This is the **Frontend** repository, built with Next.js and Tailwind CSS.
 
-First, run the development server:
+## 🌟 Features
+
+- **Authentication:** Secure Login/Signup with Email & Google OAuth.
+- **Dashboard:** Real-time financial overview with interactive charts.
+- **Transactions:** Add, edit, and categorize income/expenses seamlessly.
+- **Budgeting:** Set monthly limits and get visual alerts.
+- **PWA Support:** Installable on mobile devices (iOS & Android).
+- **Dark Mode:** Fully supported system-wide theme.
+
+## 🛠️ Tech Stack
+
+- **Framework:** [Next.js](https://nextjs.org/) (App Router)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **Language:** TypeScript
+- **State Management:** React Context API
+- **Charts:** ChartJS
+- **Icons:** React Icons, Lucide React
+- **Package Manager:** pnpm
+
+## 🚀 Getting Started
+
+Follow these steps to set up the project locally on your machine.
+
+### 1. Prerequisites
+
+Ensure you have the following installed:
+
+- [Node.js](https://nodejs.org/) (v18 or higher)
+- [pnpm](https://pnpm.io/installation) (Install via `npm install -g pnpm`)
+
+### 2. Clone the Repository
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+git clone https://github.com/DvectorPrime/FinPrime.git
+cd FinPrime
+```
+
+### 3. Install Dependencies
+
+```bash
+pnpm install
+```
+
+### 4. Environment Variables
+
+Create a `.env.local` file in the root directory. You will need to configure the following variables:
+
+```bash
+# API URL (Point to your local backend or live server)
+NEXT_PUBLIC_API_URL="http://localhost:8000"
+
+# Google OAuth (Optional for local dev, needed for login)
+NEXT_PUBLIC_GOOGLE_CLIENT_ID="your_google_client_id_here"
+```
+
+**Note:** Never commit your `.env.local` file to GitHub!
+
+### 5. Run the Development Server
+
+```bash
 pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🤝 Contributing
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+We welcome contributions! Please follow these steps to work on a feature or fix a bug:
 
-## Learn More
+1. Fork the repository.
+2. Create a new Branch (`git checkout -b feature/AmazingFeature`).
+3. Make your changes and Commit them (`git commit -m 'Add some AmazingFeature'`).
+4. Push to the branch (`git push origin feature/AmazingFeature`).
+5. Open a Pull Request against the `main` branch.
 
-To learn more about Next.js, take a look at the following resources:
+## 🐛 Known Issues
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Safari/iOS Login:** If you experience login issues on localhost, try using Chrome or Firefox. (Production uses a proxy fix via Next.js rewrites to handle Safari ITP).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📄 License
 
-## Deploy on Vercel
+This project is distributed under a **custom license** for educational and contribution purposes only. Commercial and personal use is **strictly prohibited**.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+See `LICENSE` for more information.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+Built with ❤️ by Victor

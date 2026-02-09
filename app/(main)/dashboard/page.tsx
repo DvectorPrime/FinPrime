@@ -133,8 +133,6 @@ export default function Dashboard() {
         <h1 className="font-sans text-2xl md:text-3xl font-bold md:col-span-2 lg:col-span-4 text-neutral-900 dark:text-white">
           Welcome back, {user?.firstName || "User"} 👋
         </h1>
-
-        {/* Added error visual for dashboard summary fetch failure - shows if error occurred */}
         {error && (
           <div className="flex items-center gap-3 text-red-600 bg-red-50 dark:bg-red-900/10 p-4 rounded-2xl text-sm border border-red-100 dark:border-red-900/20">
               <FiAlertCircle className="shrink-0 w-5 h-5" />

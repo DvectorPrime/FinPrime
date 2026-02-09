@@ -47,8 +47,6 @@ export function ChangePasswordModal({ open, onOpenChange, hasPassword = true }: 
     setError("");
     setLoading(true);
 
-    // 2. Conditional Validation
-    // Only check currentPassword if the user actually has one
     if (hasPassword && !formData.currentPassword) {
         setError("Current password is required.");
         setLoading(false);
@@ -78,7 +76,6 @@ export function ChangePasswordModal({ open, onOpenChange, hasPassword = true }: 
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // Send null if they don't have a password, backend handles logic
           currentPassword: hasPassword ? formData.currentPassword : null, 
           newPassword: formData.newPassword,
         }),
@@ -110,7 +107,6 @@ export function ChangePasswordModal({ open, onOpenChange, hasPassword = true }: 
           <div className="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 mb-4">
             <LuShieldCheck size={28} />
           </div>
-          {/* 3. Dynamic Title */}
           <DialogTitle className="text-2xl dark:text-white font-bold">
             {hasPassword ? "Update Password" : "Set Password"}
           </DialogTitle>
@@ -135,7 +131,6 @@ export function ChangePasswordModal({ open, onOpenChange, hasPassword = true }: 
 
         <div className="space-y-4 py-4">
           
-          {/* 4. Conditional Rendering of Current Password Input */}
           {hasPassword && (
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-wider text-neutral-500">

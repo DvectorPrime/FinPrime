@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { LuTrash2, LuTriangleAlert, LuLoader, LuEye, LuEyeOff } from "react-icons/lu";
 import {
   Dialog,
@@ -17,7 +16,7 @@ import { useToast } from "@/context/toastContext";
 interface DeleteAccountProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  isGoogleAccount?: boolean; // NEW PROP
+  isGoogleAccount?: boolean; 
 }
 
 export function DeleteAccountModal({ open, onOpenChange, isGoogleAccount }: DeleteAccountProps) {
@@ -25,13 +24,11 @@ export function DeleteAccountModal({ open, onOpenChange, isGoogleAccount }: Dele
   
   const [step, setStep] = useState<"input" | "confirm">("input");
   
-  // We use this single state for either "Password" OR "Delete Confirmation Text"
   const [inputValue, setInputValue] = useState(""); 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Reset state when modal closes
   const handleClose = () => {
     onOpenChange(false);
     setTimeout(() => {
@@ -49,7 +46,6 @@ export function DeleteAccountModal({ open, onOpenChange, isGoogleAccount }: Dele
       return;
     }
 
-    // Google User Check: Must type "delete" (case insensitive)
     if (isGoogleAccount && inputValue.toLowerCase() !== "delete") {
         setError("Please type exactly 'delete' to continue.");
         return;
@@ -125,7 +121,6 @@ export function DeleteAccountModal({ open, onOpenChange, isGoogleAccount }: Dele
                   className="w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-slate-800 dark:text-white bg-neutral-50 dark:bg-slate-900/50 focus:ring-2 focus:ring-red-500/20 outline-none transition-all pr-10"
                 />
                 
-                {/* Only show Eye icon for Password users */}
                 {!isGoogleAccount && (
                     <button
                     type="button"
