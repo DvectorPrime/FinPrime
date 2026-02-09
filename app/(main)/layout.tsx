@@ -59,17 +59,14 @@ export default function MainLayout({
 }: {
     children: React.ReactNode
 }) {
-    const { user, refreshUser } = useAuth(); // Ensure refreshUser is available in context
+    const { user, refreshUser } = useAuth();
     const router = useRouter();
     const { menuShowing, setMenuShowing, toggleMenu } = useMenu();
 
-    // --- TOUR STATE ---
     const [isTourOpen, setIsTourOpen] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
 
-    // --- AUTO-START TOUR ---
     useEffect(() => {
-        // If user is loaded, valid, and HAS NOT onboarded yet -> Start Tour
         if (user && !user.hasOnboarded) {
             setIsTourOpen(true);
         }
@@ -77,7 +74,7 @@ export default function MainLayout({
         return 
     }, [user]);
 
-    // --- COMPLETE TOUR HANDLER ---
+    // --- TOUR HANDLER ---
     const completeOnboarding = async () => {
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/onboarded`, {
@@ -85,12 +82,11 @@ export default function MainLayout({
                 credentials: "include"
             });
             if (res.ok) {
-                // Update local user state so it doesn't show again 
                 setIsTourOpen(false);
             }
         } catch (err) {
             console.error("Failed to mark onboarding", err);
-            setIsTourOpen(false); // Close anyway so they aren't stuck
+            setIsTourOpen(false); 
         }
     };
 
@@ -114,8 +110,7 @@ export default function MainLayout({
         }
     };
 
-    // Calculate Position based on step (Desktop Only)
-    // Adjust 'startY' if your header is taller/shorter
+    // Calculate Position based on step
     const getDesktopPosition = (index: number) => {
         const startY = 210; // Distance from top to first menu item
         const itemHeight = 52; // Approx height of each menu item
@@ -130,7 +125,7 @@ export default function MainLayout({
             6: 5  // Settings
         };
 
-        if (index === 0 || index === 7) return "center"; // First & Last step centered
+        if (index === 0 || index === 7) return "center";
 
         // Calculate top position
         const sidebarIndex = stepToSidebarIndex[index] ?? 0;
@@ -146,8 +141,7 @@ export default function MainLayout({
                 <SidebarMenu menuShowing={menuShowing} />
                 <div className="flex flex-col w-full">
                     <header className="flex items-center justify-between w-full px-4 py-2 md:px-8 h-14 bg-[#0079BF] dark:bg-slate-800 dark:border-b dark:border-slate-700 shadow-xs z-20">
-                        
-                        {/* Left Side: Menu & Logo */}
+                    
                         <div className="flex justify-start items-center w-auto gap-3">
                             <button type="button" className="block lg:hidden" onClick={() => toggleMenu()}>
                                 <FiMenu className="text-white text-5xl" />
@@ -155,11 +149,9 @@ export default function MainLayout({
                             <Image src="/logo-white.png" alt="FinPrime" width={36} height={36} className="hidden lg:block" />
                         </div>
 
-                        {/* Right Side: Actions */}
                         <div className="flex gap-4 items-center">
                             <Image src="/logo-white.png" alt="FinPrime" width={36} height={36} className="block lg:hidden" />
                             
-                            {/* --- TAKE A TOUR BUTTON --- */}
                             {user && !isTourOpen && (
                                 <>
                                     <button
@@ -207,7 +199,6 @@ export default function MainLayout({
                         className={`absolute bg-white dark:bg-slate-800 p-6 rounded-xl shadow-2xl w-[90%] max-w-md transition-all duration-300 ease-in-out border-2 border-[#0079BF]
                         ${isCentered ? 'top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2' : 'lg:transform-none transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 lg:top-auto lg:left-auto'}
                         `}
-                        // Apply dynamic position ONLY for desktop non-centered steps
                         style={!isCentered && typeof pos !== 'string' && typeof window !== 'undefined' && window.innerWidth >= 1024 ? { top: pos.top, left: pos.left } : {}}
                     >
                         {/* Arrow pointing Left (Desktop only, when not centered) */}

@@ -32,11 +32,9 @@ export default function SettingsPage() {
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // 2. NEW STATE
 
-  // 1. New State for Avatar Uploading
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Get User AND Loading state
   const { user, setUser, refreshUser, loading: authLoading } = useAuth();
 
   // --- STATE MANAGEMENT ---
@@ -110,7 +108,6 @@ export default function SettingsPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Optional: Check file size (e.g. 5MB limit)
     if (file.size > 5 * 1024 * 1024) {
       alert("File size too large. Please select an image under 5MB.");
       return;
@@ -126,7 +123,7 @@ export default function SettingsPage() {
         `${process.env.NEXT_PUBLIC_API_URL}/upload/upload-avatar`,
         {
           method: "POST",
-          body: formData, // No Content-Type header needed; browser sets it
+          body: formData, 
           credentials: "include",
         },
       );
@@ -137,17 +134,14 @@ export default function SettingsPage() {
 
       const data = await res.json();
 
-      // 1. Update local state to show new image immediately
       setProfileData((prev) => ({ ...prev, avatar: data.avatarUrl }));
 
-      // 2. Refresh global context so Navbar updates instantly
       await refreshUser();
     } catch (error) {
       console.error("Avatar upload error:", error);
       alert("Failed to upload image. Please try again.");
     } finally {
       setIsUploadingAvatar(false);
-      // Reset input so you can select the same file again if needed
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -183,7 +177,6 @@ export default function SettingsPage() {
         setUser((prev) => {
             return prev ? {
                 ...prev,
-                // 3. The Magic Fix: "as" casts the string to the specific type
                 themePreference: newTheme as 'System' | 'Light' | 'Dark'
             } : null
         })
@@ -300,7 +293,6 @@ export default function SettingsPage() {
                   <LuCheck /> Saved
                 </span>
               )}
-              {/* Added error visual for auto-save failure - shows error message */}
               {profileSaveStatus === "error" && (
                 <span className="flex items-center gap-2 text-red-600">
                   <LuLoader className="animate-spin" /> Failed to save
@@ -484,7 +476,6 @@ export default function SettingsPage() {
               Permanently delete your account and all associated data. This
               cannot be undone.
             </p>
-            {/* 3. UPDATED DELETE BUTTON */}
             <button
               onClick={() => setIsDeleteModalOpen(true)}
               className="w-full py-2.5 px-4 bg-red-600 text-white text-sm font-medium rounded-xl hover:bg-red-700 transition-colors cursor-pointer shadow-sm"
@@ -504,7 +495,7 @@ export default function SettingsPage() {
       <DeleteAccountModal
         open={isDeleteModalOpen}
         onOpenChange={setIsDeleteModalOpen}
-        isGoogleAccount={user?.isGoogleAccount} // <--- PASS THIS PROP
+        isGoogleAccount={user?.isGoogleAccount}
       />
     </main>
   );

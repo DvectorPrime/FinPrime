@@ -23,7 +23,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setIsVisible(true);
   };
 
-  // Auto-hide after 3 seconds
   useEffect(() => {
     if (isVisible) {
       const timer = setTimeout(() => {
@@ -37,7 +36,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={{ showToast }}>
       {children}
       
-      {/* --- THE ANIMATED OVERLAY UI --- */}
       <div
         className={cn(
           "fixed inset-0 z-100 flex items-center justify-center pointer-events-none transition-all duration-300 ease-in-out",
@@ -46,20 +44,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       >
         <div
           className={cn(
-            "relative flex flex-col items-center justify-center p-8 min-w-75 rounded-3xl shadow-2xl transform transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1)", // Bouncy cubic-bezier
-            // Light Mode Styles
+            "relative flex flex-col items-center justify-center p-8 min-w-75 rounded-3xl shadow-2xl transform transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1)", 
             "bg-white text-neutral-900",
-            // Dark Mode Styles
             "dark:bg-slate-800 dark:text-white dark:border dark:border-slate-700",
             isVisible ? "scale-100 translate-y-0" : "scale-50 translate-y-10"
           )}
         >
-          {/* ANIMATED ICON */}
           <div className="mb-4">
              {type === "success" ? <AnimatedCheckIcon isVisible={isVisible} /> : <AnimatedErrorIcon isVisible={isVisible} />}
           </div>
 
-          {/* TEXT CONTENT */}
           <h4 className="text-xl font-bold mb-1 text-center font-sans tracking-tight">
             {type === "success" ? "Success!" : "Error"}
           </h4>
@@ -86,7 +80,6 @@ function AnimatedCheckIcon({ isVisible }: { isVisible: boolean }) {
   return (
     <div className={cn("relative flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-900/30 transition-all duration-500", isVisible ? "scale-100" : "scale-0")}>
        <svg className="w-10 h-10 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-          {/* We use CSS formatting for the path animation logic below */}
           <path 
             strokeLinecap="round" 
             strokeLinejoin="round" 
@@ -96,7 +89,6 @@ function AnimatedCheckIcon({ isVisible }: { isVisible: boolean }) {
           />
        </svg>
        
-       {/* Inject styles locally for the draw animation */}
        <style jsx>{`
          .animate-draw {
             animation: drawCheck 0.6s ease-out forwards 0.2s; /* 0.2s delay to wait for popup pop */

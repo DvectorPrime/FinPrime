@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { LuWallet, LuPiggyBank, LuLoader } from "react-icons/lu"; // Added LuLoader2
+import { LuWallet, LuPiggyBank, LuLoader } from "react-icons/lu"; 
 import { TbCashBanknote } from "react-icons/tb";
 import { RiRobot2Line } from "react-icons/ri";
 
@@ -13,7 +13,6 @@ import { useAuth } from "@/context/authContext";
 import { useMenu } from "@/context/menuContext";
 import { FiAlertCircle } from "react-icons/fi";
 
-// ... (Your Interfaces and Skeletons remain exactly the same) ...
 /** --- TYPES --- */
 interface OverviewData {
   totalBudget: number;
@@ -131,7 +130,7 @@ export default function Budget() {
     })();
   }, [user]);
 
-  // --- NEW: FETCH AI INSIGHT ---
+  // --- FETCH AI INSIGHT ---
   useEffect(() => {
 
     if (effectRan.current === true){
@@ -255,7 +254,6 @@ export default function Budget() {
         </div>
       </div>
 
-      {/* Added error visual for budget data fetch failure - shows if error occurred */}
       {error && (
         <div className="flex items-center gap-3 text-red-600 bg-red-50 dark:bg-red-900/10 p-4 rounded-2xl text-sm border border-red-100 dark:border-red-900/20">
             <FiAlertCircle className="shrink-0 w-5 h-5" />

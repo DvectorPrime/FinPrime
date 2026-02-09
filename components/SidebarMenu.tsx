@@ -48,7 +48,6 @@ export const SidebarMenu = ({ menuShowing }: SidebarMenuProps) => {
       window.location.href = "/login";
     } catch (err) {
       console.log("failed to log out", err);
-      // Added error visual for logout failure - shows toast notification
       showToast("Failed to logout. Please try again.", "error");
     }
   }
@@ -69,7 +68,6 @@ export const SidebarMenu = ({ menuShowing }: SidebarMenuProps) => {
       `}
     >
       <div className="flex flex-col h-full">
-        {/* Logo Section */}
         <div className="flex items-center gap-1.5 mx-4 mt-5 mb-8 shrink-0">
           <Image src="/logo.png" alt="Logo" width={32} height={32} />
           <p className="font-sans text-2xl font-bold text-[#0079BF] dark:text-sky-400 italic">
@@ -77,7 +75,6 @@ export const SidebarMenu = ({ menuShowing }: SidebarMenuProps) => {
           </p>
         </div>
 
-        {/* Menu Items (Scrollable area) */}
         <div className="flex-1 overflow-y-auto px-2 space-y-1">
           {menuItems.map((item) => {
             const isSelected = isActive(item.id);
@@ -110,7 +107,6 @@ export const SidebarMenu = ({ menuShowing }: SidebarMenuProps) => {
           </div> */}
         </div>
 
-        {/* Footer / Logout Section (Stays at bottom) */}
         <div className="p-4 mt-auto border-t border-neutral-100 dark:border-slate-700 shrink-0">
           <button
             onClick={logOut}

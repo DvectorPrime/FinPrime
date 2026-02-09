@@ -9,7 +9,6 @@ export function useAutoSave<T>(
   const isFirstRender = useRef(true);
 
   useEffect(() => {
-    // Skip the first render so we don't save initial data on load
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
@@ -21,7 +20,6 @@ export function useAutoSave<T>(
       try {
         await saveFunction(data);
         setStatus("saved");
-        // Reset to idle after showing "Saved" for 2 seconds
         setTimeout(() => setStatus("idle"), 2000);
       } catch (error) {
         console.error("Auto-save failed", error);
@@ -30,7 +28,7 @@ export function useAutoSave<T>(
     }, delay);
 
     return () => clearTimeout(handler);
-  }, [data, delay]); // Only re-run if data changes
+  }, [data, delay]);
 
   return status;
 }

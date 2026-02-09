@@ -22,7 +22,6 @@ const App = () => {
 
   const isDark = useThemeDetector()
 
-  // Sync with system preference on mount
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
@@ -138,7 +137,7 @@ const App = () => {
               <div className="hidden md:block absolute top-12 left-[10%] right-[10%] h-0.5 bg-slate-100 dark:bg-slate-800" />
               
               {[
-                { step: "1", title: "Sign Up", desc: "Create your secure FinPrime account in minutes and connect your bank accounts.", icon: <CheckCircle2 /> },
+                { step: "1", title: "Sign Up", desc: "Create your secure FinPrime account in minutes.", icon: <CheckCircle2 /> },
                 { step: "2", title: "Track & Budget", desc: "Effortlessly monitor your transactions and set smart budgets tailored to you.", icon: <BarChart3 /> },
                 { step: "3", title: "Get Insights", desc: "Receive personalized AI-driven advice to help you achieve your goals faster.", icon: <Cpu /> }
               ].map((item, i) => (

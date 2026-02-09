@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
-// 1. Define User Shape
+// User Shape
 export interface User {
   firstName: string;
   lastName: string;
@@ -30,10 +30,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // --- 1. Fetch User Data ---
   const fetchUser = async () => {
     try {
-      // Ensure this URL matches your actual API endpoint
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
         credentials: "include",
       });
@@ -60,7 +58,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     fetchUser();
   }, []);
 
-  // --- 2. THEME LOGIC ---
   useEffect(() => {
     const preference = user?.themePreference || "System";
 

@@ -39,7 +39,6 @@ const OverviewChart: React.FC<OverviewChartProps> = ({ dataPoints, isLoading }) 
   const budgetColor = "#2563EB"; 
   const expenseColor = "#ef4444"; 
 
-  // Loading UI: Mimics bars using styled divs
   if (isLoading) {
     return (
       <div className="w-full h-50 md:h-64 lg:h-75 p-2 flex items-end justify-between gap-4 animate-pulse">

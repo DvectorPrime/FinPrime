@@ -30,8 +30,6 @@ export default function TransactionCard({
   const [iconError, setIconError] = useState(false);
 
   useEffect(() => {
-    // This is a more efficient way to get the icon.
-    // We can cache categories in a context later for even better performance.
     const findIcon = async () => {
       try {
         const response = await fetch('/api/categories');

@@ -39,8 +39,8 @@ export function FilterByTypeDesktop({setFilters, filters} : FilterByTypeDesktopP
         onChange={(e) => setFilterType(e.target.value.toLowerCase())}
         className={cn(
           // --- Base styles for appearance ---
-          "appearance-none w-full h-10 justify-between rounded-full pl-9 pr-8", // Rounded full
-          "font-sans text-sm transition-colors cursor-pointer", // Added cursor-pointer
+          "appearance-none w-full h-10 justify-between rounded-full pl-9 pr-8",
+          "font-sans text-sm transition-colors cursor-pointer", 
           // --- Light Mode ---
           "border border-neutral-300 bg-white text-neutral-600 font-medium hover:bg-gray-50",
            // --- Dark Mode ---

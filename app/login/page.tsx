@@ -161,7 +161,6 @@ function LoginContent() {
               />
             </label>
 
-            {/* Password Field */}
             <label htmlFor="user-password" className="block relative mt-4">
               <span className="hidden">Password</span>
               <FiLock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500 dark:text-neutral-400" />

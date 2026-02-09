@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/authContext";
 import { useRouter } from "next/navigation";
 import { FiSend, FiMessageSquare, FiCheckCircle, FiAlertCircle, FiArrowLeft } from "react-icons/fi";
-import { cn } from "@/lib/utils"; // Assuming a utility for class merging
 
 export default function FeedbackPage() {
   const { user, loading: authLoading } = useAuth();
@@ -23,7 +22,6 @@ export default function FeedbackPage() {
     }
   }, [user, authLoading, router]);
 
-  // Pre-fill email if user is logged in
   useEffect(() => {
     if (user?.email) {
       setEmail(user.email);

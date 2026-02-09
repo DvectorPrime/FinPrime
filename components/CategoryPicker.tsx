@@ -42,7 +42,7 @@ export const defaultFormCategory: Category = {
     id: "temp_others",
     name: "Others",
     type: "expense",
-    icon: "LuLightbulb" // Default icon until real one loads
+    icon: "LuLightbulb"
 };
 
 interface CategoryPickerProps{
@@ -144,7 +144,6 @@ export function CategoryPicker({preferredBg = "default", value, setFilters, setF
               "dark:bg-slate-700 dark:border-slate-600 dark:text-neutral-100 dark:hover:bg-slate-600 dark:focus:ring-sky-500",
               "lg:rounded-full lg:bg-white lg:text-neutral-600 lg:hover:bg-gray-50",
               "lg:dark:bg-slate-800 lg:dark:border-slate-700 lg:dark:text-neutral-300 lg:dark:hover:bg-slate-700",
-              // Added error styling when categories fail to load - shows red border and text
               error && "border-red-300 text-red-600 dark:border-red-600 dark:text-red-400"
             )}
           >

@@ -27,7 +27,6 @@ export const SearchInput = ({
 
   // 2. Debounce Effect: Updates the actual filter after 1.5s delay
   useEffect(() => {
-    // Set a timer to update the global filters
     const handler = setTimeout(() => {
       if (setFilters) {
         setFilters((prev) => ({
@@ -37,7 +36,6 @@ export const SearchInput = ({
       }
     }, 1500); // 1.5 second delay
 
-    // Cleanup: If user types again before 1.5s, cancel the previous timer
     return () => {
       clearTimeout(handler);
     };
